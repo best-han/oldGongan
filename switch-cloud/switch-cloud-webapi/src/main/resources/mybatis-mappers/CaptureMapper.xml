@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+                "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.windaka.suizhi.webapi.dao.CaptureDao">
+
+    <!--新增摄像机设备-->
+    <insert id="saveCapture" parameterType="com.windaka.suizhi.webapi.model.Capture">
+        INSERT INTO zs_capture_info(capture_id,xq_code,device_addr,device_name,device_location,cap_dev_code,cap_dev_channel,status,cre_by,cre_time,upd_by,upd_time,dchnl_rtsp)
+        values (#{captureId}, #{xqCode}, #{deviceAddr}, #{deviceName}, #{deviceLocation}, #{capDevCode},#{capDevChannel},#{status},#{creatBy}
+                ,#{creatTime},#{updateBy},#{updateTime},#{dchnlRtsp})
+
+    </insert>
+
+    <!--修改摄像机设备-->
+    <update id="updateCapture" parameterType="com.windaka.suizhi.webapi.model.Capture">
+        update zs_capture_info  SET xq_code=#{xqCode},device_addr=#{deviceAddr},device_name=#{deviceName},device_location=#{deviceLocation}
+        ,cap_dev_code=#{capDevCode},cap_dev_channel=#{capDevChannel},status=#{status},upd_by=#{updateBy},upd_time=#{updateTime},dchnl_rtsp=#{dchnlRtsp}
+        where capture_id=#{captureId}
+    </update>
+
+    <select id="queryCaptureDeviceList" parameterType="Map" resultType="Map">
+        select c.manage_id as captureId,c.device_addr_name as deviceAddr,c.device_name as deviceName,c.device_location as deviceLocation,c.dchnl_device_code as capDevCode,
+        c.dchnl_device_channel as capDevChannel,c.status,c.dchnl_rtsp as dchnlRtsp,c.gb_code gbCode,c.gb_codeseq gbCodeseq
+        from face_capture_device c
+        WHERE c.status='0'
+        <if test="xqCode != null and xqCode != ''">
+            and c.xq_code in (${xqCode})
+        </if>
+        <if test="deviceType != null and deviceType != ''">
+            and c.device_type = #{deviceType}
+        </if>
+        order by c.xq_code,c.id
+    </select>
+
+</mapper>

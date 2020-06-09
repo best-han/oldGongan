@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.windaka.suizhi.user.dao.SubdistrictDao">
+
+    <select id="querySubdistrictByUserId" parameterType="String" resultType="Map">
+        select s.id as subdistrictId,s.name as subdistrictName
+                from ht_subdistrict_info as s
+                inner join ht_user_subdistrict as us on us.subdistrict_id=s.id
+        where us.user_id = #{userId} and us.status='0'
+    </select>
+
+    <insert id="saveUserSubdistrict">
+        INSERT INTO ht_user_subdistrict(user_id, subdistrict_id) VALUES
+        <foreach collection="subdistrictIds" index="index" item="subdistrictId" open="" separator="," close="">
+            (#{userId}, #{subdistrictId})
+        </foreach>
+    </insert>
+    <delete id="deleteUserSubdistrict" parameterType="string">
+        delete from ht_user_subdistrict where user_id=#{userId}
+    </delete>
+
+</mapper>

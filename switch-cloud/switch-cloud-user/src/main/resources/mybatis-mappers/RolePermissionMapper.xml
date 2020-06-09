@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.windaka.suizhi.user.dao.RolePermissionDao">
+
+	<insert id="saveRolePermissions">
+		INSERT INTO ht_role_menu_permission(role_id, menu_id, permission_id)
+		SELECT #{roleId}, menu_id, permission_id FROM ht_permission t
+		WHERE t.status = 1 AND t.del_flag = 1
+		AND t.permission_id IN
+		<foreach collection="permissionIds" item="permissionId" index="index" open="(" separator="," close=")">
+			#{permissionId}
+		</foreach>
+	</insert>
+
+	<delete id="deleteRolePermission">
+		DELETE FROM ht_role_menu_permission
+		<where>
+			<if test="menuId != null">
+				AND menu_id = #{menuId}
+			</if>
+			<if test="btnId != null">
+				AND permission_id = #{permissionId}
+			</if>
+			AND roleId = #{roleId}
+		</where>
+	</delete>
+
+	<select id="queryPermissionsByRoleIds" resultType="com.windaka.suizhi.api.oss.sys.HtPermission">
+		SELECT a.* FROM ht_permission a
+		WHERE a.status = 1 AND a.del_flag = 1
+		AND EXISTS
+		(SELECT 1 FROM ht_role_menu_permission b
+		WHERE a.permission_id = b.permission_id AND b.role_id IN
+		<foreach collection="roleIds" item="roleId" open="(" separator="," close=")">#{roleId}</foreach>
+		)
+	</select>
+
+	<select id="queryPermissionsByRoles" resultType="java.util.Map">
+
+		SELECT a.permission_id permissionId,a.permission_name permissionName, a.menu_id menuId
+		FROM ht_permission a RIGHT JOIN
+		(SELECT DISTINCT permission_id FROM ht_role_menu_permission WHERE role_id IN
+		<foreach collection="roles" index="index" item="role" open="(" separator="," close=")">
+			#{role.roleId}
+		</foreach>
+		) b
+		ON a.permission_id = b.permission_id
+		WHERE a.status = 1 AND a.del_flag = 1
+		ORDER BY a.order_num
+	</select>
+</mapper>

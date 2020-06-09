@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.windaka.suizhi.mpi.dao.CarGroupDao">
+    <!-- 根据manageId获取主键 -->
+    <select id="getGroupByCarNum" parameterType="String" resultType="java.util.Map">
+       SELECT
+       g.type_name typeName,
+       c.alarm_level alarmLevel,
+       c.xq_code xqCode
+        FROM
+        car_group_car c
+        LEFT JOIN car_group g ON g.id = c.group_code
+         where c.car_num  = #{carNum}
+    </select>
+</mapper>

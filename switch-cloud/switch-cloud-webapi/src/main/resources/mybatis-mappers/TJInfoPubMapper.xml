@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.windaka.suizhi.webapi.dao.TJInfoPubDao">
+
+    <!--新增统计－缴费信息-->
+    <insert id="save" parameterType="com.windaka.suizhi.webapi.model.TJInfoPub">
+        INSERT INTO tj_info_pub(xq_code,`month`,info_count,oper_date,
+                           cre_by,cre_time,upd_by,upd_time)
+        values (#{xq_code}, #{month}, #{info_count}, #{oper_date}
+                   ,#{cre_by},#{cre_time},#{upd_by},#{upd_time})
+
+    </insert>
+
+    <!--根据小区Code、年、月删除记录-->
+    <delete id="delete">
+        delete from tj_info_pub where xq_code = #{xqCode} and YEAR(oper_date) = #{year} and `month` = #{month}
+    </delete>
+
+    <!--根据小区Code、物业Code，查询统计车辆信息 p.xq_code as xqCode,wy.wy_code as wyCode-->
+    <select id="query" parameterType="Map" resultType="Map">
+        select distinct case WHEN MONTH(NOW()) &lt;= 6 then 'up' else 'down' end as monthOfYear,p.month,sum(p.info_count) as infoCount
+        from tj_info_pub as p
+        inner join ht_xq_wy as xw on p.xq_code=xw.xq_code and xw.status=0
+        inner join ht_wy_info as wy on xw.wy_code=wy.wy_code
+        inner join ht_xq_info xq on p.xq_code=xq.code
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{params.areaId},'%')) area on area.area_id=xq.sso_regionalcode
+        where 1=1 and YEAR(p.oper_date)=YEAR(NOW())
+        <if test="params.xqCode != null and params.xqCode != ''">
+            and p.xq_code in (${params.xqCode})
+        </if>
+        <if test="params.wyCode != null and params.wyCode != ''">
+            and wy.wy_code in (${params.wyCode})
+        </if>
+        group by MONTH(NOW()),p.month
+    </select>
+</mapper>

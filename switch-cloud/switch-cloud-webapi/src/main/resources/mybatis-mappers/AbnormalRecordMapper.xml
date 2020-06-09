@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+                "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.windaka.suizhi.webapi.dao.AbnormalRecordDao">
+
+    <update id="updateAbnormalRecord" parameterType="java.util.Map">
+        update record_abnormal set
+        <if test="captureTime != null and captureTime != ''">
+            capture_time=#{captureTime},
+        </if>
+        <if test="captureDeviceId != null and captureDeviceId != ''">
+            capture_device_id=#{captureDeviceId},
+        </if>
+        <if test="captureImg != null and captureImg != ''">
+            capture_img=#{captureImg},
+        </if>
+        <if test="event != null and event != ''">
+            event=#{event},
+        </if>
+        <if test="eventName != null and eventName != ''">
+            event_name=#{eventName},
+        </if>
+        <if test="beginTime != null and beginTime != ''">
+            begin_time=#{beginTime},
+        </if>
+        <if test="endTime != null and endTime != ''">
+            end_time=#{endTime},
+        </if>
+        <if test="alarmLevel != null and alarmLevel != ''">
+            alarm_level=#{alarmLevel},
+        </if>
+        <if test="alarmLevelName != null and alarmLevelName != ''">
+            alarm_level_name=#{alarmLevelName},
+        </if>
+        <if test="handler != null and handler != ''">
+            handler=#{handler},
+        </if>
+        <if test="handleTime != null and handleTime != ''">
+            handle_time=#{handleTime},
+        </if>
+        <if test="handleConn != null and handleConn != ''">
+            handle_conn=#{handleConn},
+        </if>
+        <if test="handleStatus != null and handleStatus != ''">
+            handle_status=#{handleStatus},
+        </if>
+        <if test="handleImage1 != null and handleImage1 != ''">
+            handle_image1=#{handleImage1},
+        </if>
+        <if test="handleImage2 != null and handleImage2 != ''">
+            handle_image2=#{handleImage2},
+        </if>
+        xq_code=#{xqCode}
+        where manage_id=#{manageId} and xq_code=#{xqCode}
+    </update>
+
+    <sql id="where" >
+      <!--  <if test="captureTime != null and captureTime != ''">
+            and capture_time=#{captureTime}
+        </if>-->
+        <if test="captureDeviceId != null and captureDeviceId != ''">
+            and capture_device_id=#{captureDeviceId}
+        </if>
+        <if test="captureImg != null and captureImg != ''">
+            and capture_img=#{captureImg}
+        </if>
+        <if test="event != null and event != ''">
+            and event=#{event}
+        </if>
+        <if test="beginTime !=null and beginTime !='' and endTime !=null and endTime!=''">
+            and a.capture_time between STR_TO_DATE(#{beginTime},'%Y-%m-%d %H:%i:%s') and STR_TO_DATE(#{endTime},'%Y-%m-%d %H:%i:%s')
+        </if>
+        <if test="alarmLevel != null and alarmLevel != ''">
+            and alarm_level=#{alarmLevel}
+        </if>
+        <if test="handler != null and handler != ''">
+            and handler=#{handler}
+        </if>
+        <if test="handleTime != null and handleTime != ''">
+            and handle_time=#{handleTime}
+        </if>
+        <if test="handleConn != null and handleConn != ''">
+            and handle_conn=#{handleConn}
+        </if>
+        <if test="handleStatus != null and handleStatus != ''">
+            and handle_status=#{handleStatus}
+        </if>
+        <if test="handleImage1 != null and handleImage1 != ''">
+            and handle_image1=#{handleImage1}
+        </if>
+        <if test="handleImage2 != null and handleImage2 != ''">
+            and handle_image2=#{handleImage2}
+        </if>
+        <if test="manageId != null and manageId != ''">
+            and  a.manage_id=#{manageId}
+        </if>
+        <if test="xqCode != null and xqCode != ''">
+            and a.xq_code in (${xqCode})
+        </if>
+    </sql>
+
+    <select id="totalRows" parameterType="java.util.Map" resultType="int">
+        select count(1) total
+        from record_abnormal a
+        where 1=1
+        <include refid="where" />
+    </select>
+
+    <select id="queryAbnormalRecordPageList" parameterType="java.util.Map" resultType="java.util.Map">
+        select a.manage_id,a.xq_code xqCode,xq.name xqName,capture_device_id captureDeviceId,capture_img captureImg,event,
+        event_name eventName,date_format(a.capture_time,'%Y-%m-%d %H:%i:%s') captureTime,c.device_name deviceName,
+        begin_time beginTime,end_time endTime,alarm_level alarmLevel,alarm_level_name alarmLevelName,
+        handler,handle_time handleTime,handle_conn handleConn,
+        handle_status handleStatus,handle_image1 handleImage1,handle_image2 handleImage2
+        from record_abnormal a
+        join face_capture_device c on c.manage_id=a.capture_device_id
+        inner join ht_xq_info xq on a.xq_code=xq.code
+        where 1=1
+        <include refid="where" />
+        order by a.capture_time desc
+        limit #{start}, #{limit}
+    </select>
+    <select id="queryAbnormalRecordList" parameterType="java.util.Map" resultType="java.util.Map">
+        select a.manage_id,a.xq_code xqCode,capture_device_id captureDeviceId,capture_img captureImg,event,
+        event_name eventName,date_format(a.capture_time,'%Y-%m-%d %H:%i:%s') captureTime,
+        begin_time beginTime,end_time endTime,alarm_level alarmLevel,alarm_level_name alarmLevelName,
+        handler,handle_time handleTime,handle_conn handleConn,
+        handle_status handleStatus,handle_image1 handleImage1,handle_image2 handleImage2
+        from record_abnormal a
+        <include refid="where" />
+    </select>
+
+    <!-- 获取事件报警数量 -->
+    <select id="queryTotalNum" parameterType="map" resultType="int">
+        SELECT
+        count(*)
+        FROM   record_abnormal a
+        left join ht_xq_info x on x.code = a.xq_code
+        <where>
+        1=1
+            <if test="beginTime!=null and beginTime!=''">
+                AND    DATE_FORMAT(a.capture_time,"%Y-%m-%d %H:%i:%s")  <![CDATA[>]]> #{beginTime}
+            </if>
+            <if test="endTime!=null and endTime!=''">
+                AND    DATE_FORMAT(a.capture_time,"%Y-%m-%d %H:%i:%s")  <![CDATA[<]]> #{endTime}
+            </if>
+            <if test="alarmLevel != null and alarmLevel != ''">
+                AND  a.alarm_level = #{alarmLevel}
+            </if>
+            <if test="event != null and event != ''">
+                AND  a.event = #{event}
+            </if>
+            <if test="like != null and like != ''">
+                and  x.name like  concat('%',#{like},'%')
+            </if>
+        </where>
+    </select>
+    <!--获取事件报警明细-->
+    <select id="queryAbnormalAlarmList" parameterType="map" resultType="map">
+        SELECT
+        a.id id,
+        a.handle_status handleStatus,
+        (case when a.base64_img is null or a.base64_img ='' then null else CONCAT(#{prefixUrl},a.base64_img ) end ) captureImage,
+        DATE_FORMAT(a.capture_time,'%Y/%m/%d')  captureTime,
+        x.name xqName,
+        a.alarm_level alarmLevel,
+        a.event_name eventName
+        FROM   record_abnormal a
+        left join ht_xq_info x on x.code = a.xq_code
+        <where>
+        a.event != 101
+            <if test="beginTime!=null and beginTime!=''">
+                AND    DATE_FORMAT(a.capture_time,"%Y-%m-%d %H:%i:%s")  <![CDATA[>]]> #{beginTime}
+            </if>
+            <if test="endTime!=null and endTime!=''">
+                AND    DATE_FORMAT(a.capture_time,"%Y-%m-%d %H:%i:%s")  <![CDATA[<]]> #{endTime}
+            </if>
+            <if test="alarmLevel != null and alarmLevel != ''">
+                AND  a.alarm_level = #{alarmLevel}
+            </if>
+            <if test="event != null and event != ''">
+                AND  a.event = #{event}
+            </if>
+            <if test="like != null and like != ''">
+                and  x.name like  concat('%',#{like},'%')
+            </if>
+        </where>
+        group by a.capture_time desc
+        limit ${start},${end}
+    </select>
+    <!-- 根据主键更新事件报警 -->
+    <update id="updateAlarmById"  parameterType="map" >
+        update record_abnormal
+        <set >
+            <if test="handleStatus != null" >
+                handle_status = #{handleStatus},
+            </if>
+            <if test="handler != null" >
+                handler = #{handler},
+            </if>
+            <if test="content != null" >
+                handle_conn = #{content},
+            </if>
+            <if test="handleTime != null" >
+                handle_time = #{handleTime},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+    <!-- 根据条件获取异常报警信息 -->
+    <select id="queryAbnormalByCondition" parameterType="Map" resultType="java.util.Map">
+        select
+        DATE_FORMAT(c.capture_time,'%Y/%m/%d') captureTimeStr,
+        (case when  c.base64_img is null or  c.base64_img ='' then null else CONCAT(#{prefixUrl}, c.base64_img ) end ) img,
+        c.event_name groupName,
+        CONCAT(xq.name, c.location) location
+        from record_abnormal c inner join ht_xq_info xq on xq.code=c.xq_code
+        where c.id=#{id}
+    </select>
+</mapper>

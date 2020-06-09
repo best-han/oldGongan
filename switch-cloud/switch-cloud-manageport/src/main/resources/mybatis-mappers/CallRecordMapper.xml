@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.windaka.suizhi.manageport.dao.CallRecordDao">
+
+    <!--新增开门记录-->
+    <insert id="saveCallRecord" parameterType="map">
+        INSERT INTO zs_call_record(xq_code,device_name,device_code,room_num,status,call_time,talk_time,end_state)
+        values (#{xqCode},#{callRecord.deviceName},#{callRecord.deviceCode},#{callRecord.roomNum},#{callRecord.status},#{callRecord.callTime}
+               ,#{callRecord.talkTime},#{callRecord.endState})
+    </insert>
+
+    <select id="queryTotalCallRecord" parameterType="Map" resultType="int">
+        select count(1) total
+        from zs_call_record a
+        inner join ht_xq_info xq on a.xq_code=xq.code
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on area.area_id=xq.sso_regionalcode
+        where 1=1
+        <if test="beginTime !=null and beginTime !='' and endTime !=null and endTime!=''">
+            and a.call_time between STR_TO_DATE('${beginTime}','%Y-%m-%d') and STR_TO_DATE('${endTime}','%Y-%m-%d')
+        </if>
+        <if test="xqCode != null and xqCode != ''">
+            and a.xq_code in (${xqCode})
+        </if>
+    </select>
+    <select id="queryCallRecordList" parameterType="Map" resultType="Map">
+        select a.xq_code xqCode,xq.name xqName, a.device_name deviceName,a.device_code deviceCode
+        ,a.room_num roomNum,a.status status,a.end_state endState,a.talk_time talkTime
+        ,date_format(a.call_time,'%Y-%m-%d %H:%i:%s') callTime
+        from zs_call_record a
+        inner join ht_xq_info xq on a.xq_code=xq.code
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on area.area_id=xq.sso_regionalcode
+        where 1=1
+        <if test="beginTime !=null and beginTime !='' and endTime !=null and endTime!=''">
+            and a.call_time between STR_TO_DATE('${beginTime}','%Y-%m-%d') and STR_TO_DATE('${endTime}','%Y-%m-%d')
+        </if>
+        <if test="xqCode != null and xqCode != ''">
+            and a.xq_code in (${xqCode})
+        </if>
+        order by a.call_time desc
+        limit #{start}, #{limit}
+    </select>
+
+</mapper>

@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.windaka.suizhi.manageport.dao.XqDao">
+
+    <!--新增小区-->
+    <insert id="saveXq" parameterType="map">
+        INSERT INTO ht_xq_info(code,name,addr,memo,zdmj,jzmj,ldmj,dlmj,lysl,fzr,gsmc,frdb,lxr,lxdh,lxdz,ssgs,znj,cqts,sfatsf,xqlxdh
+            ,sso_regionalcode,sso_code,status,create_by,create_date,update_by,update_date,remarks,dys,hs,parking,location,location_area,addr_code)
+        values (#{code}, #{name}, #{addr}, #{memo}, #{zdmj}, #{jzmj},#{ldmj},#{dlmj},#{lysl},#{fzr},#{gsmc},#{frdb},#{lxr},#{lxdh},#{lxdz},#{ssgs}
+                   ,#{znj},#{cqts},#{sfatsf},#{xqlxdh},#{ssoRegionalcode},#{ssoCode},'0',#{create_by},#{update_date},#{update_by},#{create_date},#{remarks}
+                   ,#{dys},#{hs},#{parking},#{location},#{locationArea},#{addrCode})
+
+    </insert>
+    <!--修改小区信息-->
+    <update id="updateXq" parameterType="com.windaka.suizhi.manageport.model.Xq">
+        update ht_xq_info  SET name=#{name},addr=#{addr},memo=#{memo},zdmj=#{zdmj},jzmj=#{jzmj},ldmj=#{ldmj},dlmj=#{dlmj},
+                lysl=#{lysl},fzr=#{fzr},gsmc=#{gsmc},frdb=#{frdb},lxr=#{lxr},lxdh=#{lxdh},lxdz=#{lxdz},ssgs=#{ssgs},znj=#{znj},cqts=#{cqts},sfatsf=#{sfatsf},
+                xqlxdh=#{xqlxdh},sso_regionalcode=#{ssoRegionalcode},sso_code=#{ssoCode},remarks=#{remarks},
+                               update_date=#{update_date},update_by=#{update_by},dys=#{dys},hs=#{hs},
+                parking=#{parking},location=#{location},location_area=#{locationArea},addr_code=#{addrCode},extend_s5=#{extend_s5},extend_s6=#{extend_s6},extend_s7=#{extend_s7},extend_s8=#{extend_s8}
+        where code=#{code} and status='0'
+    </update>
+
+    <!--查询单个小区-->
+    <select id="queryByxqCode" parameterType="String" resultType="Map">
+        select t.code as xqCode,t.name as xqName,t.addr,t.memo,t.zdmj,t.jzmj,t.ldmj,t.dlmj,t.lysl,t.fzr,t.gsmc,t.frdb,t.lxr,t.lxdh,t.lxdz,t.ssgs,t.znj,t.cqts,t.sfatsf,t.xqlxdh
+                ,t.sso_regionalcode,t.sso_code,t.status,t.create_by,t.create_date,t.update_by,t.update_date,t.remarks,wyi.wy_name as wyName,t.location
+                from ht_xq_info as t
+                inner join ht_xq_wy as wy on t.code=wy.xq_code
+                inner join ht_wy_info as wyi on wy.wy_code=wyi.wy_code
+        where t.code = #{xqCode}
+    </select>
+
+    <sql id="where">
+        <where>
+            <if test="params.xqCode != null and params.xqCode != ''">
+                and a.code in (${params.xqCode})
+            </if>
+            <!--<if test="params.name != null and params.name != ''">-->
+                <!--and a.name = #{params.name}-->
+            <!--</if>-->
+            <if test="params.name != null and params.name != ''">
+                and a.name like concat('%',#{params.name},'%')
+            </if>
+            <if test="params.addr != null and params.addr != ''">
+                and a.addr = #{params.addr}
+            </if>
+            <if test="params.memo != null and params.memo != ''">
+                and a.memo = #{params.memo}
+            </if>
+            <if test="params.zdmj != null and params.zdmj != ''">
+                and a.zdmj = #{params.zdmj}
+            </if>
+            <if test="params.memo != null and params.memo != ''">
+                and a.memo = #{params.memo}
+            </if>
+            <if test="params.jzmj != null and params.jzmj != ''">
+                and a.jzmj = #{params.jzmj}
+            </if>
+            <if test="params.ldmj != null and params.ldmj != ''">
+                and a.ldmj = #{params.ldmj}
+            </if>
+            <if test="params.dlmj != null and params.dlmj != ''">
+                and a.dlmj = #{params.dlmj}
+            </if>
+            <if test="params.lysl != null and params.lysl != ''">
+                and a.lysl = #{params.lysl}
+            </if>
+            <if test="params.fzr != null and params.fzr != ''">
+                and a.fzr = #{params.fzr}
+            </if>
+            <if test="params.gsmc != null and params.gsmc != ''">
+                and a.gsmc = #{params.gsmc}
+            </if>
+            <if test="params.frdb != null and params.frdb != ''">
+                and a.frdb = #{params.frdb}
+            </if>
+            <if test="params.lxr != null and params.lxr != ''">
+                and a.lxr = #{params.lxr}
+            </if>
+            <if test="params.lxdh != null and params.lxdh != ''">
+                and a.lxdh = #{params.lxdh}
+            </if>
+            <if test="params.lxdz != null and params.lxdz != ''">
+                and a.lxdz = #{params.lxdz}
+            </if>
+            <if test="params.ssgs != null and params.ssgs != ''">
+                and a.ssgs = #{params.ssgs}
+            </if>
+            <if test="params.znj != null and params.znj != ''">
+                and a.znj = #{params.znj}
+            </if>
+            <if test="params.cqts != null and params.cqts != ''">
+                and a.cqts = #{params.cqts}
+            </if>
+            <if test="params.sfatsf != null and params.sfatsf != ''">
+                and a.sfatsf = #{params.sfatsf}
+            </if>
+            <if test="params.xqLxdh != null and params.xqLxdh != ''">
+                and a.xqLxdh = #{params.xqLxdh}
+            </if>
+            <if test="params.ssoRegionalcode != null and params.ssoRegionalcode != ''">
+                and a.sso_regionalcode = #{params.ssoRegionalcode}
+            </if>
+            <if test="params.ssoCode != null and params.ssoCode != ''">
+                and a.sso_code = #{params.ssoCode}
+            </if>
+            <if test="params.status != null and params.status != ''">
+                and a.status = #{params.status}
+            </if>
+            <if test="params.remarks != null and params.remarks != ''">
+                and a.remarks = #{params.remarks}
+            </if>
+            <if test="params.createDate != null and params.createDate != ''">
+                and a.create_date = #{params.createDate}
+            </if>
+            <if test="params.createBy != null and params.createBy != ''">
+                and a.create_by = #{params.createBy}
+            </if>
+            <if test="params.updateDate != null and params.updateDate != ''">
+                and a.update_date = #{params.updateDate}
+            </if>
+            <if test="params.updateBy != null and params.updateBy != ''">
+                and a.update_by = #{params.updateBy}
+            </if>
+            <if test="params.updateBy != null and params.updateBy != ''">
+                and a.location = #{params.location}
+            </if>
+        </where>
+    </sql>
+
+    <select id="totalRows" resultType="int">
+        select count(*) totalRows from ht_xq_info a
+        inner join ht_xq_wy as wy on a.code=wy.xq_code
+        inner join ht_wy_info as wyi on wy.wy_code=wyi.wy_code
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{params.areaId},'%')) area on area.area_id=a.sso_regionalcode
+        <include refid="where" />
+    </select>
+
+    <select id="queryXqList" resultType="java.util.Map">
+        select a.code,a.name xqName,a.addr,a.memo,a.zdmj,a.jzmj,a.ldmj,a.dlmj,a.lysl,a.fzr,a.gsmc,a.frdb,a.lxr,a.lxdh,a.ssgs,a.znj,a.cqts,a.sfatsf,a.xqlxdh
+        ,a.sso_regionalcode,a.sso_code,a.status,a.remarks, a.create_date,a.create_by,a.update_date,a.update_by,wyi.wy_name as wyName,hpi.url url
+        from ht_xq_info a
+        left join ht_project_info hpi on hpi.xq_code=a.code
+        inner join ht_xq_wy as wy on a.code=wy.xq_code
+        inner join ht_wy_info as wyi on wy.wy_code=wyi.wy_code
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{params.areaId},'%')) area on area.area_id=a.sso_regionalcode
+        <include refid="where" />
+        order by a.create_date
+        limit #{params.start}, #{params.limit}
+    </select>
+    <select id="queryXqListForApp" resultType="java.util.Map">
+        select a.code,a.name xqName,a.addr,a.memo,a.zdmj,a.jzmj,a.ldmj,a.dlmj,a.lysl,a.fzr,a.gsmc,a.frdb,a.lxr,a.lxdh,a.ssgs,a.znj,a.cqts,a.sfatsf,a.xqlxdh
+        ,a.sso_regionalcode,a.sso_code,a.status,a.remarks, a.create_date,a.create_by,a.update_date,a.update_by,wyi.wy_name as wyName,hpi.url url
+        from ht_xq_info a
+        inner join ht_project_info hpi on hpi.xq_code=a.code
+        inner join ht_xq_wy as wy on a.code=wy.xq_code
+        inner join ht_wy_info as wyi on wy.wy_code=wyi.wy_code
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{params.areaId},'%')) area on area.area_id=a.sso_regionalcode
+        <include refid="where" />
+        order by a.create_date
+    </select>
+
+    <select id="queryListXqByAreaId" parameterType="java.util.Map" resultType="java.util.Map">
+        select a.code xqCode,a.name xqName,a.addr,a.memo,a.zdmj,a.jzmj,a.ldmj,a.dlmj,a.lysl,a.fzr,a.gsmc,a.frdb,a.lxr,a.lxdh,a.ssgs,a.znj,a.cqts,a.sfatsf,a.xqlxdh
+        ,a.sso_regionalcode,a.sso_code,a.status,a.remarks, a.create_date,a.create_by,a.update_date,a.update_by,wyi.wy_name as wyName
+        from ht_xq_info a
+        inner join ht_xq_wy as wy on a.code=wy.xq_code
+        inner join ht_wy_info as wyi on wy.wy_code=wyi.wy_code
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on area.area_id=a.sso_regionalcode
+        order by a.create_date
+    </select>
+
+    <!--根据小区Code、物业Code，查询统计信息 p.xq_code as xqCode,wy.wy_code as wyCode-->
+    <select id="queryCountInfo" parameterType="Map" resultType="Map">
+        select COUNT(1) as amountSum,SUM(IFNULL(xq.zdmj,0)) as areaSum,SUM(IFNULL(xq.lysl,0)) as lyslSum,SUM(IFNULL(xq.dys,0)) as dysSum,SUM(IFNULL(xq.hs,0)) as hsSum
+        ,SUM(IFNULL(xq.parking,0)) as parkingNum
+        from ht_xq_info xq
+        inner join ht_xq_wy as xw on xq.code=xw.xq_code and xw.status=0
+        inner join ht_wy_info as wy on xw.wy_code=wy.wy_code
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{params.areaId},'%')) area on area.area_id=xq.sso_regionalcode
+        where 1=1
+        <if test="params.xqCode != null and params.xqCode != ''">
+            and xq.code in (${params.xqCode})
+        </if>
+        <if test="params.wyCode != null and params.wyCode != ''">
+            and wy.wy_code in (${params.wyCode})
+        </if>
+    </select>
+</mapper>

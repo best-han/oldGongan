@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+                "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.windaka.suizhi.manageport.dao.CaptureDao">
+
+    <!--新增摄像机设备-->
+    <insert id="saveCapture" parameterType="com.windaka.suizhi.manageport.model.Capture">
+        INSERT INTO zs_capture_info(capture_id,xq_code,device_addr,device_name,device_location,cap_dev_code,cap_dev_channel,status,cre_by,cre_time,upd_by,upd_time,dchnl_rtsp)
+        values (#{captureId}, #{xqCode}, #{deviceAddr}, #{deviceName}, #{deviceLocation}, #{capDevCode},#{capDevChannel},#{status},#{creatBy}
+                ,#{creatTime},#{updateBy},#{updateTime},#{dchnlRtsp})
+
+    </insert>
+
+    <!--修改摄像机设备-->
+    <update id="updateCapture" parameterType="com.windaka.suizhi.manageport.model.Capture">
+        update zs_capture_info  SET xq_code=#{xqCode},device_addr=#{deviceAddr},device_name=#{deviceName},device_location=#{deviceLocation}
+        ,cap_dev_code=#{capDevCode},cap_dev_channel=#{capDevChannel},status=#{status},upd_by=#{updateBy},upd_time=#{updateTime},dchnl_rtsp=#{dchnlRtsp}
+        ,device_type_sub=#{deviceTypeSub}
+        where capture_id=#{captureId}
+    </update>
+
+    <!--新增摄像机设备-->
+    <insert id="saveCaptureDevice" parameterType="map">
+        INSERT INTO face_capture_device(xq_code,manage_id,
+          `dchnl_code` ,
+          `device_name` ,
+          `dchnl_pwd` ,
+          `dchnl_rtsp` ,
+          `elevator_control_ip` ,
+          `entrance_guard_ip` ,
+          `entrance_guard_sn` ,
+          `device_type` ,
+          `access` ,
+          `community_code`,
+          `community_building_code` ,
+          `community_cell_code` ,
+          `register_state` ,
+          `device_location` ,
+          `device_addr_name` ,
+          `server_dchnl_id` ,
+          `status` ,
+          `create_by` ,
+          `create_date` ,
+          `update_by` ,
+          `update_date`,
+          `remarks` ,
+          `dchnl_device_code`,
+          `dchnl_device_channel` ,
+          `channel_state_car` ,
+          `device_code_car` ,
+          `monitoring_location`,
+          `device_status` ,
+          `nvr_inner_url`,
+          `nvr_out_url` ,
+          `service_id` ,
+          `point1` ,
+          `point2` ,
+          `point3` ,
+          `point4` ,
+          `device_name_py` ,
+          `device_type_sub`,
+          `gb_code` ,
+          `gb_codeseq`
+          )
+        values ( #{xqCode},#{manageId}, #{dchnlCode}, #{deviceName}, #{dchnlPwd}, #{dchnlRtsp},#{elevatorControlIp},#{entranceGuardIp}
+                ,#{entranceGuardSn},#{deviceType},#{access},#{communityCode},#{communityBuildingCode},#{communityCellCode},#{registerState},#{deviceLocation},#{deviceAddrName}
+                ,#{serverDchnlId},#{status},#{createBy},#{createDate},#{updateBy},#{updateDate},#{remarks},#{dchnlDeviceCode},#{dchnlDeviceChannel},#{channelStateCar}
+                ,#{deviceCodeCar},#{monitoringLocation},#{deviceStatus},#{nvrInnerUrl},#{nvrOutUrl},#{serviceId}
+                ,#{point1},#{point2},#{point3},#{point4},#{deviceNamePy},#{deviceTypeSub},#{gbCode},#{gbCodeseq}
+                )
+    </insert>
+
+    <!--修改摄像机设备-->
+    <update id="updateCaptureDevice" parameterType="map">
+        update face_capture_device  SET dchnl_code=#{dchnlCode},device_name=#{deviceName}
+        ,dchnl_pwd=#{dchnlPwd},dchnl_rtsp=#{dchnlRtsp},elevator_control_ip=#{elevatorControlIp},entrance_guard_ip=#{entranceGuardIp},entrance_guard_sn=#{entranceGuardSn},device_type=#{deviceType},access=#{access}
+         ,community_code=#{communityCode},community_building_code=#{communityBuildingCode},community_cell_code=#{communityCellCode},register_state=#{registerState},device_location=#{deviceLocation},device_addr_name=#{deviceAddrName}
+          ,server_dchnl_id=#{serverDchnlId},status=#{status},create_by=#{createBy},create_date=#{createDate},update_by=#{updateBy},update_date=#{updateDate}
+           ,remarks=#{remarks},dchnl_device_code=#{dchnlDeviceCode},dchnl_device_channel=#{dchnlDeviceChannel},channel_state_car=#{channelStateCar},device_code_car=#{deviceCodeCar},monitoring_location=#{monitoringLocation}
+            ,device_status=#{deviceStatus},nvr_inner_url=#{nvrInnerUrl},nvr_out_url=#{nvrOutUrl},service_id=#{serviceId},point1=#{point1},point2=#{point2}
+            ,point3=#{point3},point4=#{point4},device_name_py=#{deviceNamePy},device_type_sub=#{deviceTypeSub},gb_code=#{gbCode},gb_codeseq=#{gbCodeseq}
+        where xq_code=#{xqCode} and manage_id=#{manageId}
+    </update>
+
+</mapper>

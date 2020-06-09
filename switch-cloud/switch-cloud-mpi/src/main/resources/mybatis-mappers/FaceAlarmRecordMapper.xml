@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.windaka.suizhi.mpi.dao.FaceAlarmRecordDao">
+
+    <!--人脸/车辆报警记录（列表查询)-->
+    <sql id="where">
+        <where>
+            <if test="params.personOrCarCode != null and params.personOrCarCode != ''">
+                and a.person_car_code = #{params.personOrCarCode}
+            </if>
+            <if test="params.faceTypeCode != null and params.faceTypeCode != ''">
+                and a.faceTypeCode = #{params.faceTypeCode}
+            </if>
+            <if test="params.clStatus != null and params.clStatus != ''">
+                and a.clStatus = #{params.clStatus}
+            </if>
+            <if test="params.beginTime !=null and params.beginTime !='' and params.endTime !=null and params.endTime!=''">
+                and a.alarmTime  between  STR_TO_DATE(#{params.beginTime},'%Y-%m-%d %H:%i:%s')and STR_TO_DATE(#{params.endTime},'%Y-%m-%d %H:%i:%s')
+            </if>
+            <if test="params.xqCode != null and params.xqCode != ''">
+                and a.xqCode in (${params.xqCode})
+            </if>
+            and a.status = 0
+        </where>
+    </sql>
+
+    <!--查询单个记录-->
+    <select id="queryById" parameterType="int" resultType="Map">
+        SELECT date_format(t.alarm_time,'%Y-%m-%d %H:%i:%s') alarmTime,t.device_addr deviceAddr,t.cl_user clUser,date_format(t.cl_time,'%Y-%m-%d %H:%i:%s') clTime
+               ,t.cl_content clContent,t.cap_img_url capImgUrl,CASE WHEN p.code is null THEN '' ELSE p.extend_s4 END as faceImgUrl,
+               CASE WHEN p.code is null THEN '陌生人' ELSE p.name END as personName,CASE WHEN p.code is null THEN '' ELSE p.phone END as personTel
+               ,CASE WHEN p.code is null THEN '' ELSE p.person_identity_id END as personIdCard,xq.name xqName
+               ,CASE WHEN p.code is null THEN '' ELSE p.sex END as personSex
+        FROM face_alarm_record t
+        left join zs_person_info as p on t.person_code=p.code
+        inner join ht_xq_info xq on t.xq_code = xq.code
+        WHERE t.status='0' AND t.id = #{id}
+    </select>
+
+    <!-- 获取最大id值 -->
+    <select id="getMaxRecord" resultType="int">
+        select MAX(id) from face_alarm_record
+    </select>
+    <!--人脸报警记录上传-->
+    <insert id="insertRecord">
+        insert into face_alarm_record
+        <trim prefix="(" suffix=")" suffixOverrides="," >
+            <if test="capture_time != null" >
+                capture_time,
+            </if>
+            <if test="capture_device_id != null" >
+                capture_device_id,
+            </if>
+            <if test="capture_img != null" >
+                capture_img,
+            </if>
+            <if test="person_id != null" >
+                person_id,
+            </if>
+            <if test="name != null" >
+                name,
+            </if>
+            <if test="sex != null" >
+                sex,
+            </if>
+            <if test="age != null" >
+                age,
+            </if>
+            <if test="country != null" >
+                country,
+            </if>
+            <if test="bmask != null" >
+                bmask,
+            </if>
+            <if test="eyeglass != null" >
+                sex,
+            </if>
+            <if test="sex != null" >
+                sex,
+            </if>
+            <if test="sex != null" >
+                sex,
+            </if>
+            <if test="sex != null" >
+                sex,
+            </if>
+            <if test="sex != null" >
+                sex,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides="," >
+            <if test="pictureName != null" >
+                #{pictureName,jdbcType=VARCHAR},
+            </if>
+            <if test="pictureUrl != null" >
+                #{pictureUrl,jdbcType=VARCHAR},
+            </if>
+            <if test="createUserId != null" >
+                #{createUserId,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null" >
+                #{createTime,jdbcType=INTEGER},
+            </if>
+            <if test="updateUserId != null" >
+                #{updateUserId,jdbcType=VARCHAR},
+            </if>
+            <if test="updateTime != null" >
+                #{updateTime,jdbcType=INTEGER},
+            </if>
+        </trim>
+    </insert>
+    <insert id="insertFaceAlarmRecord" >
+        insert into face_alarm_record (
+        xq_code,
+        alarm_time,
+        device_code,
+        device_addr,
+        capture_id,
+        person_name,
+        cl_status,
+        alarm_level,
+        contrast_value,
+        face_img_url,
+        status,
+        cre_time,
+        upd_time,
+        base64_img
+        )
+        values (
+        #{xqCode},
+        #{alarmTime},
+        #{deviceCode},
+        #{deviceAddr},
+        #{captureId},
+        #{personName},
+        #{clStatus},
+        #{alarmLevel},
+        #{contrastValue},
+        #{faceImgUrl},
+        #{status},
+        now(),
+        now(),
+        #{base64Img}
+        )
+    </insert>
+</mapper>

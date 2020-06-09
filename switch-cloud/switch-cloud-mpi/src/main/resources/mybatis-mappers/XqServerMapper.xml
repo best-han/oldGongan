@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.windaka.suizhi.mpi.dao.XqServerDao">
+
+    <sql id="where">
+        <where>
+            p.sso_regionalcode=#{areaId}
+        </where>
+    </sql>
+<!--    <select id="totalRows" resultType="int">-->
+<!--        select count(*) totalRows from face_track_record a-->
+<!--        inner join ht_xq_info xq on xq.code=a.xq_code-->
+<!--        inner join (select area_id from ht_area) area on area.area_id=xq.sso_regionalcode-->
+<!--        <include refid="where" />-->
+<!--    </select>-->
+    <!--enabled*1 将TINYINT类型转为INT类型-->
+    <select id="queryAllXqServerUrlByAreaId" resultType="Map" parameterType="String">
+
+        select pi.url,pi.xq_code as xqCode from ht_project_info as pi
+        inner join (select * from ht_xq_info as p  inner join (select area_id from ht_area where parent_ids like concat('%',#{params.areaId},'%')) as area where p.sso_regionalcode=area.area_id) as px on px.code=pi.xq_code
+
+    </select>
+
+
+    <select id="queryXqServerUrl" resultType="String" parameterType="String">
+        select url from ht_project_info as pi where pi.xq_code=#{xqCode}
+    </select>
+
+</mapper>

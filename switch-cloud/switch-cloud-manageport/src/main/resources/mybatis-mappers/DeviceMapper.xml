@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.windaka.suizhi.manageport.dao.DeviceDao">
+    <!-- 添加设备 -->
+    <insert id="insertSelectiveDevice" parameterType="java.util.Map">
+        <selectKey resultType="java.lang.Integer" keyProperty="id" order="AFTER">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        insert into device_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="deviceName != null">
+                device_name,
+            </if>
+            <if test="deviceTypeCode != null">
+                device_type_code,
+            </if>
+            <if test="xqCode != null">
+                xq_code,
+            </if>
+            <if test="online != null">
+                online,
+            </if>
+            <if test="ip != null">
+                ip,
+            </if>
+            <if test="createBy != null">
+                create_by,
+            </if>
+            <if test="createDate != null">
+                create_date,
+            </if>
+            <if test="updateBy != null">
+                update_by,
+            </if>
+            <if test="updateDate != null">
+                update_date,
+            </if>
+            <if test="manageId != null">
+                manage_id,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="deviceName != null">
+                #{deviceName,jdbcType=VARCHAR},
+            </if>
+            <if test="deviceTypeCode != null">
+                #{deviceTypeCode,jdbcType=VARCHAR},
+            </if>
+            <if test="xqCode != null">
+                #{xqCode,jdbcType=VARCHAR},
+            </if>
+            <if test="online != null">
+                #{online,jdbcType=VARCHAR},
+            </if>
+            <if test="ip != null">
+                #{ip,jdbcType=VARCHAR},
+            </if>
+            <if test="createBy != null">
+                #{createBy,jdbcType=VARCHAR},
+            </if>
+            <if test="createDate != null">
+                #{createDate,jdbcType=VARCHAR},
+            </if>
+            <if test="updateBy != null">
+                #{updateBy,jdbcType=VARCHAR},
+            </if>
+            <if test="updateDate != null">
+                #{updateDate,jdbcType=VARCHAR},
+            </if>
+            <if test="manageId != null">
+                #{manageId,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <!-- 根据小区编码和管理端主键查询获取唯一记录 -->
+    <select id="getSingleRecord" parameterType="Map" resultType="Map">
+        SELECT
+            id
+        FROM
+            device_info
+        WHERE
+            manage_id = #{manageId}
+        AND xq_code = #{xqCode}
+        GROUP BY
+            manage_id,
+            xq_code
+        HAVING
+        count(*) = 1
+    </select>
+    <!-- 更新设备 -->
+    <update id="updateSelectiveDevice" parameterType="Map">
+        update device_info
+        <set>
+            <if test="deviceName != null">
+                device_name =#{deviceName,jdbcType=VARCHAR},
+            </if>
+            <if test="deviceTypeCode != null">
+                device_type_code #{deviceTypeCode,jdbcType=VARCHAR},
+            </if>
+            <if test="xqCode != null">
+                xq_code = #{xqCode,jdbcType=VARCHAR},
+            </if>
+            <if test="online != null">
+                online = #{online,jdbcType=VARCHAR},
+            </if>
+            <if test="ip != null">
+                ip = #{ip,jdbcType=VARCHAR},
+            </if>
+            <if test="createBy != null">
+                create_by = #{createBy,jdbcType=VARCHAR},
+            </if>
+            <if test="createDate != null">
+                create_date = #{createDate,jdbcType=VARCHAR},
+            </if>
+            <if test="updateBy != null">
+                update_by = #{updateBy,jdbcType=VARCHAR},
+            </if>
+            <if test="updateDate != null">
+                update_date = #{updateDate,jdbcType=VARCHAR},
+            </if>
+            <if test="manageId != null">
+                manage_id = #{manageId,jdbcType=VARCHAR},
+            </if>
+        </set>
+        <where>
+            1=1
+            <!-- id -->
+            <if test="id!= null and id !=''">
+                and id =#{id}
+            </if>
+            <!-- 管理端ID -->
+            <if test="manageId!= null and manageId !=''">
+                and manage_id =#{manageId}
+            </if>
+            <!-- 小区编码 -->
+            <if test="xqCode!=null and xqCode != ''">
+                and xq_code = #{xqCode}
+            </if>
+        </where>
+    </update>
+    <!-- 删除设备 -->
+    <delete id="deleteSelectiveDevice" parameterType="Map">
+        delete from device_info
+        <where>
+            <!-- 管理端ID -->
+            <if test="manageId!= null and manageId !=''">
+                manage_id =#{manageId}
+            </if>
+            <!-- 小区编码 -->
+            <if test="xqCode!=null and xqCode != ''">
+                and xq_code = #{xqCode}
+            </if>
+        </where>
+    </delete>
+</mapper>

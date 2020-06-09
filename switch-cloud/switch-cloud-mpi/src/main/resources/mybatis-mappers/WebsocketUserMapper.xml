@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.windaka.suizhi.mpi.dao.WebsocketUserDao">
+
+    <!--查询是否是超管-->
+    <select id="queryIsSuperByUserId" parameterType="String" resultType="String">
+        select u.sys_admin from ht_user as u
+        where u.user_id = #{userId}
+    </select>
+
+
+
+</mapper>

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.windaka.suizhi.manageport.dao.TJDeviceTotalDao">
+
+    <!--新增统计－缴费信息-->
+    <insert id="save" parameterType="com.windaka.suizhi.manageport.model.TJDeviceTotal">
+        INSERT INTO tj_device_total(xq_code,device_code,total_device,online,
+            cre_by,cre_time,upd_by,upd_time)
+        values (#{xq_code}, #{device_code}, #{total_device}, #{online}
+                   ,#{cre_by},#{cre_time},#{upd_by},#{upd_time})
+
+    </insert>
+
+    <!--根据小区Codde删除记录-->
+    <delete id="delete">
+        delete from tj_device_total where xq_code = #{xqCode} and device_code = #{deviceType}
+    </delete>
+
+    <!--根据小区Code、物业Code，查询统计设备总数-->
+    <select id="queryTotal" parameterType="Map" resultType="Map">
+        select sum(dt.total_device) as totalNum,sum(dt.online) as onlineNum
+        from tj_device_total as dt
+        inner join ht_xq_wy as xw on dt.xq_code=xw.xq_code and xw.status=0
+        inner join ht_wy_info as wy on xw.wy_code=wy.wy_code
+        inner join tj_device_type t on dt.device_code=t.device_code
+        inner join ht_xq_info xq on dt.xq_code=xq.code
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{params.areaId},'%')) area on area.area_id=xq.sso_regionalcode
+        where 1=1
+        <if test="params.xqCode != null and params.xqCode != ''">
+            and dt.xq_code in (${params.xqCode})
+        </if>
+        <if test="params.wyCode != null and params.wyCode != ''">
+            and wy.wy_code in (${params.wyCode})
+        </if>
+    </select>
+
+    <!--根据小区Code、物业Code，查询统计设备管理信息-->
+    <select id="queryDetail" parameterType="Map" resultType="Map">
+        select t.device_name as deviceName,dt.device_code as deviceCode,sum(dt.total_device) as totalDevice,sum(dt.online) online
+        from tj_device_total as dt
+        inner join ht_xq_wy as xw on dt.xq_code=xw.xq_code and xw.status=0
+        inner join ht_wy_info as wy on xw.wy_code=wy.wy_code
+        inner join tj_device_type t on dt.device_code=t.device_code
+        inner join ht_xq_info xq on dt.xq_code=xq.code
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{params.areaId},'%')) area on area.area_id=xq.sso_regionalcode
+        where 1=1
+        <if test="params.xqCode != null and params.xqCode != ''">
+            and dt.xq_code in (${params.xqCode})
+        </if>
+        <if test="params.wyCode != null and params.wyCode != ''">
+            and wy.wy_code in (${params.wyCode})
+        </if>
+        group by t.device_name,dt.device_code
+    </select>
+</mapper>

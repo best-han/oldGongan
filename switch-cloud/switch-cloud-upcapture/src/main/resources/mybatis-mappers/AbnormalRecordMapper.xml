@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+                "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.windaka.suizhi.upcapture.dao.AbnormalRecordDao">
+
+    <!--新增-->
+    <insert id="saveAbnormalRecord" parameterType="java.util.Map">
+        INSERT INTO record_abnormal(manage_id,xq_code,capture_time,capture_device_id,capture_device_name ,capture_img,event,begin_time,end_time,
+        alarm_level,handler,handle_time,handle_conn,handle_status,handle_image1,handle_image2,location,event_name,base64_img)
+        values (#{manageId}, #{xqCode}, #{captureTime}, #{captureDeviceId},#{captureDeviceName}, #{captureImg}, #{event},#{beginTime},#{endTime},
+        #{alarmLevel},#{handler},#{handleTime},#{handleConn},#{handleStatus},#{handleImage1},#{handleImage2},#{location},#{eventName},#{base64Img})
+
+    </insert>
+    <!-- 根据最大主键 -->
+    <select id="getMaxId" resultType="int">
+        select
+        max(id)
+        from
+        record_abnormal
+    </select>
+
+</mapper>

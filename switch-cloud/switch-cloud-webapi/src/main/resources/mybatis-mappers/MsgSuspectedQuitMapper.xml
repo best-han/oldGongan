@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.windaka.suizhi.webapi.dao.MsgSuspectedQuitDao">
+
+    <!--疑似迁出人  insert msg_suspected_quit 表-->
+    <insert id="insertMsgSuspectedQuit" parameterType="Map">
+        insert into msg_suspected_quit (xq_code,person_id,msg_status,create_time, update_time,no_sense_day)
+        values (#{xqCode},#{personId},0, now(), now(),#{noSenseDay})
+    </insert>
+
+    <!--疑似迁出人  update msg_suspected_quit 表-->
+    <update id="updateMsgSuspectedQuit" parameterType="Map">
+        update msg_suspected_quit set msg_status=#{msgStatus},update_time=now()
+        where  msg_suspected_quit.person_id=#{personId}
+    </update>
+
+    <!--疑似迁出人  select msg_suspected_quit 表  通过是否存在此人 判断是否存在此记录-->
+    <select id="selectMsgSuspectedQuit" parameterType="Map" resultType="int">
+        select count(*) from msg_suspected_quit
+        where  msg_suspected_quit.person_id=#{personId}
+    </select>
+
+    <!--疑似迁出人  select msg_suspected_quit 表  通过personId  和 noSenseDay 判断是否存在此记录-->
+    <select id="selectMsgSuspectedQuit2" parameterType="Map" resultType="int">
+        select count(*) from msg_suspected_quit
+        where  msg_suspected_quit.person_id=#{personId}
+        and msg_suspected_quit.no_sense_day=#{noSenseDay}
+    </select>
+
+</mapper>

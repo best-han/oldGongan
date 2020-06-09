@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.windaka.suizhi.mpi.dao.FaceTrackRecordDao">
+    <!--人脸轨迹上传-->
+    <insert id="saveFaceTrackRecord" parameterType="map">
+        insert into face_track_record (xq_code,face_img_url,cap_video_url,cap_img_url,device_name,person_code,cap_time,device_addr,device_location
+        ,capture_id,del_flag,cre_time,upd_time,contrastValue,capVUrl,cap_dev_code,cap_dev_channel)
+        values (#{xqCode},#{params.faceImgUrl},#{params.capVideoUrl},#{params.capImgUrl},#{params.deviceName},#{params.personCode},#{params.capTimeStr}
+        ,#{params.deviceAddr},#{params.deviceLocation},#{params.captureId},'1',now(),now(),#{params.contrastValue},#{params.capVUrl},#{params.capDevCode}
+        ,#{params.capDevChannel})
+    </insert>
+
+    <!--人脸轨迹(列表查询)-->
+    <sql id="where">
+        <where>
+            <if test="params.personCode != null and params.personCode != ''">
+                and a.person_code in (${params.personCode})
+            </if>
+            <!--<if test="params.beginTime !=null and params.beginTime !=''">
+                <![CDATA[ and a.cre_time  >=  #{params.beginTime}]]>
+            </if>
+            <if test="params.endTime !=null and params.endTime!=''">
+                <![CDATA[ and a.cre_time <=  #{params.endTime}]]>
+            </if>-->
+            <if test="params.beginTime !=null and params.beginTime !='' and params.endTime !=null and params.endTime!=''">
+                and a.cap_time  between  STR_TO_DATE(#{params.beginTime},'%Y-%m-%d %H:%i:%s') and STR_TO_DATE(#{params.endTime},'%Y-%m-%d %H:%i:%s')
+            </if>
+            <if test="params.xqCode != null and params.xqCode != ''">
+                and a.xq_code in (${params.xqCode})
+            </if>
+            and a.del_flag = 1
+           <!-- and a.contrastValue >= #{params.contrastValue} -->
+        </where>
+    </sql>
+    <select id="totalRows" resultType="int">
+        select count(*) totalRows from face_track_record a
+        left join zs_person_info as p on a.person_code=p.code
+        inner join ht_xq_info xq on xq.code=a.xq_code
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{params.areaId},'%')) area on area.area_id=xq.sso_regionalcode
+        <include refid="where" />
+    </select>
+    <select id="queryFaceTrackRecordListAll" resultType="java.util.Map">
+        select a.device_location deviceLocation from face_track_record a
+        left join zs_person_info as p on a.person_code=p.code
+        inner join ht_xq_info xq on xq.code=a.xq_code
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{params.areaId},'%')) area on area.area_id=xq.sso_regionalcode
+        <include refid="where" />
+    </select>
+    <!--enabled*1 将TINYINT类型转为INT类型-->
+    <select id="queryFaceTrackRecordList" resultType="java.util.Map">
+        set @id=#{params.start};
+        select f.xqCode, f.xqName, f.captureId,f.personName,f.faceImgUrl,f.capImgUrl
+        ,f.capVideoUrl,f.capVUrl,f.deviceName,f.deviceAddr,f.deviceLocation
+        ,f.capTime,f.contrastValue,f.capDevCode,f.capDevChannel
+        ,f.creTime,f.updTime,(@id:=@id+1) id
+        FROM
+        (
+        select a.xq_code xqCode,xq.name xqName, a.capture_id captureId,CASE WHEN p.code is null THEN '陌生人' ELSE p.name END as personName,a.face_img_url faceImgUrl
+        ,a.cap_img_url capImgUrl,a.cap_video_url capVideoUrl,a.capVUrl,a.device_name deviceName,a.device_addr deviceAddr,a.device_location deviceLocation
+        ,date_format(a.cap_time,'%Y-%m-%d %H:%i:%s') capTime,a.contrastValue,a.cap_dev_code capDevCode,a.cap_dev_channel capDevChannel
+        ,date_format(a.cre_time,'%Y-%m-%d %H:%i:%s') creTime,date_format(a.upd_time,'%Y-%m-%d %H:%i:%s') updTime
+        from face_track_record a
+        left join zs_person_info as p on a.person_code=p.code
+        inner join ht_xq_info xq on xq.code=a.xq_code
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{params.areaId},'%')) area on
+        area.area_id=xq.sso_regionalcode
+        <include refid="where"/>
+        ) f
+        order by f.capTime desc
+        limit #{params.start},#{params.limit}
+    </select>
+
+    <select id="queryFaceTrackRecordByManageId" resultType="java.util.Map" parameterType="string">
+        select a.xq_code xqCode,xq.name xqName, a.capture_id captureId,CASE WHEN p.code is null THEN '陌生人' ELSE p.name END as personName,a.face_img_url faceImgUrl
+        ,a.cap_img_url capImgUrl,a.cap_video_url capVideoUrl,a.capVUrl,a.device_name deviceName,a.device_addr deviceAddr,a.device_location deviceLocation
+        ,date_format(a.cap_time,'%Y-%m-%d %H:%i:%s') capTime,a.cap_dev_code capDevCode,a.cap_dev_channel capDevChannel
+        ,date_format(a.cre_time,'%Y-%m-%d %H:%i:%s') creTime,date_format(a.upd_time,'%Y-%m-%d %H:%i:%s') updTime
+        from face_track_record a
+        where manage_id=#{manageId}
+    </select>
+
+</mapper>

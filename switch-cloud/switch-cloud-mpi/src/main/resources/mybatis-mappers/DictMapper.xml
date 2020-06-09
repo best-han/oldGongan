@@ -1,0 +1,27 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.windaka.suizhi.mpi.dao.DictDao">
+
+    <!-- 查询字典记录 -->
+    <select id="getDictList" parameterType="map" resultType="map">
+        select
+        dict_value dictValue,
+        dict_label dictLable
+        from ht_dict
+        <where>
+            <if test="dictLabel != null and dictLabel != ''">
+                and dict_label = #{dictLabel}
+            </if>
+            <if test="dictCode != null and dictCode != ''">
+                and dict_code = #{dictCode}
+            </if>
+            <if test="dictLabels != null ">
+               and dict_label in
+                <foreach collection="dictLabels" index="index" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+</mapper>

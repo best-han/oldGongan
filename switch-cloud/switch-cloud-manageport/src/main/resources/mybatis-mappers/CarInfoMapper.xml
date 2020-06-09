@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.windaka.suizhi.manageport.dao.CarInfoDao">
+
+    <!--新增车辆信息-->
+    <insert id="saveCarInfo" parameterType="map">
+        INSERT INTO car_info(xq_code,manage_id,car_code,car_num,car_num_color,car_type,car_brand,car_color,car_mark,car_status,car_pic,owner_id,memo,park_type
+                               ,parking_lot_code,list_type,status,create_by,create_date,update_by,update_date,remarks,parking_lot_name,car_img,room_id,
+                               car_num_color_name,car_type_name,car_brand_name,car_color_name,car_status_name,park_type_name,list_type_name)
+        values (#{xqCode},#{carInfo.manageId},#{carInfo.carCode},#{carInfo.carNum},#{carInfo.carNumColor},#{carInfo.carType},#{carInfo.carBrand},#{carInfo.carColor},#{carInfo.carMark}
+        ,#{carInfo.carStatus},#{carInfo.carPic},#{carInfo.ownerId},#{carInfo.memo},#{carInfo.parkType},#{carInfo.parkingLotCode},#{carInfo.listType}
+        ,#{carInfo.status},#{carInfo.creatBy},now(),#{carInfo.updateBy},#{carInfo.updateDate},#{carInfo.remarks},#{carInfo.parkingLotName},#{carInfo.carImg},#{carInfo.roomId},
+        #{carInfo.carNumColorName},#{carInfo.carTypeName},#{carInfo.carBrandName},#{carInfo.carColorName},#{carInfo.carStatusName},#{carInfo.parkTypeName},#{carInfo.listTypeName})
+    </insert>
+
+    <!--修改车辆信息-->
+    <update id="updateCarInfo" parameterType="map">
+        update car_info  SET car_code=#{carCode},car_num=#{carNum},car_num_color=#{carNumColor},car_type=#{carType},car_brand=#{carBrand},car_color=#{carColor},car_mark=#{carMark}
+            ,car_status=#{carStatus},car_pic=#{carPic},owner_id=#{ownerId},memo=#{memo},park_type=#{parkType},parking_lot_code=#{parkingLotCode}
+            ,list_type=#{listType},status=#{status},update_by=#{updateBy},update_date=#{updateDate},remarks=#{remarks},parking_lot_name=#{parkingLotName}
+            ,car_img=#{carImg},room_id=#{roomId}
+            ,car_num_color_name=#{carNumColorName},car_type_name=#{carTypeName},car_brand_name=#{carBrandName},car_color_name=#{carColorName},car_status_name=#{carStatusName},park_type_name=#{parkTypeName},list_type_name=#{listTypeName}
+        where xq_code=#{xqCode} and manage_id=#{manageId}
+    </update>
+
+    <delete id="deleteCarInfo" parameterType="map">
+        delete from car_info where xq_code=#{xqCode} and manage_id=#{manageId}
+    </delete>
+    <!-- 获取车辆信息最大主键 -->
+    <select id="getMaxId" resultType="int">
+        select MAX(id) from car_info
+    </select>
+
+    <select id="getIdByCondion" resultType="int"  parameterType="map">
+        select id from car_info
+        where 1=1
+        <if test="manageId != null and manageId != ''">
+            and manage_id = #{manageId}
+        </if>
+        <if test="xqCode != null and xqCode != ''">
+            and xq_code = #{xqCode}
+        </if>
+    </select>
+</mapper>

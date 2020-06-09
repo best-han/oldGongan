@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.windaka.suizhi.webapi.dao.CarTypeDao">
+    <!--人脸类别维护-->
+    <insert id="saveCarType" parameterType="map">
+        insert into car_group (remarks,name,type,type_name,status,create_by,create_date,update_by,update_date,manage_id)
+        values (#{remarks},#{libraryName},#{type},#{typeName},0,#{createBy},now(),#{updateBy},now(),'0')
+    </insert>
+
+    <update id="updateCarType" parameterType="map">
+        update car_group set name=#{libraryName},remarks=#{remarks},type_name=#{typeName},update_by=#{updateBy},
+        update_date=now() where id=#{id}
+    </update>
+
+    <delete id="deleteCarType" parameterType="Map">
+        delete from car_group where  id =#{id}
+    </delete>
+
+    <delete id="deleteCarTypeR" parameterType="Map">
+        delete from car_group where  type =#{id}
+    </delete>
+    
+    <select id="selectCarType" parameterType="Map" resultType="com.windaka.suizhi.webapi.model.CarLibrary">
+        select id, remarks,name libraryName,type,type_name typeName from car_group where  id =#{id}
+    </select>
+
+    <!--<select id="queryFaceTypes" resultType="Map">
+        select face_type_code faceTypeCode,type_name faceTypeName from face_type where `status`='0'
+    </select>-->
+
+    <select id="queryTotalCarType" resultType="int">
+        select count(1) from car_group a
+        left join (select car_group_car.group_code,count(1) as carsNum from car_group_car where car_group_car.control_status='0' group by car_group_car.group_code) m_cgc on m_cgc.group_code=a.type
+        <if test="likeStr!=null and likeStr!=''">
+            and (a.remarks like concat('%',#{likeStr},'%') or a.name like concat('%',#{likeStr},'%') or m_cgc.carsNum like concat('%',#{likeStr},'%')
+            or a.type_name like concat('%',#{likeStr},'%'))
+        </if>
+        where a.status='0' and a.manage_id='0'
+    </select>
+    <select id="queryCarTypes" parameterType="Map" resultType="Map">
+       select id, remarks,name libraryName,type,type_name typeName,IFNULL(carsNum,0) as carsNum from car_group
+        left join (select car_group_car.group_code,count(1) as carsNum from car_group_car where car_group_car.control_status='0' group by car_group_car.group_code) m_cgc on m_cgc.group_code=car_group.type
+        where manage_id='0'
+        <if test="likeStr!=null and likeStr!=''">
+            and (car_group.remarks like concat('%',#{likeStr},'%') or car_group.name like concat('%',#{likeStr},'%') or m_cgc.carsNum like concat('%',#{likeStr},'%')
+            or car_group.type_name like concat('%',#{likeStr},'%'))
+        </if>
+        order by update_date desc
+        limit #{start},#{limit}
+    </select>
+    <select id="queryCarTypes2" parameterType="Map" resultType="Map">
+       select id, remarks,name libraryName,type,type_name typeName from car_group where manage_id='0'
+        <if test="id!=null and id!=''">
+            and id=#{id}
+        </if>
+    </select>
+
+</mapper>

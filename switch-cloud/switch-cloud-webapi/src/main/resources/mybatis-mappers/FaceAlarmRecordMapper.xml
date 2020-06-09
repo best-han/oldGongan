@@ -1,0 +1,597 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.windaka.suizhi.webapi.dao.FaceAlarmRecordDao">
+    <!--人脸报警记录上传-->
+    <insert id="saveFaceAlarmRecord">
+        insert into face_alarm_record (xq_code,device_code,alarm_time,face_type_code,device_addr,person_code,person_name
+        ,cl_time,cl_status,capture_id,remarks,cl_user
+        ,cl_content,alarm_level,contrast_value,alarm_id,face_img_url,cap_img_url,cap_video_url,status,cre_time,upd_time,cre_by,upd_by,capVUrl
+        ,cap_dev_channel)
+        values (#{xqCode},#{params.capDevCode},#{params.alarmTime},#{params.faceTypeCode},#{params.deviceAddr},#{params.personCode}
+        ,CASE WHEN (select p.name from zs_person_info as p where p.code=#{params.personCode}) is null THEN '陌生人' ELSE
+        (select p.name from zs_person_info as p where p.code=#{params.personCode}) END
+        ,#{params.clTime}
+        ,#{params.clStatus},#{params.captureId},#{params.remarks},#{params.clUser},#{params.clContent},#{params.alarmLevel},#{params.contrastValue}
+        ,#{params.alarmId},#{params.faceImgUrl},#{params.capImgUrl},#{params.capVideoUrl},'0',now(),now(),#{params.creatBy},#{params.updateBy},#{params.capVUrl}
+        ,#{params.capDevChannel})
+    </insert>
+
+    <!--修改人脸报警记录信息-->
+    <update id="updateFaceAlarmRecord" parameterType="com.windaka.suizhi.webapi.model.FaceAlarmRecord">
+        update face_alarm_record  SET cl_status=1,cl_user=#{clUser},cl_content=#{clContent},cl_time=now()
+        where alarm_id=#{alarmId}
+    </update>
+
+    <!--人脸/车辆报警记录（列表查询)-->
+    <sql id="where">
+        <where>
+            <if test="params.personOrCarCode != null and params.personOrCarCode != ''">
+                and a.person_car_code = #{params.personOrCarCode}
+            </if>
+            <if test="params.faceTypeCode != null and params.faceTypeCode != ''">
+                and a.faceTypeCode = #{params.faceTypeCode}
+            </if>
+            <if test="params.clStatus != null and params.clStatus != ''">
+                and a.clStatus = #{params.clStatus}
+            </if>
+            <if test="params.beginTime !=null and params.beginTime !='' and params.endTime !=null and params.endTime!=''">
+                and a.alarmTime between STR_TO_DATE(#{params.beginTime},'%Y-%m-%d %H:%i:%s')and
+                STR_TO_DATE(#{params.endTime},'%Y-%m-%d %H:%i:%s')
+            </if>
+            <if test="params.xqCode != null and params.xqCode != ''">
+                and a.xqCode in (${params.xqCode})
+            </if>
+            and a.status = 0
+        </where>
+    </sql>
+
+    <!--查询单个记录-->
+    <select id="queryByAlarmId" parameterType="String" resultType="Map">
+        SELECT date_format(t.alarm_time,'%Y-%m-%d %H:%i:%s') alarmTime,t.device_addr deviceAddr,t.cl_user clUser,date_format(t.cl_time,'%Y-%m-%d %H:%i:%s') clTime
+               ,t.cl_content clContent,t.cap_img_url capImgUrl,CASE WHEN p.code is null THEN '' ELSE p.extend_s4 END as faceImgUrl,
+               CASE WHEN p.code is null THEN '陌生人' ELSE p.name END as personName,CASE WHEN p.code is null THEN '' ELSE p.phone END as personTel
+               ,CASE WHEN p.code is null THEN '' ELSE p.person_identity_id END as personIdCard,xq.name xqName
+               ,CASE WHEN p.code is null THEN '' ELSE p.sex END as personSex
+        FROM face_alarm_record t
+        left join zs_person_info as p on t.person_code=p.code
+        inner join ht_xq_info xq on t.xq_code = xq.code
+        WHERE t.status='0' AND t.alarm_id = #{alarmId}
+    </select>
+
+    <!-- 车辆和人脸报警的合并列表查询 -->
+    <select id="totalRows" resultType="int">
+        select count(*) totalRows from
+        (SELECT fa.person_code person_car_code,fa.device_code deviceCode,fa.xq_code xqCode,fa.cl_status
+        clStatus,f.type_name faceTypeName,fa.cap_video_url capVideoUrl
+        ,fa.device_addr deviceAddr,xq.name xqName,fa.alarm_id alarmId,fa.face_type_code
+        faceTypeCode,date_format(fa.alarm_time,'%Y-%m-%d %H:%i:%s') alarmTime
+        ,date_format(fa.cl_time,'%Y-%m-%d %H:%i:%s') clTime,fa.capVUrl,fa.cap_dev_channel as
+        capDevChannel,fa.cap_img_url capImgUrl,fa.status
+        from face_alarm_record fa
+        <!-- left join zs_person_info as p on fa.person_code=p.code -->
+        inner join ht_xq_info xq on fa.xq_code = xq.code
+        inner join face_type f on fa.face_type_code=f.face_type_code
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{params.areaId},'%')) area on
+        area.area_id=xq.sso_regionalcode
+        where fa.status='0'
+        <if test="params.personOrCarCode != null and params.personOrCarCode != ''">
+            and fa.person_code = #{params.personOrCarCode}
+        </if>
+        <if test="params.faceTypeCode != null and params.faceTypeCode != ''">
+            and fa.face_type_code = #{params.faceTypeCode}
+        </if>
+        <if test="params.clStatus != null and params.clStatus != ''">
+            and fa.cl_status = #{params.clStatus}
+        </if>
+        <if test="params.beginTime !=null and params.beginTime !='' and params.endTime !=null and params.endTime!=''">
+            and fa.alarm_time between STR_TO_DATE(#{params.beginTime},'%Y-%m-%d %H:%i:%s')and
+            STR_TO_DATE(#{params.endTime},'%Y-%m-%d %H:%i:%s')
+        </if>
+        <if test="params.xqCode != null and params.xqCode != ''">
+            and fa.xq_code in (${params.xqCode})
+        </if>
+        union all
+        SELECT ca.car_number person_car_code,ca.device_code deviceCode,ca.xq_code xqCode,ca.cl_status
+        clStatus,f.type_name faceTypeName,ca.cap_video_url capVideoUrl
+        ,ca.device_name deviceAddr,xq.name xqName,ca.car_alarm_id alarmId,'51'
+        faceTypeCode,date_format(ca.cap_time,'%Y-%m-%d %H:%i:%s') alarmTime
+        ,date_format(ca.cl_time,'%Y-%m-%d %H:%i:%s') clTime,ca.capVUrl,ca.cap_dev_channel as
+        capDevChannel,ca.car_imgpath capImgUrl,ca.status
+        from car_alarm_record ca
+        inner join ht_xq_info xq on ca.xq_code = xq.code
+        inner join face_type f on f.face_type_code='5'
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{params.areaId},'%')) area on
+        area.area_id=xq.sso_regionalcode
+        where ca.status='0'
+        <if test="params.personOrCarCode != null and params.personOrCarCode != ''">
+            and ca.car_number = #{params.personOrCarCode}
+        </if>
+        <if test="params.faceTypeCode != null and params.faceTypeCode != ''">
+            and '5' = #{params.faceTypeCode}
+        </if>
+        <if test="params.clStatus != null and params.clStatus != ''">
+            and ca.cl_status = #{params.clStatus}
+        </if>
+        <if test="params.beginTime !=null and params.beginTime !='' and params.endTime !=null and params.endTime!=''">
+            and ca.cap_time between STR_TO_DATE(#{params.beginTime},'%Y-%m-%d %H:%i:%s')and
+            STR_TO_DATE(#{params.endTime},'%Y-%m-%d %H:%i:%s')
+        </if>
+        <if test="params.xqCode != null and params.xqCode != ''">
+            and ca.xq_code in (${params.xqCode})
+        </if>
+        union all
+        SELECT cj.car_number person_car_code,cj.device_code deviceCode,cj.xq_code xqCode,cj.cl_status
+        clStatus,f.type_name faceTypeName,cj.cap_video_url capVideoUrl
+        ,cj.device_name deviceAddr,xq.name xqName,cj.jeeves_id alarmId,'52'
+        faceTypeCode,date_format(cj.cap_time,'%Y-%m-%d %H:%i:%s') alarmTime
+        ,date_format(cj.cl_time,'%Y-%m-%d %H:%i:%s') clTime,cj.capVUrl,cj.cap_dev_channel as
+        capDevChannel,cj.car_imgpath capImgUrl,cj.status
+        from car_jeeves_record cj
+        inner join ht_xq_info xq on cj.xq_code = xq.code
+        inner join face_type f on f.face_type_code='5'
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{params.areaId},'%')) area on
+        area.area_id=xq.sso_regionalcode
+        where cj.status='0'
+        <if test="params.personOrCarCode != null and params.personOrCarCode != ''">
+            and cj.car_number = #{params.personOrCarCode}
+        </if>
+        <if test="params.faceTypeCode != null and params.faceTypeCode != ''">
+            and '5' = #{params.faceTypeCode}
+        </if>
+        <if test="params.clStatus != null and params.clStatus != ''">
+            and cj.cl_status = #{params.clStatus}
+        </if>
+        <if test="params.beginTime !=null and params.beginTime !='' and params.endTime !=null and params.endTime!=''">
+            and cj.cap_time between STR_TO_DATE(#{params.beginTime},'%Y-%m-%d %H:%i:%s')and
+            STR_TO_DATE(#{params.endTime},'%Y-%m-%d %H:%i:%s')
+        </if>
+        <if test="params.xqCode != null and params.xqCode != ''">
+            and cj.xq_code in (${params.xqCode})
+        </if>
+        ) a
+        <!-- <include refid="where"/>-->
+    </select>
+
+    <select id="queryAllAlarmRecordList" resultType="java.util.Map">
+        set @id=#{params.start};
+        select a.person_car_code
+        personOrCarCode,a.personName,a.deviceCode,a.xqCode,a.clStatus,a.faceTypeName,a.capVideoUrl
+        ,a.deviceAddr,a.xqName,a.alarmId,a.faceTypeCode,a.alarmTime
+        ,a.clTime,a.capVUrl,a.capDevChannel,a.capImgUrl,#{params.capVedioBeginTime}
+        capVedioBeginTime,#{params.capVideoEndTime} capVideoEndTime,(@id:=@id+1) id
+        from
+        (SELECT fa.person_code person_car_code,fa.person_name as
+        personName <!-- CASE WHEN p.code is null THEN '陌生人' ELSE p.name END as personName-->
+        ,fa.device_code deviceCode,fa.xq_code xqCode,fa.cl_status clStatus,f.type_name faceTypeName,fa.cap_video_url
+        capVideoUrl
+        ,fa.device_addr deviceAddr,xq.name xqName,fa.alarm_id alarmId,fa.face_type_code
+        faceTypeCode,date_format(fa.alarm_time,'%Y-%m-%d %H:%i:%s') alarmTime
+        ,date_format(fa.cl_time,'%Y-%m-%d %H:%i:%s') clTime,fa.capVUrl,fa.cap_dev_channel as
+        capDevChannel,fa.cap_img_url capImgUrl,fa.status
+        from face_alarm_record fa
+        <!-- left join zs_person_info as p on fa.person_code=p.code -->
+        inner join ht_xq_info xq on fa.xq_code = xq.code
+        inner join face_type f on fa.face_type_code=f.face_type_code
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{params.areaId},'%')) area on
+        area.area_id=xq.sso_regionalcode
+        where fa.status='0'
+        <if test="params.personOrCarCode != null and params.personOrCarCode != ''">
+            and fa.person_code = #{params.personOrCarCode}
+        </if>
+        <if test="params.faceTypeCode != null and params.faceTypeCode != ''">
+            and fa.face_type_code = #{params.faceTypeCode}
+        </if>
+        <if test="params.clStatus != null and params.clStatus != ''">
+            and fa.cl_status = #{params.clStatus}
+        </if>
+        <if test="params.beginTime !=null and params.beginTime !='' and params.endTime !=null and params.endTime!=''">
+            and fa.alarm_time between STR_TO_DATE(#{params.beginTime},'%Y-%m-%d %H:%i:%s')and
+            STR_TO_DATE(#{params.endTime},'%Y-%m-%d %H:%i:%s')
+        </if>
+        <if test="params.xqCode != null and params.xqCode != ''">
+            and fa.xq_code in (${params.xqCode})
+        </if>
+        union all
+        SELECT ca.car_number person_car_code,ca.car_number personName,ca.device_code deviceCode,ca.xq_code
+        xqCode,ca.cl_status clStatus,f.type_name faceTypeName,ca.cap_video_url capVideoUrl
+        ,ca.device_name deviceAddr,xq.name xqName,ca.car_alarm_id alarmId,'51'
+        faceTypeCode,date_format(ca.cap_time,'%Y-%m-%d %H:%i:%s') alarmTime
+        ,date_format(ca.cl_time,'%Y-%m-%d %H:%i:%s') clTime,ca.capVUrl,ca.cap_dev_channel as
+        capDevChannel,ca.car_imgpath capImgUrl,ca.status
+        from car_alarm_record ca
+        inner join ht_xq_info xq on ca.xq_code = xq.code
+        inner join face_type f on f.face_type_code='5'
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{params.areaId},'%')) area on
+        area.area_id=xq.sso_regionalcode
+        where ca.status='0'
+        <if test="params.personOrCarCode != null and params.personOrCarCode != ''">
+            and ca.car_number = #{params.personOrCarCode}
+        </if>
+        <if test="params.faceTypeCode != null and params.faceTypeCode != ''">
+            and '5' = #{params.faceTypeCode}
+        </if>
+        <if test="params.clStatus != null and params.clStatus != ''">
+            and ca.cl_status = #{params.clStatus}
+        </if>
+        <if test="params.beginTime !=null and params.beginTime !='' and params.endTime !=null and params.endTime!=''">
+            and ca.cap_time between STR_TO_DATE(#{params.beginTime},'%Y-%m-%d %H:%i:%s')and
+            STR_TO_DATE(#{params.endTime},'%Y-%m-%d %H:%i:%s')
+        </if>
+        <if test="params.xqCode != null and params.xqCode != ''">
+            and ca.xq_code in (${params.xqCode})
+        </if>
+        union all
+        SELECT cj.car_number person_car_code,cj.car_number personName,cj.device_code deviceCode,cj.xq_code
+        xqCode,cj.cl_status clStatus,f.type_name faceTypeName,cj.cap_video_url capVideoUrl
+        ,cj.device_name deviceAddr,xq.name xqName,cj.jeeves_id alarmId,'52'
+        faceTypeCode,date_format(cj.cap_time,'%Y-%m-%d %H:%i:%s') alarmTime
+        ,date_format(cj.cl_time,'%Y-%m-%d %H:%i:%s') clTime,cj.capVUrl,cj.cap_dev_channel as
+        capDevChannel,cj.car_imgpath capImgUrl,cj.status
+        from car_jeeves_record cj
+        inner join ht_xq_info xq on cj.xq_code = xq.code
+        inner join face_type f on f.face_type_code='5'
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{params.areaId},'%')) area on
+        area.area_id=xq.sso_regionalcode
+        where cj.status='0'
+        <if test="params.personOrCarCode != null and params.personOrCarCode != ''">
+            and cj.car_number = #{params.personOrCarCode}
+        </if>
+        <if test="params.faceTypeCode != null and params.faceTypeCode != ''">
+            and '5' = #{params.faceTypeCode}
+        </if>
+        <if test="params.clStatus != null and params.clStatus != ''">
+            and cj.cl_status = #{params.clStatus}
+        </if>
+        <if test="params.beginTime !=null and params.beginTime !='' and params.endTime !=null and params.endTime!=''">
+            and cj.cap_time between STR_TO_DATE(#{params.beginTime},'%Y-%m-%d %H:%i:%s')and
+            STR_TO_DATE(#{params.endTime},'%Y-%m-%d %H:%i:%s')
+        </if>
+        <if test="params.xqCode != null and params.xqCode != ''">
+            and cj.xq_code in (${params.xqCode})
+        </if>
+        ) a
+        <!--  <include refid="where"/>-->
+        order by a.alarmTime desc
+        limit #{params.start}, #{params.limit}
+    </select>
+    <select id="queryFaceAlarmRecordList" resultType="java.util.Map">
+        set @id=#{params.start};
+        select a.person_car_code
+        personOrCarCode,a.personName,a.deviceCode,a.xqCode,a.clStatus,a.faceTypeName,a.capVideoUrl
+        ,a.deviceAddr,a.xqName,a.alarmId,a.faceTypeCode,a.alarmTime
+        ,a.clTime,a.capVUrl,a.capDevChannel,a.capImgUrl,#{params.capVedioBeginTime}
+        capVedioBeginTime,#{params.capVideoEndTime} capVideoEndTime,(@id:=@id+1) id
+        from
+        (
+        SELECT fa.person_code person_car_code,fa.person_name
+        personName,<!-- CASE WHEN p.code is null THEN '陌生人' ELSE p.name END as personName, -->
+        fa.device_code deviceCode,fa.xq_code xqCode,fa.cl_status clStatus,f.type_name faceTypeName,fa.cap_video_url
+        capVideoUrl
+        ,fa.device_addr deviceAddr,xq.name xqName,fa.alarm_id alarmId,fa.face_type_code
+        faceTypeCode,date_format(fa.alarm_time,'%Y-%m-%d %H:%i:%s') alarmTime
+        ,date_format(fa.cl_time,'%Y-%m-%d %H:%i:%s') clTime,fa.capVUrl,fa.cap_dev_channel as
+        capDevChannel,fa.cap_img_url capImgUrl,fa.status
+        from face_alarm_record fa
+        <!-- left join zs_person_info as p on fa.person_code=p.code -->
+        inner join ht_xq_info xq on fa.xq_code = xq.code
+        inner join face_type f on fa.face_type_code=f.face_type_code
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{params.areaId},'%')) area on
+        area.area_id=xq.sso_regionalcode
+        where fa.status='0'
+        <if test="params.personOrCarCode != null and params.personOrCarCode != ''">
+            and fa.person_code = #{params.personOrCarCode}
+        </if>
+        <if test="params.faceTypeCode != null and params.faceTypeCode != ''">
+            and fa.face_type_code = #{params.faceTypeCode}
+        </if>
+        <if test="params.clStatus != null and params.clStatus != ''">
+            and fa.cl_status = #{params.clStatus}
+        </if>
+        <if test="params.beginTime !=null and params.beginTime !='' and params.endTime !=null and params.endTime!=''">
+            and fa.alarm_time between STR_TO_DATE(#{params.beginTime},'%Y-%m-%d %H:%i:%s')and
+            STR_TO_DATE(#{params.endTime},'%Y-%m-%d %H:%i:%s')
+        </if>
+        <if test="params.xqCode != null and params.xqCode != ''">
+            and fa.xq_code in (${params.xqCode})
+        </if>
+        ) a
+        <!--  <include refid="where"/>-->
+        order by a.alarmTime desc
+        limit #{params.start}, #{params.limit}
+    </select>
+    <select id="queryCarAlarmRecordList" resultType="java.util.Map">
+        set @id=#{params.start};
+        select a.person_car_code
+        personOrCarCode,a.personName,a.deviceCode,a.xqCode,a.clStatus,a.faceTypeName,a.capVideoUrl
+        ,a.deviceAddr,a.xqName,a.alarmId,a.faceTypeCode,a.alarmTime
+        ,a.clTime,a.capVUrl,a.capDevChannel,a.capImgUrl,#{params.capVedioBeginTime}
+        capVedioBeginTime,#{params.capVideoEndTime} capVideoEndTime,(@id:=@id+1) id
+        from
+        (
+        SELECT ca.car_number person_car_code,ca.car_number personName,ca.device_code deviceCode,ca.xq_code
+        xqCode,ca.cl_status clStatus,f.type_name faceTypeName,ca.cap_video_url capVideoUrl
+        ,ca.device_name deviceAddr,xq.name xqName,ca.car_alarm_id alarmId,'51'
+        faceTypeCode,date_format(ca.cap_time,'%Y-%m-%d %H:%i:%s') alarmTime
+        ,date_format(ca.cl_time,'%Y-%m-%d %H:%i:%s') clTime,ca.capVUrl,ca.cap_dev_channel as
+        capDevChannel,ca.car_imgpath capImgUrl,ca.status
+        from car_alarm_record ca
+        inner join ht_xq_info xq on ca.xq_code = xq.code
+        inner join face_type f on f.face_type_code='5'
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{params.areaId},'%')) area on
+        area.area_id=xq.sso_regionalcode
+        where ca.status='0'
+        <if test="params.personOrCarCode != null and params.personOrCarCode != ''">
+            and ca.car_number = #{params.personOrCarCode}
+        </if>
+        <if test="params.faceTypeCode != null and params.faceTypeCode != ''">
+            and '5' = #{params.faceTypeCode}
+        </if>
+        <if test="params.clStatus != null and params.clStatus != ''">
+            and ca.cl_status = #{params.clStatus}
+        </if>
+        <if test="params.beginTime !=null and params.beginTime !='' and params.endTime !=null and params.endTime!=''">
+            and ca.cap_time between STR_TO_DATE(#{params.beginTime},'%Y-%m-%d %H:%i:%s')and
+            STR_TO_DATE(#{params.endTime},'%Y-%m-%d %H:%i:%s')
+        </if>
+        <if test="params.xqCode != null and params.xqCode != ''">
+            and ca.xq_code in (${params.xqCode})
+        </if>
+        union all
+        SELECT cj.car_number person_car_code,cj.car_number personName,cj.device_code deviceCode,cj.xq_code
+        xqCode,cj.cl_status clStatus,f.type_name faceTypeName,cj.cap_video_url capVideoUrl
+        ,cj.device_name deviceAddr,xq.name xqName,cj.jeeves_id alarmId,'52'
+        faceTypeCode,date_format(cj.cap_time,'%Y-%m-%d %H:%i:%s') alarmTime
+        ,date_format(cj.cl_time,'%Y-%m-%d %H:%i:%s') clTime,cj.capVUrl,cj.cap_dev_channel as
+        capDevChannel,cj.car_imgpath capImgUrl,cj.status
+        from car_jeeves_record cj
+        inner join ht_xq_info xq on cj.xq_code = xq.code
+        inner join face_type f on f.face_type_code='5'
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{params.areaId},'%')) area on
+        area.area_id=xq.sso_regionalcode
+        where cj.status='0'
+        <if test="params.personOrCarCode != null and params.personOrCarCode != ''">
+            and cj.car_number = #{params.personOrCarCode}
+        </if>
+        <if test="params.faceTypeCode != null and params.faceTypeCode != ''">
+            and '5' = #{params.faceTypeCode}
+        </if>
+        <if test="params.clStatus != null and params.clStatus != ''">
+            and cj.cl_status = #{params.clStatus}
+        </if>
+        <if test="params.beginTime !=null and params.beginTime !='' and params.endTime !=null and params.endTime!=''">
+            and cj.cap_time between STR_TO_DATE(#{params.beginTime},'%Y-%m-%d %H:%i:%s')and
+            STR_TO_DATE(#{params.endTime},'%Y-%m-%d %H:%i:%s')
+        </if>
+        <if test="params.xqCode != null and params.xqCode != ''">
+            and cj.xq_code in (${params.xqCode})
+        </if>
+        ) a
+        <!--<include refid="where"/>-->
+        order by a.alarmTime desc
+        limit #{params.start}, #{params.limit}
+    </select>
+
+    <select id="queryPersonOrCar" parameterType="java.util.Map" resultType="java.util.Map">
+        select distinct a.person_car_code personOrCarCode,a.personOrCarName from
+        (
+        select distinct fa.code person_car_code,fa.name personOrCarName,px.xq_code from zs_person_info fa inner join
+        zs_person_xq px on px.person_code=fa.code
+        union
+        select distinct ca.car_number person_car_code,ca.car_number personOrCarName,ca.xq_code from car_alarm_record ca
+        union
+        select distinct cj.car_number person_car_code,cj.car_number personOrCarName,cj.xq_code from car_jeeves_record cj
+        ) a
+        where a.personOrCarName like concat('%',#{personOrCarName},'%')
+        <if test="xqCode != null and xqCode != ''">
+            and a.xq_code in (${xqCode})
+        </if>
+        limit 10
+    </select>
+    <!-- 根据条件查询人脸记录 -->
+    <select id="queryFaceAlarmByCondition" parameterType="Map" resultType="Map">
+        SELECT
+        r.person_name personName,
+        r.face_type_name groupName,
+        (case when r.base64_img is null or r.base64_img ='' then null else CONCAT_WS('',#{prefixUrl}, r.base64_img ) end )
+        img,
+        (case when r.face_img_url is null or r.face_img_url ='' then null else CONCAT_WS('',#{prefixUrl}, r.face_img_url ) end )
+        libraryImg,
+        DATE_FORMAT( r.alarm_time,'%Y/%m/%d') captureTimeStr,
+        CONCAT(contrast_value, '%' ) similar,
+        CONCAT(xq.name, r.device_addr) location
+        FROM face_alarm_record r
+        left join ht_xq_info xq on r.xq_code = xq.code
+        WHERE r.status='0' AND r.id = #{id}
+    </select>
+    <!-- 获取人员报警数量 -->
+    <select id="queryTotalNum" parameterType="map" resultType="int">
+        SELECT
+        count(*)
+        FROM
+        (select f.* from
+        face_alarm_record f
+        left join face_type_person t on f.person_code = t.person_id
+        left join ht_xq_info x on x.code = f.xq_code
+        left join face_type ft on ft.face_type_code = t.face_type_code
+        <where>
+            1=1
+            <if test="beginTime!=null and beginTime!=''">
+                AND DATE_FORMAT( alarm_time,"%Y-%m-%d %H:%i:%s")  <![CDATA[>]]> #{beginTime}
+            </if>
+            <if test="alarm_time!=null and endTime!=''">
+                AND DATE_FORMAT( alarm_time,"%Y-%m-%d %H:%i:%s")  <![CDATA[<]]> #{endTime}
+            </if>
+            <if test="alarmLevel != null and alarmLevel != ''">
+                AND t.alarm_level = #{alarmLevel}
+            </if>
+            <if test="type != null and type != ''">
+                AND t.face_type_code = #{type}
+            </if>
+            <if test="like != null and like != ''">
+                and  concat_ws('',t.person_name,t.phone,t.person_paper_num) like  concat('%',#{like},'%')
+            </if>
+        </where>
+        group by f.person_code) b
+    </select>
+    <!--获取人员报警明细-->
+    <select id="queryPersonAlarmList" parameterType="map" resultType="map">
+        SELECT
+        f.id id,
+        f.cl_status handleStatus,
+        (case when f.base64_img is null or f.base64_img ='' then null else CONCAT(#{prefixUrl}, f.base64_img ) end )
+        captureImage,
+        (case when t.image_path is null or t.image_path ='' then null else CONCAT(#{prefixUrl}, t.image_path ) end )
+        imagePath,
+        DATE_FORMAT( f.alarm_time,'%Y/%m/%d') captureTime,
+        x.name xqName,
+        t.alarm_level alarmLevel,
+        t.control_reason controlReason,
+        t.person_name personName,
+        t.phone phone,
+        t.person_paper_num idNo,
+        ft.type_name groupName
+        FROM face_alarm_record f
+        left join face_type_person t on f.person_code = t.person_id
+        left join ht_xq_info x on x.code = f.xq_code
+        left join face_type ft on ft.face_type_code = t.face_type_code
+        <where>
+            1=1
+            <if test="beginTime!=null and beginTime!=''">
+                AND DATE_FORMAT( f.alarm_time,"%Y-%m-%d %H:%i:%s")  <![CDATA[>]]> #{beginTime}
+            </if>
+            <if test="alarm_time!=null and endTime!=''">
+                AND DATE_FORMAT( f.alarm_time,"%Y-%m-%d %H:%i:%s")  <![CDATA[>]]> #{endTime}
+            </if>
+            <if test="alarmLevel != null and alarmLevel != ''">
+                AND t.alarm_level = #{alarmLevel}
+            </if>
+            <if test="type != null and type != ''">
+                AND t.face_type_code = #{type}
+            </if>
+            <if test="like != null and like != ''">
+                and  concat_ws('',t.person_name,t.phone,t.person_paper_num) like  concat('%',#{like},'%')
+            </if>
+        </where>
+        group by f.person_code
+        order by f.alarm_time desc
+        limit ${start},${end}
+    </select>
+    <!-- 获取异常处理信息 -->
+    <select id="queryHandleContent" parameterType="map" resultType="map">
+        SELECT
+        <if test="tableName == 'face_alarm_record' or tableName == 'car_alarm_record'">
+            cl_content content,
+            cl_time handleTime,
+            cl_user handle
+        </if>
+        <if test=" tableName == 'record_abnormal'">
+            handle_conn content,
+            handle_time handleTime,
+            handler handle
+        </if>
+        FROM ${tableName}
+        where id = #{id}
+    </select>
+    <!-- 根据主键更新人员报警 -->
+    <update id="updateFaceAlarmById" parameterType="map">
+        update face_alarm_record
+        <set>
+            <if test="clStatus != null">
+                cl_status = #{clStatus},
+            </if>
+            <if test="clUser != null">
+                cl_user = #{clUser},
+            </if>
+            <if test="content != null">
+                cl_content = #{content},
+            </if>
+            <if test="clTime != null">
+                cl_time = #{clTime},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!-- 获取首页预警信息-->
+    <select id="queryHomeAlarmList" parameterType="map" resultType="map">
+       SELECT
+       a.id,
+       a.type,
+       a.libraryImg,
+       a.img,
+       a.event,
+       a.personName,
+       a.groupName,
+        DATE_FORMAT( a.captureTime,'%m/%d %H:%i')  captureTime,
+         DATE_FORMAT( a.captureTime,'%Y-%m-%d %H:%i:%s')  captureTimeStr,
+        xq.`name` xqName,
+         CONCAT_WS('',xq.`name`,a.addr) as location,
+         a.carNum ,
+        a.alarmType  alarmType
+        FROM
+            (
+                SELECT
+                    id,
+                    '1' as type,
+                    '' as carNum,
+                    person_name as personName,
+                     (case when face_img_url is null or face_img_url ='' then null else CONCAT_WS('',#{prefixUrl}, face_img_url ) end )
+                    libraryImg,
+                    (case when base64_img is null or base64_img ='' then null else CONCAT_WS('',#{prefixUrl}, base64_img ) end )
+                     img,
+                     contrast_value as similar,
+                     face_type_name as groupName,
+                     device_addr as addr,
+                    '人员预警' AS alarmType,
+                    xq_code xqCode,
+                    (case  alarm_level   when 1  then '8' when  2 then '9' when 3 then '10' else '9' end )
+                      event,
+                    alarm_time captureTime
+                FROM
+                    face_alarm_record
+                UNION
+                    SELECT
+                    id,
+                    '2' as type,
+                    car_number as carNum,
+                    '' as personName,
+                    ''  as libraryImg,
+                    (case when base64_img is null or base64_img ='' then null else CONCAT_WS('',#{prefixUrl}, base64_img ) end )
+                     img,
+                     '' as similar,
+                      car_group_name as groupName,
+                      device_name  as addr,
+                         '车辆预警' AS alarmType,
+                        xq_code xqCode,
+                        (case  alarm_level   when 1  then '5' when  2 then '6' when 3 then '7' else '6' end )
+                         event,
+                        cap_time captureTime
+                    FROM
+                        car_alarm_record
+                    UNION
+                        SELECT
+                            id,
+                            '3' as type,
+                            '' as carNum,
+                            '' as personName,
+                            ''  as libraryImg,
+                            (case when base64_img is null or base64_img ='' then null else CONCAT_WS('',#{prefixUrl}, base64_img ) end )
+                            img,
+                            '' as similar,
+                            event_name as groupName,
+                            location as addr,
+                            event_name AS alarmType,
+                            xq_code xqCode ,
+                            event,
+                            capture_time captureTime
+                        FROM
+                            record_abnormal
+                            where  `event` =4 or `event` = 0
+            ) a
+            LEFT JOIN ht_xq_info xq ON xq.`code` = a.xqCode
+            ORDER BY
+                a.captureTime DESC
+            limit 5
+    </select>
+</mapper>

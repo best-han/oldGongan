@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.windaka.suizhi.webapi.dao.XqWyRelationDao">
+    <!--插入小区物业关联-->
+    <insert id="saveXqWyRelation" parameterType="String">
+        insert into ht_xq_wy(xq_code,wy_code,status) VALUES(#{xqCode},#{wyCode},'0')
+    </insert>
+    <!--删除小区物业关联-->
+    <delete id="deleteXqWyRelation" parameterType="String">
+        delete from ht_xq_wy where xq_code=#{xqCode}
+    </delete>
+
+    <!-- 根据当前用户id，获取关联的小区Codes(多个小区用逗号进行分隔) -->
+    <select id="queryWYCodesByXQCodes" parameterType="String" resultType="String">
+        SELECT GROUP_CONCAT(DISTINCT CONCAT('''',wy_code,'''') SEPARATOR ',') as wyCodes
+        FROM ht_xq_wy
+        WHERE STATUS=0 AND xq_code in (#{xqCodes});
+    </select>
+
+    <resultMap id="wyAndXq" type="com.windaka.suizhi.webapi.model.WyInfo">
+        <result column="wy_code" property="wyCode"/>
+        <result column="wy_name" property="wyName"/>
+        <collection property="xqs" ofType="com.windaka.suizhi.webapi.model.XqForWy">
+            <result column="xqCode" property="xqCode"/>
+            <result column="xqName" property="xqName"/>
+        </collection>
+    </resultMap>
+    <select id="queryWyAndXqList" resultMap="wyAndXq">
+        select wy.wy_name,wy.wy_code,xq.name xqName,xq.code xqCode
+        from ht_wy_info wy
+	      left join ht_xq_wy xw on xw.wy_code=wy.wy_code and xw.status='0'
+		  left join ht_xq_info xq on xq.code=xw.xq_code and xq.status='0'
+		where wy.del_flag=1
+		order by wy.cre_time
+    </select>
+
+</mapper>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.windaka.suizhi.manageport.dao.CarParkingLotDao">
+    <insert id="saveCarParkingLots" parameterType="map">
+        insert into car_parking_lot (xq_code,manage_id,
+        `parking_lot` ,
+        `parking_lot_code` ,
+        `total_lot` ,
+        `idle_lot` ,
+        `car_num_num` ,
+        `entrance_num` ,
+        `exit_num` ,
+        `led_num` ,
+        `status` ,
+        `create_by` ,
+        `create_date` ,
+        `update_by` ,
+        `update_date` ,
+        `remarks`
+        )
+        values
+        <foreach collection="list" index="index" item="item" open="" close="" separator=",">
+            (#{xqCode},#{item.manageId},
+            #{item.parkingLot},#{item.parkingLotCode},#{item.totalLot},#{item.idleLot},#{item.carNumNum},
+            #{item.entranceNum},#{item.exitNum},#{item.ledNum},#{item.status},
+            #{item.createBy},#{item.createDate},#{item.updateBy},#{item.updateDate},
+            #{item.remarks}
+            )
+        </foreach>
+    </insert>
+    <update id="updateCarParkingLot" parameterType="map" >
+        update car_parking_lot set parking_lot=#{parkingLot},parking_lot_code=#{parkingLotCode},total_lot=#{totalLot},
+        idle_lot=#{idleLot},car_num_num=#{carNumNum},
+        entrance_num=#{entranceNum},exit_num=#{exitNum},led_num=#{ledNum},
+        status=#{status},
+        create_date=#{createDate},create_by=#{createBy},update_by=#{updateBy},update_date=#{updateDate},remarks=#{remarks}
+        where xq_code=#{xqCode} and manage_id=#{manageId}
+    </update>
+    <delete id="deleteCarParkingLot" parameterType="map">
+        delete from car_parking_lot where xq_code=#{xqCode} and manage_id=#{manageId}
+    </delete>
+    <delete id="deleteCarParkingLotAll" parameterType="map">
+        delete from car_parking_lot where xq_code=#{xqCode}
+    </delete>
+</mapper>

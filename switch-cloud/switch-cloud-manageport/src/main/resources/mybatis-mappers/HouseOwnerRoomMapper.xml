@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.windaka.suizhi.manageport.dao.HouseOwnerRoomDao">
+    <insert id="saveHouseOwnerRooms" parameterType="map">
+        insert into house_owner_room (xq_code,manage_id,
+        `owner_id` ,
+        `owner_name` ,
+        `room_id` ,
+        `use_status` ,
+        `checkin_time` ,
+        `decoration_time` ,
+        `subscribe_no` ,
+        `house_property_card_num` ,
+        `is_pay_maintenance_fund` ,
+        `pre_maintenance_fund` ,
+        `remark` ,
+        `order_id` ,
+        `status` ,
+        `create_by` ,
+        `create_date` ,
+        `update_by` ,
+        `update_date` ,
+        `remarks` ,
+        `live_type` ,
+        `owner_relation`,
+        `live_type_name` ,
+        `owner_relation_name`,
+        residence
+        )
+        values
+        <foreach collection="list" index="index" item="item" open="" close="" separator=",">
+            (#{xqCode},#{item.manageId},
+            #{item.ownerId},#{item.ownerName},#{item.roomId},#{item.useStatus},#{item.checkinTime},
+            #{item.decorationTime},#{item.subscribeNo},#{item.housePropertyCardNum},#{item.isPayMaintenanceFund},#{item.preMaintenanceFund},
+            #{item.remark},#{item.orderId},#{item.status},#{item.createBy},#{item.createDate},#{item.updateBy},#{item.updateDate},
+            #{item.remarks},#{item.liveType},#{item.ownerRelation},#{item.liveTypeName},#{item.ownerRelationName},#{item.residence}
+            )
+        </foreach>
+    </insert>
+    <update id="updateHouseOwnerRoom" parameterType="map" >
+        update house_owner_room set owner_id=#{ownerId},owner_name=#{ownerName},room_id=#{roomId},use_status=#{useStatus},
+        checkin_time=#{checkinTime},decoration_time=#{decorationTime},subscribe_no=#{subscribeNo},house_property_card_num=#{housePropertyCardNum},
+        is_pay_maintenance_fund=#{isPayMaintenanceFund},
+        remark=#{remark},order_id=#{orderId},status=#{status},live_type=#{liveType},owner_relation=#{ownerRelation},live_type_name=#{liveTypeName},owner_relation_name=#{ownerRelationName},
+        create_date=#{createDate},create_by=#{createBy},update_by=#{updateBy},update_date=#{updateDate},remarks=#{remarks},residence=#{residence}
+        where xq_code=#{xqCode} and manage_id=#{manageId}
+    </update>
+    <delete id="deleteHouseOwnerRoom" parameterType="map">
+        delete from house_owner_room where xq_code=#{xqCode} and manage_id=#{manageId}
+    </delete>
+</mapper>

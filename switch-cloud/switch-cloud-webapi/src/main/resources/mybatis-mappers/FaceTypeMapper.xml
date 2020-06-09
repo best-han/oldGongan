@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.windaka.suizhi.webapi.dao.FaceTypeDao">
+    <!--人脸类别维护-->
+    <insert id="saveFaceType" parameterType="map">
+        insert into face_type (remarks,library_name,type_name,status,create_by,create_date,update_by,update_date,face_type_code)
+        values (#{remarks},#{libraryName},#{typeName},0,#{createBy},now(),#{updateBy},now(),#{faceTypeCode})
+    </insert>
+
+
+    <update id="updateFaceType" parameterType="map">
+        update face_type set library_name=#{libraryName},remarks=#{remarks},type_name=#{typeName},update_by=#{updateBy},
+        update_date=now() where id=#{id}
+    </update>
+
+    <!--删除人脸库-->
+    <delete id="deleteFaceTypeByCode" parameterType="String">
+        delete from face_type where  face_type_code =#{id}
+    </delete>
+
+
+    <select id="selectFaceType" parameterType="Map" resultType="com.windaka.suizhi.webapi.model.FaceLibrary">
+        select id, remarks,library_name libraryName,type_name typeName from face_type where  id =#{id} 
+    </select>
+
+
+    <!--人员库列表查询 总数-->
+    <select id="queryTotalFaceType" resultType="int">
+        select count(1) from (
+        select typeLib.id id, typeLib.remarks remarks,typeLib.library_name libraryName,typeLib.type_name typeName, typeLib.face_type_code faceTypeCode ,person.peopleNum peopleNum from face_type typeLib
+        left join
+        (select  face_type_code,count(*) peopleNum from face_type_person  where control_status="0"  group by face_type_code) person on person.face_type_code=typeLib.face_type_code
+        where typeLib.manage_id='0'
+        <if test="likeStr!=null and likeStr!=''">
+            and concat_WS(" ",typeLib.remarks,typeLib.library_name,typeLib.type_name,person.peopleNum)  like concat('%',#{likeStr},'%')
+        </if>
+        order by typeLib.create_date desc
+        )as total
+    </select>
+    <!--人员库列表 查询-->
+    <select id="queryFaceTypes" parameterType="Map" resultType="Map">
+        select typeLib.id id, typeLib.remarks remarks,typeLib.library_name libraryName,typeLib.type_name typeName, typeLib.face_type_code faceTypeCode ,IFNULL(person.peopleNum,0) peopleNum from face_type typeLib
+        left join
+        (select  face_type_code,count(*) peopleNum from face_type_person  where control_status="0"  group by face_type_code) person on person.face_type_code=typeLib.face_type_code
+        where typeLib.manage_id='0'
+      <if test="likeStr!=null and likeStr!=''">
+          and concat_WS(" ",typeLib.remarks,typeLib.library_name,typeLib.type_name,person.peopleNum)  like concat('%',#{likeStr},'%')
+      </if>
+      order by typeLib.create_date desc
+        limit #{start},#{limit}
+    </select>
+
+</mapper>

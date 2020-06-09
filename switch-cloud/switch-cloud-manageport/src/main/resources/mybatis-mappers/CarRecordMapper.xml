@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.windaka.suizhi.manageport.dao.CarRecordDao">
+    <!--车辆报警记录上传-->
+    <insert id="saveCarAlarmRecords" parameterType="java.util.Map">
+        insert into car_alarm_record (xq_code,
+        car_alarm_id,car_capture_id,cap_time,device_id,device_code,device_name,device_location,device_addr_name,
+        car_number,car_color,car_vehicle_type,car_imgpath,car_number_imgpath,cl_status,status,remarks,
+        device_dhcode,device_dhseq,cl_user,cl_time,cl_content,cap_video_url,cap_dev_channel,capVUrl,
+        cre_time,upd_time,cre_by,upd_by,base64_img)
+        values
+            (#{xqCode},
+            #{carAlarmId},#{carCaptureId},#{capTime},#{deviceId},#{deviceCode},#{deviceName},#{deviceLocation},#{deviceAddrName},
+            #{carNumber},#{carColor},#{carVehicleType},#{carImgpath},#{carNumberImgpath},#{clStatus},#{status},#{remarks},
+            #{deviceDhcode}, #{deviceDhseq}, #{clUser}, #{clTime},
+            #{clContent},#{capVideoUrl},#{capDevChannel},#{capVUrl},
+            now(),now(),#{creBy},#{creBy},#{base64Img})
+    </insert>
+    <insert id="saveCarJeevesRecords" parameterType="java.util.Map">
+        insert into car_jeeves_record (xq_code,
+        jeeves_id,car_capture_id,cap_time,device_id,device_code,device_name,device_location,device_addr_name,
+        car_number,car_color,car_vehicle_type,car_imgpath,car_number_imgpath,cl_status,status,remarks,
+        device_dhcode,device_dhseq,cl_user,cl_time,cl_content,cap_video_url,cap_dev_channel,capVUrl,
+        cre_time,upd_time,cre_by,upd_by,base64_img)
+        values
+        <foreach collection="list" item="car" separator="," open="" close="" index="i">
+            (#{car.xqCode},
+            #{car.jeevesId},#{car.carCaptureId},#{car.capTime},#{car.deviceId},#{car.deviceCode},#{car.deviceName},#{car.deviceLocation},#{car.deviceAddrName},
+            #{car.carNumber},#{car.carColor},#{car.carVehicleType},#{car.carImgpath},#{car.carNumberImgpath},#{car.clStatus},#{car.status},#{car.remarks},
+            #{car.deviceDhcode}, #{car.deviceDhseq}, #{car.clUser}, #{car.clTime},
+            #{car.clContent},#{car.capVideoUrl},#{car.capDevChannel},#{car.capVUrl},
+            now(),now(),#{car.creBy},#{car.upBy},#{car.base64Img})
+        </foreach>
+    </insert>
+    <update id="updateCarAlarmRecord" parameterType="java.util.Map">
+        update car_alarm_record
+        <trim prefix="set" suffixOverrides=",">
+            cl_status=1,cl_user=#{clUser},cl_content=#{clContent},cl_time=now(),upd_by=#{updBy},upd_time=now()
+            <if test="base64Img != null">
+                base64_img = #{base64Img,jdbcType=VARCHAR}
+            </if>
+        </trim>
+        where car_alarm_id=#{alarmId}
+    </update>
+    <update id="updateCarJeevesRecord" parameterType="java.util.Map">
+        update car_jeeves_record set cl_status=1,cl_user=#{clUser},cl_content=#{clContent},cl_time=now(),upd_by=#{updBy},upd_time=now()
+        where jeeves_id=#{alarmId}
+    </update>
+    <select id="queryCarAlarmRecord" parameterType="string" resultType="java.util.Map">
+        select ca.xq_code xqCode,xq.name xqName,
+        ca.car_alarm_id alarmId,date_format(ca.cap_time,'%Y-%m-%d %H:%i:%s') alarmTime,ca.device_name deviceAddr,
+        ca.car_number carNumber,co.color_name carColor,ct.car_type_name carVehicleType,
+        ca.car_imgpath capImgUrl,
+        ca.cl_user clUser,date_format(ca.cl_time,'%Y-%m-%d %H:%i:%s') clTime,ca.cl_content clContent,
+        ca.cap_video_url capVideoUrl,ca.cap_dev_channel capDevChannel,ca.capVUrl
+        from car_alarm_record ca inner join ht_xq_info xq on xq.code=ca.xq_code
+        left join ht_color co on co.color_code=ca.car_color
+        left join ht_car_type ct on ct.car_vehicle_type=ca.car_vehicle_type
+        where ca.car_alarm_id=#{carAlarmId}
+    </select>
+    <select id="queryCarJeevesRecord" parameterType="string" resultType="java.util.Map">
+        select cj.xq_code xqCode,xq.name xqName,
+        cj.jeeves_id alarmId,date_format(cj.cap_time,'%Y-%m-%d %H:%i:%s') alarmTime,cj.device_name deviceAddr,
+        cj.car_number carNumber,co.color_name carColor,ct.car_type_name carVehicleType,
+        cj.car_imgpath capImgUrl,
+        cj.cl_user clUser,date_format(cj.cl_time,'%Y-%m-%d %H:%i:%s') clTime,cj.cl_content clContent,
+        cj.cap_video_url capVideoUrl,cj.cap_dev_channel capDevChannel,cj.capVUrl
+        from car_jeeves_record cj inner join ht_xq_info xq on xq.code=cj.xq_code
+        left join ht_color co on co.color_code=cj.car_color
+        left join ht_car_type ct on ct.car_vehicle_type=cj.car_vehicle_type
+        where cj.jeeves_id=#{jeevesId}
+    </select>
+
+    <select id="totalStrangCar" parameterType="Map" resultType="int">
+        SELECT count(distinct ca.car_number) total
+        from car_alarm_record ca
+        inner join ht_xq_info xq on ca.xq_code = xq.code
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on
+        area.area_id=xq.sso_regionalcode
+        where ca.status='0'
+        <if test="beginTime !=null and beginTime !='' and endTime !=null and endTime!=''">
+            and ca.cap_time between STR_TO_DATE('${beginTime}','%Y-%m-%d') and STR_TO_DATE('${endTime}','%Y-%m-%d')
+        </if>
+        <if test="xqCode != null and xqCode != ''">
+            and ca.xq_code in (${xqCode})
+        </if>
+    </select>
+    <select id="totalJeevesCar" parameterType="Map" resultType="int">
+        SELECT count(distinct cj.car_number) total
+        from car_jeeves_record cj
+        inner join ht_xq_info xq on cj.xq_code = xq.code
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on
+        area.area_id=xq.sso_regionalcode
+        where cj.status='0'
+        <if test="beginTime !=null and beginTime !='' and endTime !=null and endTime!=''">
+            and cj.cap_time between STR_TO_DATE('${beginTime}','%Y-%m-%d') and STR_TO_DATE('${endTime}','%Y-%m-%d')
+        </if>
+        <if test="xqCode != null and xqCode != ''">
+            and cj.xq_code in (${xqCode})
+        </if>
+    </select>
+
+    <!--车辆出入记录 -->
+    <select id="queryTotalCarAccessRecord" parameterType="Map" resultType="int">
+        select count(1) total
+        from car_access_record a
+        left join (select c.car_num,c.person_code,p.`name` from car_info c
+        INNER JOIN zs_person_info p on p.code=c.person_code where c.`status`='0' ) b on b.car_num=a.car_num
+        inner join ht_xq_info xq on a.xq_code=xq.code
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on
+        area.area_id=xq.sso_regionalcode
+        where 1=1
+        <if test="beginTime !=null and beginTime !='' and endTime !=null and endTime!=''">
+            and a.cap_time between STR_TO_DATE('${beginTime}','%Y-%m-%d') and STR_TO_DATE('${endTime}','%Y-%m-%d')
+        </if>
+        <if test="xqCode != null and xqCode != ''">
+            and a.xq_code in (${xqCode})
+        </if>
+        <!-- 用于统计车辆进场和出场数量 -->
+        <if test="carDirect != null and carDirect != ''">
+            and a.car_direct = ${carDirect}
+        </if>
+    </select>
+    <select id="queryCarAccessRecordList" parameterType="Map" resultType="Map">
+        select a.xq_code xqCode,xq.name xqName, a.dev_chn_name devChnName,a.dev_chn_id devChnId,a.dev_chn_num devChnNum
+        ,a.car_num carNum,a.real_capture_pic_path realCapturePicPath,a.original_pic_path originalPicPath,a.car_direct
+        carDirect
+        ,date_format(a.cap_time,'%Y-%m-%d %H:%i:%s') capTime,b.person_code personCode,
+        CASE WHEN b.person_code is null THEN '陌生人' ELSE b.name END as personName
+        from car_access_record a
+        left join (select c.car_num,c.person_code,p.`name` from car_info c
+        INNER JOIN zs_person_info p on p.code=c.person_code where c.`status`='0' ) b on b.car_num=a.car_num
+        inner join ht_xq_info xq on a.xq_code=xq.code
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on
+        area.area_id=xq.sso_regionalcode
+        where 1=1
+        <if test="beginTime !=null and beginTime !='' and endTime !=null and endTime!=''">
+            and a.cap_time between STR_TO_DATE('${beginTime}','%Y-%m-%d') and STR_TO_DATE('${endTime}','%Y-%m-%d')
+        </if>
+        <if test="xqCode != null and xqCode != ''">
+            and a.xq_code in (${xqCode})
+        </if>
+        order by a.cap_time desc
+        limit #{start}, #{limit}
+    </select>
+    <!-- 获取最大主键 -->
+    <select id="getMaxRecord" resultType="int">
+        select MAX(id) from car_alarm_record
+    </select>
+    <!-- 获取最大车道占用最大主键 -->
+    <select id="getCarMaxRecord" resultType="int">
+        select MAX(id) from car_jeeves_record
+    </select>
+    <!-- 根据记录主键获取主键 -->
+    <select id="getRecordByAlarmId" resultType="int">
+        select
+        id
+        from
+        car_alarm_record
+        where  car_alarm_id = ${alarmId}
+    </select>
+    <!-- 根据占道记录主键获取主键 -->
+    <select id="getRecordByJeevesId">
+        select
+        id
+        from
+        car_jeeves_record
+        where  jeeves_id = ${alarmId}
+    </select>
+</mapper>

@@ -1,0 +1,12 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.windaka.suizhi.webapi.dao.CarAccessRecordDao">
+
+    <!--车辆出入场记录-->
+    <insert id="saveCarAccessRecord" parameterType="map">
+        INSERT INTO car_access_record(xq_code,dev_chn_name,dev_chn_id,dev_chn_num,car_num,real_capture_pic_path,cap_time,car_direct,original_pic_path)
+        values (#{xqCode},#{carAccessRecord.devChnName},#{carAccessRecord.devChnId},#{carAccessRecord.devChnNum},#{carAccessRecord.carNum}
+                ,#{carAccessRecord.realCapturePicPath},#{carAccessRecord.capTime},#{carAccessRecord.carDirect},#{carAccessRecord.originalPicPath})
+    </insert>
+
+</mapper>

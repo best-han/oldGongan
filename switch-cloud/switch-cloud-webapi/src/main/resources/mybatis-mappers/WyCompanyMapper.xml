@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.windaka.suizhi.webapi.dao.WyCompanyDao">
+
+    <!--新增物业公司-->
+    <insert id="saveWy" parameterType="com.windaka.suizhi.webapi.model.WyCompany">
+        INSERT INTO ht_company(company_code,company_name,parent_code,parent_codes,tree_sort,tree_sorts,tree_leaf,tree_level,tree_names,view_code,full_name
+                ,area_code,status,create_by,create_date,update_by,update_date,remarks,corp_code,corp_name)
+        values (#{companyCode},#{companyName},#{parentCode},#{parentCodes},#{treeSort},#{treeSorts},#{treeLeaf},#{treeLevel},#{treeNames},#{viewCode}
+                ,#{fullName},#{areaCode},#{status},#{createBy},#{createDate},#{updateBy},#{updateDate},#{remarks},#{corpCode},#{corpName})
+    </insert>
+    <!--修改物业公司信息-->
+    <update id="updateWy" parameterType="com.windaka.suizhi.webapi.model.WyCompany">
+        update ht_company  SET company_name=#{companyName},parent_code=#{parentCode},parent_codes=#{parentCodes},tree_sort=#{treeSort},tree_sorts=#{treeSorts},
+                               tree_leaf=#{treeLeaf},tree_level=#{treeLevel},tree_names=#{treeNames},view_code=#{viewCode},full_name=#{fullName},area_code=#{areaCode},
+                               status=#{status},remarks=#{remarks},create_date=#{createDate},create_by=#{createBy},update_date=#{updateDate},update_by=#{updateBy},
+                               corp_code=#{corpCode},corp_name=#{corpName}
+        where company_code=#{companyCode}
+    </update>
+
+    <sql id="where">
+        <where>
+            <if test="params.companyCode != null and params.companyCode != ''">
+                and a.company_code = #{params.companyCode}
+            </if>
+            <!--<if test="params.companyName != null and params.companyName != ''">-->
+                <!--and a.company_name = #{params.companyName}-->
+            <!--</if>-->
+            <if test="params.companyName != null and params.companyName != ''">
+                and a.company_name like concat('%',#{params.companyName},'%')
+            </if>
+            <if test="params.xqCode != null and params.xqCode != ''">
+                and a.parent_code = #{params.parentCode}
+            </if>
+            <if test="params.parentCodes != null and params.parentCodes != ''">
+                and a.parent_codes = #{params.parentCodes}
+            </if>
+            <if test="params.treeSort != null and params.treeSort != ''">
+                and a.tree_sort = #{params.treeSort}
+            </if>
+            <if test="params.treeSorts != null and params.treeSorts != ''">
+                and a.tree_sorts = #{params.treeSorts}
+            </if>
+            <if test="params.treeLeaf != null and params.treeLeaf != ''">
+                and a.tree_leaf = #{params.treeLeaf}
+            </if>
+            <if test="params.treeLevel != null and params.treeLevel != ''">
+                and a.tree_level = #{params.treeLevel}
+            </if>
+            <if test="params.treeNames != null and params.treeNames != ''">
+                and a.tree_names = #{params.treeNames}
+            </if>
+            <if test="params.viewCode != null and params.viewCode != ''">
+                and a.view_code = #{params.viewCode}
+            </if>
+            <if test="params.fullName != null and params.fullName != ''">
+                and a.full_name = #{params.fullName}
+            </if>
+            <if test="params.areaCode != null and params.areaCode != ''">
+                and a.area_code = #{params.areaCode}
+            </if>
+            <if test="params.remarks != null and params.remarks != ''">
+                and a.remarks = #{params.remarks}
+            </if>
+            <if test="params.createDate != null and params.createDate != ''">
+                and a.create_date = #{params.createDate}
+            </if>
+            <if test="params.createBy != null and params.createBy != ''">
+                and a.create_by = #{params.createBy}
+            </if>
+            <if test="params.updateDate != null and params.updateDate != ''">
+                and a.update_date = #{params.updateDate}
+            </if>
+            <if test="params.updateBy != null and params.updateBy != ''">
+                and a.update_by = #{params.updateBy}
+            </if>
+            <if test="params.status != null and params.status != ''">
+                and a.status = #{params.status}
+            </if>
+        </where>
+    </sql>
+    <select id="totalRows" resultType="int">
+        select count(*) totalRows from ht_company a
+        inner join (select area_id from ht_area  where parent_ids like concat('%',#{params.areaId},'%')) area on area.area_id=a.area_code
+        <include refid="where" />
+    </select>
+    <select id="queryWyList" resultType="java.util.Map">
+        select a.company_code companyCode,a.company_name companyName,a.parent_code,a.parent_codes,a.tree_sort,a.tree_sorts,a.tree_leaf,a.tree_level,a.tree_names,a.view_code,a.full_name,a.area_code,
+               a.status,a.remarks, a.create_date,a.create_by,a.update_date,a.update_by
+        from ht_company a
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{params.areaId},'%')) area on area.area_id=a.area_code
+        <include refid="where" />
+        order by a.create_date
+        limit #{params.start}, #{params.limit}
+    </select>
+</mapper>

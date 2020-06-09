@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.windaka.suizhi.user.dao.UserMenuDao">
+    <select id="queryAdminMenusForMap" resultType="java.util.Map" parameterType="java.lang.String">
+        SELECT a.Menu_id menuId,a.Menu_name menuName, a.pmenu_id pmenuId
+        FROM ht_menu a
+        WHERE a.status = 1 AND a.del_flag = 1
+        <choose>
+            <!--系统超级管理员专用的虚拟区域-->
+            <when test="areaId == '99999999999999999999999999999999'">
+
+            </when>
+            <!--青岛区域管理员专用的-->
+            <when test="areaId == '78cd02f709784a9bbe234cac6b95002f'">
+                AND a.scope NOT IN('00')
+            </when>
+            <!--其他普通运营区域-->
+            <otherwise>
+                AND a.scope NOT IN('00','01')
+            </otherwise>
+        </choose>
+        ORDER BY a.order_num
+    </select>
+    
+    <select id="queryAdminMenus"  resultType="com.windaka.suizhi.api.oss.sys.HtMenu">
+        SELECT menu_id AS menuId,
+               pmenu_id AS pmenuId,
+               menu_name AS menuName,
+               icon,
+               isdir AS isDir,
+               url,
+               status,
+               order_num AS orderNum,
+               cre_time AS creTime,
+               upd_time AS updTime
+          FROM ht_menu t
+         WHERE t.del_flag = 1 AND t.status = 1
+        ORDER BY t.order_num
+    </select>
+</mapper>

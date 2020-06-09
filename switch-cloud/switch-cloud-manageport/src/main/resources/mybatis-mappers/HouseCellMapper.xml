@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.windaka.suizhi.manageport.dao.HouseCellDao">
+    <insert id="saveHouseCells" parameterType="map">
+        insert into house_cell (xq_code,manage_id,
+        `building_id` ,
+        `code`,
+        `name`,
+        `begin_floor` ,
+        `end_floor`,
+        `begin_room_num`,
+        `end_room_num`,
+        `households`,
+        `remark` ,
+        `status`,
+        `create_by`,
+        `create_date`,
+        `update_by`,
+        `update_date`,
+        `remarks`
+        )
+        values
+        <foreach collection="list" index="index" item="item" open="" close="" separator=",">
+            (#{xqCode},#{item.manageId},
+            #{item.buildingId},#{item.code},#{item.name},#{item.beginFloor},#{item.endFloor},
+            #{item.beginRoomNum},#{item.endRoomNum},#{item.households},#{item.remark},#{item.status},
+            #{item.createBy},#{item.createDate},#{item.updateBy},#{item.updateDate},#{item.remarks}
+            )
+        </foreach>
+    </insert>
+    <update id="updateHouseCell" parameterType="map" >
+        update house_cell set building_id=#{buildingId},code=#{code},name=#{name},
+        begin_floor=#{beginFloor},end_floor=#{endFloor},begin_room_num=#{beginRoomNum},end_room_num=#{endRoomNum},
+        households=#{households},remark=#{remark},status=#{status},
+        create_date=#{createDate},create_by=#{createBy},update_by=#{updateBy},update_date=#{updateDate},remarks=#{remarks}
+        where xq_code=#{xqCode} and manage_id=#{manageId}
+    </update>
+    <delete id="deleteHouseCell" parameterType="map">
+        delete from house_cell where xq_code=#{xqCode} and manage_id=#{manageId}
+    </delete>
+</mapper>

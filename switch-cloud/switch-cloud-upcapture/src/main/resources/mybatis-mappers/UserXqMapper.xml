@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.windaka.suizhi.upcapture.dao.UserXqDao">
+
+	<!--通过小区code查出下的所有username-->
+	<select id="queryUsernamesByXqCode" parameterType="String" resultType="String">
+        select u.username
+                from ht_user u
+                inner join ht_user_xq as ux on u.user_id=ux.user_id
+        where ux.xq_code = #{xqCode} and ux.status='0'
+    </select>
+
+</mapper>

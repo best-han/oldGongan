@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.windaka.suizhi.mpi.dao.RoomDao">
+
+    <select id="queryRoomPropertyNum" parameterType="map" resultType="map">
+        select count(1) num, a.purpose roomPropertyType,d.dict_value roomProperty
+        from (select * from (select * from house_room_record where xq_code in (${xqCode}) order by record_time desc limit #{limit} ) b group by b.room_id ) a
+        inner join (select dict_label,dict_value from ht_dict where dict_code='room_property')d on d.dict_label= a.purpose
+        inner join ht_xq_info xq on xq.code=a.xq_code and xq.status='0'
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on area.area_id=xq.sso_regionalcode
+        where 1=1
+        <if test="xqCode != null and xqCode != ''">
+            and a.xq_code in (${xqCode})
+        </if>
+        group by a.purpose,d.dict_value
+    </select>
+
+    <select id="queryRoomRecordNumByXqCodes" parameterType="map" resultType="int">
+        select count(1) from house_room_record where  xq_code in (${xqCode})
+    </select>
+
+    <select id="queryRoomRentAddNum" parameterType="map" resultType="int">
+        select count(1) num from house_room_rent_record a
+        inner join ht_xq_info xq on xq.code=a.xq_code and xq.status='0'
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on area.area_id=xq.sso_regionalcode
+        where 1=1 and a.purpose in ('2','3') and a.record_time between #{startTime} and #{endTime}
+        <if test="xqCode != null and xqCode != ''">
+            and a.xq_code in (${xqCode})
+        </if>
+    </select>
+
+    <select id="queryRoomNameByManageId" parameterType="string" resultType="string">
+        select concat(c.name,b.name,a.name) roomName from house_room a
+				join house_cell b on b.manage_id=a.cell_id
+				join house_building c on c.manage_id=b.building_id
+				where a.manage_id=#{manageId};
+    </select>
+
+    <select id="queryXqRoomIdByOwnerId" parameterType="Map" resultType="Map">
+        select house_owner_room.room_id as roomId,house_owner_room.owner_name as ownerName,house_owner_room.live_type_name as liveTypeName,house_owner_room.live_type as liveType
+        from house_owner_room
+        where house_owner_room.owner_id=#{ownerId} and xq_code=#{xqCode}
+    </select>
+
+</mapper>

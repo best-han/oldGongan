@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.windaka.suizhi.webapi.dao.MsgSuspectedAddDao">
+
+    <!--疑似新增人/车  insert msg_suspected_add 表-->
+    <insert id="insertMsgSuspectedAdd" parameterType="Map">
+        insert into msg_suspected_add (xq_code,person_id,car_num,type,msg_status,create_time, update_time, sense_days)
+        values (#{xqCode},#{personId},#{carNum}, #{type}, 0, now(), now(), #{senseDays})
+    </insert>
+
+    <!--疑似新增人/车  update msg_suspected_add 表-->
+    <update id="updateMsgSuspectedAdd" parameterType="Map">
+      update msg_suspected_add set msg_status=#{msgStatus},update_time=now()
+      where 1=1
+      <if test="personId!=null and personId!=''">
+         and  msg_suspected_add.person_id=#{personId}
+      </if>
+      <if test="carNum!=null and carNum!=''">
+          and  msg_suspected_add.car_num=#{carNum}
+      </if>
+    </update>
+
+    <update id="updateMsgSuspectedAddMoreThan15Days" >
+        update msg_suspected_add set msg_status=0,update_time=now()
+        where DATEDIFF(now(),msg_suspected_add.update_time) &gt;= 15
+    </update>
+
+    <!--疑似新增人/车  select msg_suspected_add 表-->
+    <select id="seleteMsgSuspectedAdd" parameterType="Map" resultType="int">
+        select count(*) from msg_suspected_add
+        where 1=1
+        <if test="personId!=null and personId!=''">
+            and  msg_suspected_add.person_id=#{personId}
+        </if>
+        <if test="carNum!=null and carNum!=''">
+            and  msg_suspected_add.car_num=#{carNum}
+        </if>
+    </select>
+
+</mapper>

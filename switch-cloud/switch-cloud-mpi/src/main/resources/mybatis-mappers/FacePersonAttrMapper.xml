@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.windaka.suizhi.mpi.dao.FacePersonAttrDao">
+
+    <select id="queryByManageId" parameterType="string" resultType="map">
+        select id, capture_time captureTime, capture_device_id captureDeviceId, capture_img captureImg, person_id personId,
+        name, sex, type, age,
+        country, bmask, eyeglass, hat, knapsack, handbag, coat_type coatType, coat_color coatColor, trousers_type trousersType,
+        trousers_color trousersColor, similar, xq_code xqCode, manage_id manageId
+        from face_person_attr
+        where id = #{id}
+    </select>
+    <select id="selectById" parameterType="string" resultType="map">
+        select f.*,x.name xqName,d.device_name deviceName,d.dchnl_code deviceCode,d.device_name deviceName
+        from face_person_attr f
+        left join face_capture_device d on d.manage_id=f.capture_device_id
+        left join ht_xq_info x on  f.xq_code = x.code
+        where f.id = #{id}
+    </select>
+    <!-- 获取最新数据 -->
+    <select id="getMoreRecord" parameterType="map" resultType="com.windaka.suizhi.mpi.model.FaceCaptureAttrModel">
+        select
+        f.id id,
+        f.base64_img base64Img,
+        f.capture_time captureTime,
+        d.id deviceId
+        from face_person_attr f inner  join  face_capture_device d on f.capture_device_id = d.manage_id
+        where f.id  <![CDATA[>]]> #{maxId}
+        and  f.capture_time <![CDATA[<]]> #{timeStr}
+        and f.person_id!='' and f.person_id is not null
+        order  by f.id asc
+        limit 100
+    </select>
+  <!--  <insert id="insert" parameterType="com.windaka.suizhi.manageport.model.FacePersonAttr">
+    insert into face_person_attr (id, capture_time, capture_device_id, 
+      capture_img, person_id, name, 
+      sex, type, age, 
+      country, bmask, eyeglass, 
+      hat, knapsack, handbag, coat_type, 
+      coat_color, trousers_type, trousers_color, 
+      similar, xq_code, manage_id
+      )
+    values (#{id,jdbcType=BIGINT}, #{captureTime,jdbcType=TIMESTAMP}, #{captureDeviceId,jdbcType=VARCHAR}, 
+      #{captureImg,jdbcType=VARCHAR}, #{personId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
+      #{sex,jdbcType=SMALLINT}, #{type,jdbcType=SMALLINT}, #{age,jdbcType=SMALLINT}, 
+      #{country,jdbcType=SMALLINT}, #{bmask,jdbcType=BIT}, #{eyeglass,jdbcType=BIT}, 
+      #{hat,jdbcType=BIT}, #{knapsack,jdbcType=BIT}, #{handbag,jdbcType=BIT}, #{coatType,jdbcType=INTEGER}, 
+      #{coatColor,jdbcType=INTEGER}, #{trousersType,jdbcType=INTEGER}, #{trousersColor,jdbcType=INTEGER}, 
+      #{similar,jdbcType=DOUBLE}, #{xqCode,jdbcType=VARCHAR}, #{manageId,jdbcType=VARCHAR}
+      )
+  </insert>-->
+
+    <select id="queryByPersonId" parameterType="string" resultType="map">
+        select a.id, DATE_FORMAT(a.capture_time, '%Y年%m月%d日 %H:%i:%s') captureTime, a.capture_device_id captureDeviceId, a.capture_img captureImg, a.person_id personId,
+        a.name, a.sex, a.type, a.age,
+        a.country, a.bmask, a.eyeglass, a.hat, a.knapsack, a.handbag, a.coat_type coatType, a.coat_color coatColor, a.trousers_type trousersType,
+        a.trousers_color trousersColor, a.similar, a.xq_code xqCode, a.manage_id manageId,x.name xqName,b.device_name deviceName
+        from face_person_attr a
+        join face_capture_device b on b.manage_id=a.capture_device_id
+        join ht_xq_info x on x.code=a.xq_code
+        where a.person_id = #{personId}
+        order by a.capture_time desc
+        limit 1
+    </select>
+</mapper>

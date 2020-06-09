@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.windaka.suizhi.manageport.dao.OpenRecordDao">
+
+    <!--新增开门记录-->
+    <insert id="saveOpenRecord" parameterType="map">
+        INSERT INTO zs_open_record(xq_code,device_name,device_code,open_type,room_num,swipe_id,swipe_name,card_number,card_type,open_result,swipe_time,operate_time)
+        values (#{xqCode},#{openRecord.deviceName},#{openRecord.deviceCode},#{openRecord.openType},#{openRecord.roomNum},#{openRecord.swipeId}
+        ,#{openRecord.swipeName},#{openRecord.cardNumber},#{openRecord.cardType},#{openRecord.openResult},#{openRecord.swipeTime},#{openRecord.operateTime})
+    </insert>
+
+    <select id="queryOpenType" resultType="Map">
+        select open_type openType,open_type_str openTypeStr
+        from zs_open_type a
+    </select>
+    <select id="querySumOneDayOpenRecordByOpenType" parameterType="Map" resultType="int">
+        select count(1) num
+        from zs_open_record a
+        inner join ht_xq_info xq on a.xq_code=xq.code
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on area.area_id=xq.sso_regionalcode
+        where 1=1
+        and a.open_type=${openType}
+        and DATE_FORMAT(a.swipe_time,'%Y-%m-%d')='${swipeTime}'
+        <if test="xqCode != null and xqCode != ''">
+            and a.xq_code in (${xqCode})
+        </if>
+    </select>
+    <select id="querySumOneDayOpenRecord" parameterType="Map" resultType="int">
+        select count(1) sum
+        from zs_open_record a
+        inner join ht_xq_info xq on a.xq_code=xq.code
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on area.area_id=xq.sso_regionalcode
+        where 1=1
+        and DATE_FORMAT(a.swipe_time,'%Y-%m-%d')='${swipeTime}'
+        <if test="xqCode != null and xqCode != ''">
+            and a.xq_code in (${xqCode})
+        </if>
+    </select>
+    <select id="querySumOneDayOpenRecordList" parameterType="Map" resultType="Map">
+        select count(1) sumOneDay,DATE_FORMAT(a.swipe_time,'%Y-%m-%d') dayTime
+        from zs_open_record a
+        inner join ht_xq_info xq on a.xq_code=xq.code
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on area.area_id=xq.sso_regionalcode
+        where 1=1
+        <if test="beginTime !=null and beginTime !='' and endTime !=null and endTime!=''">
+            and a.swipe_time between STR_TO_DATE('${beginTime}','%Y-%m-%d') and STR_TO_DATE('${endTime}','%Y-%m-%d')
+        </if>
+        <if test="xqCode != null and xqCode != ''">
+            and a.xq_code in (${xqCode})
+        </if>
+        GROUP BY DATE_FORMAT(a.swipe_time,'%Y-%m-%d')
+    </select>
+    <select id="queryTotalOpenRecord" parameterType="Map" resultType="int">
+        select count(1) total
+        from zs_open_record a
+        inner join zs_open_type b on b.open_type=a.open_type
+        inner join ht_xq_info xq on a.xq_code=xq.code
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on area.area_id=xq.sso_regionalcode
+        where 1=1
+        <if test="beginTime !=null and beginTime !='' and endTime !=null and endTime!=''">
+            and a.swipe_time between STR_TO_DATE('${beginTime}','%Y-%m-%d') and STR_TO_DATE('${endTime}','%Y-%m-%d')
+        </if>
+        <if test="xqCode != null and xqCode != ''">
+            and a.xq_code in (${xqCode})
+        </if>
+    </select>
+    <select id="queryOpenRecordList" parameterType="Map" resultType="Map">
+        select a.xq_code xqCode,xq.name xqName, a.device_name deviceName,a.device_code deviceCode,a.open_type openType
+        ,b.open_type_str openTypeStr,a.room_num roomNum,a.swipe_id swipeId,a.swipe_name swipeName,a.card_number cardNumber
+        ,a.card_type cardType,a.open_result openResult,date_format(a.swipe_time,'%Y-%m-%d %H:%i:%s') swipeTime
+        from zs_open_record a
+        inner join zs_open_type b on b.open_type=a.open_type
+        inner join ht_xq_info xq on a.xq_code=xq.code
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on area.area_id=xq.sso_regionalcode
+        where 1=1
+        <if test="beginTime !=null and beginTime !='' and endTime !=null and endTime!=''">
+            and a.swipe_time between STR_TO_DATE('${beginTime}','%Y-%m-%d') and STR_TO_DATE('${endTime}','%Y-%m-%d')
+        </if>
+        <if test="xqCode != null and xqCode != ''">
+            and a.xq_code in (${xqCode})
+        </if>
+        order by a.swipe_time desc
+        limit #{start}, #{limit}
+    </select>
+
+
+</mapper>

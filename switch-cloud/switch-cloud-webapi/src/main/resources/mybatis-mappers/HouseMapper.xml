@@ -1,0 +1,414 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.windaka.suizhi.webapi.dao.HouseDao">
+    <select id="queryHouseBuildingList" parameterType="Map" resultType="Map">
+        select house_building.xq_code as xqCode,m_xq.name as xqName,house_building.name as buildingName,house_building.building_addr as buildingAddr,house_building.code as buildingCode from house_building
+        inner join (select ht_xq_info.code,ht_xq_info.name from ht_xq_info
+        <if test="xqCode != null and xqCode.length>0">
+            where ht_xq_info.code in (${xqCode})
+        </if>
+        <if test="areaId!=null and areaId!=''">
+            inner join (select distinct area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on area.area_id=ht_xq_info.sso_regionalcode
+        </if>
+        ) m_xq on m_xq.code=house_building.xq_code
+        where 1=1
+        <if test="buildingCode!=null and buildingCode!=''">
+            and house_building.code=#{buildingCode}
+        </if>
+        and house_building.name!='物业中心'
+        order by substring_index(house_building.name,'号',1)+0
+    </select>
+
+    <select id="roomTotalNum" parameterType="Map" resultType="int">
+        select count(1) as roomTotalNum from house_room
+        where 1=1
+        <if test="xqCode != null and xqCode.length>0">
+            and house_room.xq_code in (${xqCode})
+        </if>
+        <if test="subdistrictId!=null and subdistrictId!=''">
+            and house_room.xq_code in (select ht_xq_subdistrict.xq_code from ht_xq_subdistrict where ht_xq_subdistrict.subdistrict_id=#{subdistrictId})
+        </if>
+        <if test="areaId!=null and areaId!=''">
+            and house_room.xq_code in (select ht_xq_info.code from ht_xq_info inner join (select distinct area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on area.area_id=ht_xq_info.sso_regionalcode)
+        </if>
+    </select>
+
+    <select id="queryHouseRoomPropertyByXq" parameterType="Map" resultType="java.util.Map">
+        SELECT purpose,COUNT(*) as total FROM
+        (SELECT purpose,record_time,xq_code FROM house_room_record) as A
+        WHERE purpose=#{purpose} AND record_time BETWEEN #{beginTime} and #{endTime} AND xq_code=#{xqCode}
+        GROUP BY purpose
+    </select>
+
+    <select id="queryHouseRoomPropertyBySub" parameterType="Map" resultType="java.util.Map">
+        SELECT purpose,COUNT(*) as total FROM
+        (select distinct house_room_record.* from house_room_record
+        inner join (select ht_xq_subdistrict.xq_code from ht_xq_subdistrict where ht_xq_subdistrict.subdistrict_id=#{subdistrictId}) sub on
+        sub.xq_code=house_room_record.xq_code) as A
+        WHERE purpose=#{purpose} AND record_time BETWEEN #{beginTime} and #{endTime}
+        GROUP BY purpose
+    </select>
+
+    <select id="queryHouseRoomPropertyByArea" parameterType="Map" resultType="java.util.Map">
+        SELECT purpose,COUNT(*) as total FROM
+        (select distinct house_room_record.* from house_room_record
+        inner join (select ht_xq_info.code from ht_xq_info
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on area.area_id=ht_xq_info.sso_regionalcode)
+        axq on axq.code=house_room_record.xq_code) as A
+        WHERE purpose=#{purpose} AND record_time BETWEEN #{beginTime} and #{endTime}
+        GROUP BY purpose
+    </select>
+
+    <select id="queryHouseRoomLiveNumTop10ByXq" parameterType="Map" resultType="Map">
+        select distinct A.xq_code as xqCode,m_xq.name as xqName,concat(m_house_building.name,m_house_cell.name,m_house_room.name) as roomInfo,liveNum from
+        (select distinct B.manage_id as room_manage_id,count(*) as liveNum,B.xq_code from
+        (select distinct house_owner_room.room_id as manage_id,house_owner_room.owner_id,house_owner_room.xq_code from house_owner_room where house_owner_room.xq_code=#{xqCode}) as B
+        group by B.manage_id) as A
+        inner join (select distinct house_room.manage_id,house_room.name,house_room.xq_code,house_room.cell_id from house_room where house_room.xq_code=#{xqCode}) m_house_room on A.room_manage_id=m_house_room.manage_id
+        inner join (select distinct house_cell.manage_id,house_cell.name,house_cell.xq_code,house_cell.building_id from house_cell where house_cell.xq_code=#{xqCode}) m_house_cell on concat(m_house_room.xq_code,'_',m_house_room.cell_id)=m_house_cell.manage_id
+        inner join (select distinct house_building.manage_id,house_building.name from house_building where house_building.xq_code=#{xqCode}) m_house_building on concat(m_house_cell.xq_code,'_',m_house_cell.building_id)=m_house_building.manage_id
+        inner join (select distinct ht_xq_info.code,ht_xq_info.name from ht_xq_info where ht_xq_info.code=#{xqCode}) m_xq on
+        m_xq.code=A.xq_code
+        order by liveNum desc limit 10
+    </select>
+
+    <select id="queryHouseRoomLiveNumTop10BySub" parameterType="Map" resultType="Map">
+        select distinct C.xq_code as xqCode,m_xq.name as xqName,concat(m_house_building.name,m_house_cell.name,m_house_room.name) as roomInfo,liveNum from
+        (select distinct B.manage_id as room_manage_id,count(*) as liveNum,B.xq_code from
+        (select distinct house_owner_room.room_id as manage_id,house_owner_room.owner_id,house_owner_room.xq_code from house_owner_room
+        inner join (select distinct ht_xq_subdistrict.subdistrict_id,ht_xq_subdistrict.xq_code from ht_xq_subdistrict where ht_xq_subdistrict.subdistrict_id=#{subdistrictId}) hxs on hxs.xq_code=house_owner_room.xq_code) as B
+        group by B.manage_id) as C
+        inner join (select distinct house_room.manage_id,house_room.name,house_room.xq_code,house_room.cell_id from house_room
+        inner join (select distinct ht_xq_subdistrict.subdistrict_id,ht_xq_subdistrict.xq_code from ht_xq_subdistrict where ht_xq_subdistrict.subdistrict_id=#{subdistrictId}) hxs on hxs.xq_code=house_room.xq_code) m_house_room on C.room_manage_id=m_house_room.manage_id
+        inner join (select distinct house_cell.manage_id,house_cell.name,house_cell.xq_code,house_cell.building_id from house_cell
+        inner join (select distinct ht_xq_subdistrict.subdistrict_id,ht_xq_subdistrict.xq_code from ht_xq_subdistrict where ht_xq_subdistrict.subdistrict_id=#{subdistrictId}) hxs on hxs.xq_code=house_cell.xq_code) m_house_cell on concat(m_house_room.xq_code,'_',m_house_room.cell_id)=m_house_cell.manage_id
+        inner join (select distinct house_building.manage_id,house_building.name from house_building
+        inner join (select distinct ht_xq_subdistrict.subdistrict_id,ht_xq_subdistrict.xq_code from ht_xq_subdistrict where ht_xq_subdistrict.subdistrict_id=#{subdistrictId}) hxs on hxs.xq_code=house_building.xq_code) m_house_building on concat(m_house_cell.xq_code,'_',m_house_cell.building_id)=m_house_building.manage_id
+        inner join (select distinct ht_xq_info.code,ht_xq_info.name from ht_xq_info
+        inner join (select distinct ht_xq_subdistrict.subdistrict_id,ht_xq_subdistrict.xq_code from ht_xq_subdistrict where ht_xq_subdistrict.subdistrict_id=#{subdistrictId}) hxs on hxs.xq_code=ht_xq_info.code) m_xq on
+        m_xq.code=C.xq_code
+        order by liveNum desc limit 10
+    </select>
+
+    <select id="queryHouseRoomLiveNumTop10ByArea" parameterType="Map" resultType="Map">
+        select distinct C.xq_code as xqCode,m_xq.name as xqName,concat(m_house_building.name,m_house_cell.name,m_house_room.name) as roomInfo,liveNum from
+        (select distinct B.manage_id as room_manage_id,count(*) as liveNum,B.xq_code from
+        (select distinct house_owner_room.room_id as manage_id,house_owner_room.owner_id,house_owner_room.xq_code from house_owner_room
+        inner join ht_xq_info xq on house_owner_room.xq_code=xq.code
+        inner join (select distinct area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on area.area_id=xq.sso_regionalcode) as B
+        group by B.manage_id) as C
+        inner join (select distinct house_room.manage_id,house_room.name,house_room.xq_code,house_room.cell_id from house_room
+        inner join ht_xq_info xq on house_room.xq_code=xq.code
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on area.area_id=xq.sso_regionalcode) m_house_room on C.room_manage_id=m_house_room.manage_id
+        inner join (select distinct house_cell.manage_id,house_cell.name,house_cell.xq_code,house_cell.building_id from house_cell
+        inner join ht_xq_info xq on house_cell.xq_code=xq.code
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on area.area_id=xq.sso_regionalcode) m_house_cell on concat(m_house_room.xq_code,'_',m_house_room.cell_id)=m_house_cell.manage_id
+        inner join (select distinct house_building.manage_id,house_building.name from house_building
+        inner join ht_xq_info xq on house_building.xq_code=xq.code
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on area.area_id=xq.sso_regionalcode) m_house_building on concat(m_house_cell.xq_code,'_',m_house_cell.building_id)=m_house_building.manage_id
+        inner join (select distinct ht_xq_info.code,ht_xq_info.name from ht_xq_info
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on area.area_id=ht_xq_info.sso_regionalcode)
+        m_xq on m_xq.code=C.xq_code
+        order by liveNum desc limit 10
+    </select>
+
+    <select id="queryHouseDistributionByXq" parameterType="Map" resultType="Map">
+        select distinct m_xq.name as xqName,xqCode,num from
+        (select distinct house_room.xq_code as xqCode,count(*) as num from house_room group by house_room.xq_code) as A
+        inner join (select distinct ht_xq_info.name,ht_xq_info.code from ht_xq_info where ht_xq_info.code=#{xqCode}) m_xq on m_xq.code=A.xqCode
+    </select>
+
+    <select id="queryHouseDistributionBySub" parameterType="Map" resultType="Map">
+        select distinct m_xq.name as xqName,xqCode,num from
+        (select distinct house_room.xq_code as xqCode,count(*) as num from house_room group by house_room.xq_code) as A
+        inner join (select distinct ht_xq_info.name,ht_xq_info.code from ht_xq_info
+        inner join (select distinct ht_xq_subdistrict.xq_code from ht_xq_subdistrict where ht_xq_subdistrict.subdistrict_id=#{subdistrictId}) m_sub on m_sub.xq_code=ht_xq_info.code) m_xq on m_xq.code=A.xqCode
+    </select>
+
+    <select id="queryHouseDistributionByArea" parameterType="Map" resultType="Map">
+        select distinct m_xq.name as xqName,xqCode,num from
+        (select distinct house_room.xq_code as xqCode,count(*) as num from house_room group by house_room.xq_code) as A
+        inner join ht_xq_info m_xq on A.xqCode=m_xq.code
+        inner join (select distinct area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on area.area_id=m_xq.sso_regionalcode
+    </select>
+
+    <select id="queryHouseListByXq" parameterType="Map" resultType="Map">
+        select distinct A.xq_code as xqCode,m_xq.name as xqName,m_building.name as buildingName,m_cell.name as cellName,A.name as roomName,IFNULL(A.is_rented,'否') as isRented,IFNULL(m_pi.name,'无') as roomOwner,IFNULL(m_hor_all.liveNum,0) as liveNum,IFNULL(A.building_area,0) as buildingArea,IFNULL(A.purpose_name,'空置') as purposeName,IFNULL(A.func_name,'无') as funcName,IFNULL(m_ci.bindingCarNum,0) as bindingCarNum,A.manage_id as roomId from
+        (select distinct house_room.manage_id,house_room.cell_id,house_room.xq_code,house_room.name,house_room.is_rented,house_room.building_area,house_room.purpose_name,house_room.func_name from house_room where house_room.xq_code in (${xqCode})
+        <if test="purpose!=null and purpose!=''">
+            and house_room.purpose=#{purpose}
+        </if>
+        ) as A
+        left join (select car_info.room_id as roomId,car_info.xq_code,count(*) as bindingCarNum from car_info where car_info.room_id is not null and car_info.room_id!='' group by car_info.room_id,car_info.xq_code) m_ci on m_ci.roomId=A.manage_id
+        inner join (select distinct ht_xq_info.code,ht_xq_info.name from ht_xq_info) m_xq
+        on m_xq.code=A.xq_code
+        inner join (select distinct house_cell.manage_id,house_cell.name,house_cell.xq_code,house_cell.building_id from house_cell) m_cell
+        on A.cell_id=m_cell.manage_id
+        inner join (select distinct house_building.manage_id,house_building.name from house_building) m_building
+        on m_cell.building_id=m_building.manage_id
+        left join (select distinct house_owner_room.owner_id,house_owner_room.owner_name,house_owner_room.room_id from house_owner_room where house_owner_room.live_type=1) m_hor_lt1 on A.manage_id=m_hor_lt1.room_id
+        left join (select distinct zs_person_info.manage_id,zs_person_info.name from zs_person_info) m_pi on m_hor_lt1.owner_id=m_pi.manage_id
+        left join (select distinct house_owner_room.room_id,count(*) as liveNum from house_owner_room
+        group by house_owner_room.room_id) m_hor_all on A.manage_id=m_hor_all.room_id
+    </select>
+
+    <select id="queryHouseListByArea" parameterType="Map" resultType="Map">
+        select distinct A.xq_code as xqCode,m_xq.name as xqName,m_building.name as buildingName,m_cell.name as cellName,A.name as roomName,IFNULL(A.is_rented,'否') as isRented,IFNULL(m_pi.name,'无') as roomOwner,IFNULL(m_hor_all.liveNum,0) as liveNum,IFNULL(A.building_area,0) as buildingArea,IFNULL(A.purpose_name,'空置') as purposeName,IFNULL(A.func_name,'无') as funcName,IFNULL(m_ci.bindingCarNum,0) as bindingCarNum,A.manage_id as roomId from
+        (select distinct B.manage_id,B.cell_id,B.xq_code,B.name,B.is_rented,B.building_area,B.purpose_name,B.func_name from
+        (select distinct house_room.manage_id,house_room.cell_id,house_room.xq_code,house_room.name,house_room.is_rented,house_room.building_area,house_room.purpose_name,house_room.func_name from house_room
+        <if test="purpose!=null and purpose!=''">
+            where house_room.purpose=#{purpose}
+        </if>) as B
+        inner join ht_xq_info xq on B.xq_code=xq.code
+        inner join (select distinct area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on area.area_id=xq.sso_regionalcode
+        ) as A
+        left join (select car_info.room_id as roomId,car_info.xq_code,count(*) as bindingCarNum from car_info where car_info.room_id is not null and car_info.room_id!='' group by car_info.room_id,car_info.xq_code) m_ci on m_ci.roomId=A.manage_id
+        inner join (select distinct ht_xq_info.code,ht_xq_info.name from ht_xq_info) m_xq
+        on m_xq.code=A.xq_code
+        inner join (select distinct house_cell.manage_id,house_cell.name,house_cell.xq_code,house_cell.building_id from house_cell) m_cell
+        on A.cell_id=m_cell.manage_id
+        inner join (select distinct house_building.manage_id,house_building.name from house_building) m_building
+        on m_cell.building_id=m_building.manage_id
+        left join (select distinct house_owner_room.owner_id,house_owner_room.owner_name,house_owner_room.room_id from house_owner_room where house_owner_room.live_type=1) m_hor_lt1 on A.manage_id=m_hor_lt1.room_id
+        left join (select distinct zs_person_info.manage_id,zs_person_info.name from zs_person_info) m_pi on m_hor_lt1.owner_id=m_pi.manage_id
+        left join (select distinct house_owner_room.room_id,count(*) as liveNum from house_owner_room
+        group by house_owner_room.room_id) m_hor_all on A.manage_id=m_hor_all.room_id
+    </select>
+
+    <select id="queryHouseList2" parameterType="Map" resultType="Map">
+        select j_house_room_list.xqCode,j_house_room_list.xqName,j_house_room_list.buildingName,j_house_room_list.cellName,j_house_room_list.roomName,j_house_room_list.roomOwner,j_house_room_list.liveNum,
+        j_house_room_list.buildingArea,j_house_room_list.purposeName,j_house_room_list.funcName,j_house_room_list.bindingCarNum,j_house_room_list.roomId
+        from j_house_room_list
+        where 1=1
+        <if test="purpose!=null and purpose!=''">
+            <if test="purpose==1">
+                and j_house_room_list.purposeName='自用'
+            </if>
+            <if test="purpose==2">
+                and j_house_room_list.purposeName='出租'
+            </if>
+            <if test="purpose==3">
+                and j_house_room_list.purposeName='转租'
+            </if>
+            <if test="purpose==4">
+                and j_house_room_list.purposeName='空置'
+            </if>
+        </if>
+    </select>
+
+    <select id="queryHouseListLikeStr" parameterType="Map" resultType="Map">
+        select * from (
+        select distinct A.xq_code as xqCode,m_xq.name as xqName,m_building.name as buildingName,m_cell.name as cellName,A.name as roomName,IFNULL(A.is_rented,'否') as isRented,IFNULL(m_hor_all.liveNum,0) as liveNum,IFNULL(A.building_area,0) as buildingArea,IFNULL(A.purpose_name,'空置') as purposeName,IFNULL(A.func_name,'无') as funcName,IFNULL(m_ci.bindingCarNum,0) as bindingCarNum,A.manage_id as roomId
+         <if test="likeStr2!=null and likeStr2!=''">
+             ,IFNULL(m_pi.name,'无') as roomOwner
+         </if>
+         from
+        (select distinct B.manage_id,B.cell_id,B.xq_code,B.name,B.is_rented,B.building_area,B.purpose_name,B.func_name from
+        (select distinct house_room.manage_id,house_room.cell_id,house_room.xq_code,house_room.name,house_room.is_rented,house_room.building_area,house_room.purpose_name,house_room.func_name from house_room where 1=1
+        <if test="xqCode!=null and xqCode.length>0">
+            and house_room.xq_code in (${xqCode})
+        </if>
+        <if test="purpose!=null and purpose!=''">
+            and house_room.purpose=#{purpose}
+        </if>
+        <if test="func!=null and func!=''">
+            and house_room.func=#{func}
+        </if>
+        ) as B
+        inner join ht_xq_info xq on B.xq_code=xq.code
+        <if test="areaId!=null and areaId!=''">
+            inner join (select distinct area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on area.area_id=xq.sso_regionalcode
+        </if>
+        ) as A
+        left join (select car_info.room_id as roomId,car_info.xq_code,count(*) as bindingCarNum from car_info where car_info.room_id is not null and car_info.room_id!='' group by car_info.room_id,car_info.xq_code) m_ci on m_ci.roomId=A.manage_id
+        inner join (select distinct ht_xq_info.code,ht_xq_info.name from ht_xq_info) m_xq
+        on m_xq.code=A.xq_code
+        inner join (select distinct house_cell.manage_id,house_cell.name,house_cell.xq_code,house_cell.building_id from house_cell) m_cell
+        on A.cell_id=m_cell.manage_id
+        inner join (select distinct house_building.manage_id,house_building.name from house_building) m_building
+        on m_cell.building_id=m_building.manage_id
+        left join (select distinct house_owner_room.owner_id,house_owner_room.owner_name,house_owner_room.room_id from house_owner_room where house_owner_room.live_type=1) m_hor_lt1 on A.manage_id=m_hor_lt1.room_id
+        <if test="likeStr2!=null and likeStr2!=''">
+            left join (select distinct zs_person_info.manage_id,zs_person_info.name from zs_person_info) m_pi on m_hor_lt1.owner_id=m_pi.manage_id
+        </if>
+        left join (select distinct house_owner_room.room_id,count(*) as liveNum from house_owner_room
+        group by house_owner_room.room_id) m_hor_all on A.manage_id=m_hor_all.room_id
+        where 1=1
+        <if test="likeStr2!=null and likeStr2!=''">
+            and m_pi.name like concat('%',#{likeStr2},'%')
+        </if>
+        order by buildingName) as C
+        where 1=1
+		<if test="likeStr1!=null and likeStr1!=''">
+		    and (C.xqName like concat('%',#{likeStr1},'%') or concat(C.buildingName,C.cellName,C.roomName) like concat('%',#{likeStr1},'%') or C.liveNum like concat('%',#{likeStr1},'%') or C.buildingArea like concat('%',#{likeStr1},'%')
+		    or C.purposeName like concat('%',#{likeStr1},'%') or C.funcName like concat('%',#{likeStr1},'%') or C.bindingCarNum like concat('%',#{likeStr1},'%'))
+        </if>
+    </select>
+
+<!--    <select id="queryHouseRoomUnusedListByXq" parameterType="Map" resultType="Map">-->
+<!--        select A.xqCode,m_xq.name as xqName,m_building.name as buildingName,m_cell.name as cellName,A.roomName,A.isRented,m_zpi.name as roomOwner,A.buildingArea,A.purposeName,A.funcName,m_zpi.ownerPhone,m_hra.water_used as waterMeterNum,m_hra.water_fee_arrearage_time,m_hra.property_fee_arrearage_time,A.manage_id as roomId from-->
+<!--        (select distinct house_room.xq_code as xqCode,house_room.name as roomName,IFNULL(house_room.is_rented,'否') as isRented,IFNULL(house_room.building_area,0) as buildingArea,IFNULL(house_room.purpose_name,'空置') as purposeName,IFNULL(house_room.func_name,'无') as funcName,house_room.cell_id,house_room.manage_id from house_room where house_room.xq_code in (${xqCode})-->
+<!--        <if test="purpose!=null and purpose!=''">-->
+<!--            and house_room.purpose=#{purpose}-->
+<!--        </if>) as A-->
+<!--        inner join (select distinct ht_xq_info.name,ht_xq_info.code from ht_xq_info) m_xq on m_xq.code=A.xqCode-->
+<!--        inner join (select distinct house_cell.manage_id,house_cell.name,house_cell.xq_code,house_cell.building_id from house_cell) m_cell-->
+<!--        on A.cell_id=m_cell.manage_id-->
+<!--        inner join (select distinct house_building.manage_id,house_building.name from house_building) m_building-->
+<!--        on m_cell.building_id=m_building.manage_id-->
+<!--        inner join (select distinct house_owner_room.owner_name,house_owner_room.owner_id,house_owner_room.room_id from house_owner_room where house_owner_room.live_type=1) m_hor on m_hor.room_id=A.manage_id-->
+<!--        inner join (select distinct zs_person_info.name,zs_person_info.manage_id,IFNULL(zs_person_info.phone,'无') as ownerPhone from zs_person_info) m_zpi on m_zpi.manage_id=m_hor.owner_id-->
+<!--        inner join (select distinct house_room_arrearage.room_id,house_room_arrearage.water_used,house_room_arrearage.water_fee_arrearage_time,house_room_arrearage.property_fee_arrearage_time from house_room_arrearage) m_hra on m_hra.room_id=A.manage_id-->
+<!--        where water_fee_arrearage_time>=3 or property_fee_arrearage_time>=3-->
+<!--        order by m_zpi.ownerPhone desc-->
+<!--    </select>-->
+    <select id="queryHouseRoomUnusedListByXq" parameterType="Map" resultType="Map">
+        select * from j_arrearage_table_new where j_arrearage_table_new.arrearageNum &gt;= 3 and waterMeterNum &lt;= 15
+    </select>
+
+    <select id="queryHouseRoomUnusedListByXq2" parameterType="Map" resultType="Map">
+        select A.xqCode,m_xq.name as xqName,A.roomName,A.isRented,A.buildingArea,A.purposeName,A.funcName,m_hra.water_used as waterMeterNum,m_hra.water_fee_arrearage_time,m_hra.property_fee_arrearage_time,A.manage_id as roomId from
+        (select distinct house_room.xq_code as xqCode,house_room.name as roomName,IFNULL(house_room.is_rented,'否') as isRented,IFNULL(house_room.building_area,0) as buildingArea,IFNULL(house_room.purpose_name,'空置') as purposeName,IFNULL(house_room.func_name,'无') as funcName,house_room.cell_id,house_room.manage_id from house_room where house_room.xq_code in (${xqCode})
+        <if test="purpose!=null and purpose!=''">
+            and house_room.purpose=#{purpose}
+        </if>) as A
+        inner join (select distinct ht_xq_info.name,ht_xq_info.code from ht_xq_info) m_xq on m_xq.code=A.xqCode
+        inner join (select distinct house_room_arrearage.room_id,house_room_arrearage.water_used,house_room_arrearage.water_fee_arrearage_time,house_room_arrearage.property_fee_arrearage_time from house_room_arrearage) m_hra on m_hra.room_id=A.manage_id
+        where water_fee_arrearage_time>=3 or property_fee_arrearage_time>=3
+    </select>
+
+<!--    <select id="queryHouseRoomUnusedListByArea" parameterType="Map" resultType="Map">-->
+<!--        select A.xqCode,m_xq.name as xqName,m_building.name as buildingName,m_cell.name as cellName,A.roomName,A.isRented,m_zpi.name as roomOwner,A.buildingArea,A.purposeName,A.funcName,m_zpi.ownerPhone,m_hra.water_used as waterMeterNum,m_hra.water_fee_arrearage_time,m_hra.property_fee_arrearage_time,A.manage_id as roomId from-->
+<!--        (select distinct house_room.xq_code as xqCode,house_room.name as roomName,IFNULL(house_room.is_rented,'否') as isRented,IFNULL(house_room.building_area,0) as buildingArea,IFNULL(house_room.purpose_name,'空置') as purposeName,IFNULL(house_room.func_name,'无') as funcName,house_room.cell_id,house_room.manage_id from house_room-->
+<!--        <if test="purpose!=null and purpose!=''">-->
+<!--            where house_room.purpose=#{purpose}-->
+<!--        </if>) as A-->
+<!--        inner join (select distinct ht_xq_info.name,ht_xq_info.code,ht_xq_info.sso_regionalcode from ht_xq_info) m_xq on m_xq.code=A.xqCode-->
+<!--        inner join (select distinct area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on area.area_id=m_xq.sso_regionalcode-->
+<!--        inner join (select distinct house_cell.manage_id,house_cell.name,house_cell.xq_code,house_cell.building_id from house_cell) m_cell-->
+<!--        on A.cell_id=m_cell.manage_id-->
+<!--        inner join (select distinct house_building.manage_id,house_building.name from house_building) m_building-->
+<!--        on m_cell.building_id=m_building.manage_id-->
+<!--        inner join (select distinct house_owner_room.owner_name,house_owner_room.owner_id,house_owner_room.room_id from house_owner_room where house_owner_room.live_type=1) m_hor on m_hor.room_id=A.manage_id-->
+<!--        inner join (select distinct zs_person_info.name,zs_person_info.manage_id,IFNULL(zs_person_info.phone,'无') as ownerPhone from zs_person_info) m_zpi on m_zpi.manage_id=m_hor.owner_id-->
+<!--        inner join (select distinct house_room_arrearage.room_id,house_room_arrearage.water_used,house_room_arrearage.water_fee_arrearage_time,house_room_arrearage.property_fee_arrearage_time from house_room_arrearage) m_hra on m_hra.room_id=A.manage_id-->
+<!--        where water_fee_arrearage_time>=3 or property_fee_arrearage_time>=3-->
+<!--        order by m_zpi.ownerPhone desc-->
+<!--    </select>-->
+
+    <select id="queryHouseRoomUnusedListByArea" parameterType="Map" resultType="Map">
+        select * from j_arrearage_table_new where j_arrearage_table_new.arrearageNum &gt;= 3 and waterMeterNum &lt;= 15
+    </select>
+
+    <select id="queryHouseRoomUnusedListByArea2" parameterType="Map" resultType="Map">
+        select A.xqCode,m_xq.name as xqName,A.roomName,A.isRented,A.buildingArea,A.purposeName,A.funcName,m_hra.water_used as waterMeterNum,m_hra.water_fee_arrearage_time,m_hra.property_fee_arrearage_time,A.manage_id as roomId from
+        (select distinct house_room.xq_code as xqCode,house_room.name as roomName,IFNULL(house_room.is_rented,'否') as isRented,IFNULL(house_room.building_area,0) as buildingArea,IFNULL(house_room.purpose_name,'空置') as purposeName,IFNULL(house_room.func_name,'无') as funcName,house_room.cell_id,house_room.manage_id from house_room
+        ) as A
+        inner join (select distinct ht_xq_info.name,ht_xq_info.code,ht_xq_info.sso_regionalcode from ht_xq_info) m_xq on m_xq.code=A.xqCode
+        inner join (select distinct area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on area.area_id=m_xq.sso_regionalcode
+        inner join (select distinct house_room_arrearage.room_id,house_room_arrearage.water_used,house_room_arrearage.water_fee_arrearage_time,house_room_arrearage.property_fee_arrearage_time from house_room_arrearage) m_hra on m_hra.room_id=A.manage_id
+        where water_fee_arrearage_time>=3 or property_fee_arrearage_time>=3
+    </select>
+
+<!--    <select id="queryHouseRoomArrearageListByXq" parameterType="Map" resultType="Map">-->
+<!--        select A.xqCode,m_xq.name as xqName,m_building.name as buildingName,m_cell.name as cellName,A.roomName,A.isRented,m_zpi.name as roomOwner,A.buildingArea,A.purposeName,A.funcName,m_zpi.ownerPhone,m_hra.water_used as waterMeterNum,m_hra.water_fee_arrearage_time,m_hra.property_fee_arrearage_time,m_hra.water_fee,m_hra.property_fee,A.manage_id as roomId from-->
+<!--        (select distinct house_room.xq_code as xqCode,house_room.name as roomName,IFNULL(house_room.is_rented,'否') as isRented,IFNULL(house_room.building_area,0) as buildingArea,IFNULL(house_room.purpose_name,'空置') as purposeName,IFNULL(house_room.func_name,'无') as funcName,house_room.cell_id,house_room.manage_id from house_room where house_room.xq_code in (${xqCode})-->
+<!--        <if test="purpose!=null and purpose!=''">-->
+<!--            and house_room.purpose=#{purpose}-->
+<!--        </if>) as A-->
+<!--        inner join (select distinct ht_xq_info.name,ht_xq_info.code from ht_xq_info) m_xq on m_xq.code=A.xqCode-->
+<!--        inner join (select distinct house_cell.manage_id,house_cell.name,house_cell.xq_code,house_cell.building_id from house_cell) m_cell-->
+<!--        on A.cell_id=m_cell.manage_id-->
+<!--        inner join (select distinct house_building.manage_id,house_building.name from house_building) m_building-->
+<!--        on m_cell.building_id=m_building.manage_id-->
+<!--        inner join (select distinct house_owner_room.owner_name,house_owner_room.owner_id,house_owner_room.room_id from house_owner_room where house_owner_room.live_type=1) m_hor on m_hor.room_id=A.manage_id-->
+<!--        inner join (select distinct zs_person_info.name,zs_person_info.manage_id,IFNULL(zs_person_info.phone,'无') as ownerPhone from zs_person_info) m_zpi on m_zpi.manage_id=m_hor.owner_id-->
+<!--        inner join house_room_arrearage m_hra on m_hra.room_id=A.manage_id-->
+<!--        order by m_zpi.ownerPhone desc-->
+<!--    </select>-->
+
+    <select id="queryHouseRoomArrearageListByXq" parameterType="Map" resultType="Map">
+        select * from j_arrearage_table_new
+    </select>
+
+<!--    <select id="queryHouseRoomArrearageListByArea" parameterType="Map" resultType="Map">-->
+<!--        select A.xqCode,m_xq.name as xqName,m_building.name as buildingName,m_cell.name as cellName,A.roomName,A.isRented,m_zpi.name as roomOwner,A.buildingArea,A.purposeName,A.funcName,m_zpi.ownerPhone,m_hra.water_used as waterMeterNum,m_hra.water_fee_arrearage_time,m_hra.property_fee_arrearage_time,m_hra.water_fee,m_hra.property_fee,A.manage_id as roomId from-->
+<!--        (select distinct house_room.xq_code as xqCode,house_room.name as roomName,IFNULL(house_room.is_rented,'否') as isRented,IFNULL(house_room.building_area,0) as buildingArea,IFNULL(house_room.purpose_name,'空置') as purposeName,IFNULL(house_room.func_name,'无') as funcName,house_room.cell_id,house_room.manage_id from house_room-->
+<!--        <if test="purpose!=null and purpose!=''">-->
+<!--            where house_room.purpose=#{purpose}-->
+<!--        </if>) as A-->
+<!--        inner join (select distinct ht_xq_info.name,ht_xq_info.code,ht_xq_info.sso_regionalcode from ht_xq_info) m_xq on m_xq.code=A.xqCode-->
+<!--        inner join (select distinct area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on area.area_id=m_xq.sso_regionalcode-->
+<!--        inner join (select distinct house_cell.manage_id,house_cell.name,house_cell.xq_code,house_cell.building_id from house_cell) m_cell-->
+<!--        on A.cell_id=m_cell.manage_id-->
+<!--        inner join (select distinct house_building.manage_id,house_building.name from house_building) m_building-->
+<!--        on m_cell.building_id=m_building.manage_id-->
+<!--        inner join (select distinct house_owner_room.owner_name,house_owner_room.owner_id,house_owner_room.room_id from house_owner_room where house_owner_room.live_type=1) m_hor on m_hor.room_id=A.manage_id-->
+<!--        inner join (select distinct zs_person_info.name,zs_person_info.manage_id,IFNULL(zs_person_info.phone,'无') as ownerPhone from zs_person_info) m_zpi on m_zpi.manage_id=m_hor.owner_id-->
+<!--        inner join house_room_arrearage m_hra on m_hra.room_id=A.manage_id-->
+<!--        order by m_zpi.ownerPhone desc-->
+<!--    </select>-->
+
+    <select id="queryHouseRoomArrearageListByArea" parameterType="Map" resultType="Map">
+        select * from j_arrearage_table_new
+    </select>
+
+    <select id="queryHouseRoomInfoByRoomId" parameterType="String" resultType="Map">
+        select A.xqCode,m_xq.name as xqName,m_building.name as buildingName,m_cell.name as cellName,A.name as roomName,A.funcName,A.purposeName,A.decorationTime,A.housePropertyCardNo,A.subscribeNo,A.useArea,A.buildingArea from
+        (select house_room.xq_code as xqCode,IFNULL(house_room.func_name,'无') as funcName,IFNULL(house_room.purpose_name,'空置') as purposeName,IFNULL(house_room.decoration_time,'无') as decorationTime,IFNULL(house_room.house_property_card_no,'无') as housePropertyCardNo,IFNULL(house_room.subscribe_no,'无') as subscribeNo,IFNULL(house_room.use_area,0) as useArea,IFNULL(house_room.building_area,0) as buildingArea,house_room.cell_id,house_room.name from house_room where house_room.manage_id=#{roomId}) as A
+        inner join (select distinct ht_xq_info.name,ht_xq_info.code,ht_xq_info.sso_regionalcode from ht_xq_info) m_xq on m_xq.code=A.xqCode
+        inner join (select distinct house_cell.manage_id,house_cell.name,house_cell.xq_code,house_cell.building_id from house_cell) m_cell
+        on A.cell_id=m_cell.manage_id
+        inner join (select distinct house_building.manage_id,house_building.name from house_building) m_building
+        on m_cell.building_id=m_building.manage_id
+    </select>
+
+    <select id="queryHouseRoomPersonsByRoomId" parameterType="String" resultType="Map">
+        select zs_person_info.manage_id as personId,IFNULL(zs_person_info.name,'暂无') as ownerName,IFNULL(zs_person_info.sex_name,'暂无') as sex,IFNULL(zs_person_info.extend_i1,'暂无') as extendI1,IFNULL(m_hor.live_type_name,'暂无') as liveTypeName,IFNULL(zs_person_info.paper_number,'暂无') as paperNumber,IFNULL(zs_person_info.extend_s4,'暂无') as image,IFNULL(zs_person_info.phone,'暂无') as phone from zs_person_info
+        inner join (select house_owner_room.owner_id,house_owner_room.room_id,house_owner_room.live_type_name from house_owner_room) m_hor on m_hor.owner_id=zs_person_info.manage_id
+        where m_hor.room_id=#{roomId}
+    </select>
+
+    <select id="queryHouseRoomCarsByRoomId" parameterType="String" resultType="Map">
+        select distinct car_info.car_num as carNum,IFNULL(car_info.car_num_color_name,'未识别') as carNumColorName,IFNULL(car_info.car_brand_name,'未识别') as carBrandName,IFNULL(car_info.car_img,'暂无') as carImg from car_info
+        inner join (select house_owner_room.room_id from house_owner_room) m_hor on m_hor.room_id=car_info.room_id
+        where m_hor.room_id=#{roomId}
+    </select>
+
+    <select id="queryHouseRoomPaymentByRoomId" parameterType="String" resultType="Map">
+        select house_room_pay_record.record_date,house_room_pay_record.property_fee as propertyFee,house_room_pay_record.property_fee_status as propertyFeeStatus,house_room_pay_record.water_use as waterUse,house_room_pay_record.water_fee as waterFee,house_room_pay_record.water_fee_status as waterFeeStatus from house_room_pay_record
+        where house_room_pay_record.room_id=#{roomId} and house_room_pay_record.record_date between #{beginTime} and #{endTime}
+    </select>
+
+    <select id="queryRoomInfoByManageId" parameterType="string" resultType="Map">
+        select c.name as buildName,b.name as cellName,a.name as roomName,d.owner_id as ownerId from house_room a
+				join house_cell b on b.manage_id=a.cell_id
+				join house_building c on c.manage_id=b.building_id
+				join (select house_owner_room.room_id,house_owner_room.owner_id from house_owner_room where house_owner_room.live_type=1) d on d.room_id=a.manage_id
+				where a.manage_id=#{manageId};
+    </select>
+
+    <select id="queryRoomInfoInBuilding" parameterType="Map" resultType="Map">
+        select house_room.manage_id as roomId,house_room.name as roomName,house_room.purpose_name as purposeName,house_room.func_name as funcName from house_room
+        inner join (select house_cell.name,house_cell.manage_id,house_cell.building_id from house_cell where house_cell.manage_id=#{cellId}) m_hc on m_hc.manage_id=house_room.cell_id
+        inner join (select house_building.name,house_building.manage_id from house_building where house_building.code=#{buildingCode}) m_hb on m_hb.manage_id=m_hc.building_id
+        where house_room.floor_num=#{floorNum}
+        order by roomName
+    </select>
+
+    <select id="queryFloorNumListInBuilding" parameterType="Map" resultType="Map">
+        select m_hb.name as buildingName,house_room.floor_num as floorNum from house_room
+        inner join (select house_cell.name,house_cell.manage_id,house_cell.building_id from house_cell where house_cell.manage_id=#{cellId}) m_hc on m_hc.manage_id=house_room.cell_id
+        inner join (select house_building.name,house_building.manage_id from house_building where house_building.code=#{buildingCode}) m_hb on m_hb.manage_id=m_hc.building_id
+        group by house_room.floor_num
+        order by house_room.floor_num desc
+    </select>
+
+    <select id="queryCellListInBuilding" parameterType="Map" resultType="Map">
+        select house_cell.manage_id as cellId,house_cell.name as cellName from house_cell
+        inner join (select house_building.manage_id,house_building.name from house_building where house_building.code=#{buildingCode}) m_hb on m_hb.manage_id=house_cell.building_id
+        order by house_cell.name
+    </select>
+
+</mapper>

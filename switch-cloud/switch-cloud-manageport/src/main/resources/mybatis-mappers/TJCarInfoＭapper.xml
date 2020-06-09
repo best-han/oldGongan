@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.windaka.suizhi.manageport.dao.TJCarInfoDao">
+
+    <!--新增统计－车辆信息-->
+    <insert id="save" parameterType="com.windaka.suizhi.manageport.model.TJCarInfo">
+        INSERT INTO tj_car_stream(xq_code,timing,`in`,`out`,cre_by,cre_time,upd_by,upd_time,oper_date)
+        values (#{xq_code}, #{timing}, #{in}, #{out},#{cre_by},#{cre_time},#{upd_by},#{upd_time},#{operDate})
+
+    </insert>
+
+    <!--根据小区Codde删除记录-->
+    <delete id="delete">
+        delete from tj_car_stream where xq_code = #{xqCode} and oper_date = #{operDate} and timing = #{hour}
+    </delete>
+
+    <!--根据小区Code、物业Code，查询统计车辆信息 c.xq_code as xqCode,wy.wy_code as wyCode-->
+    <select id="query" parameterType="Map" resultType="Map">
+        select c.timing,sum(c.in) as carIn,sum(c.out) as carOut
+        from tj_car_stream as c
+        inner join ht_xq_wy as xw on c.xq_code=xw.xq_code and xw.status=0
+        inner join ht_wy_info as wy on xw.wy_code=wy.wy_code
+        inner join ht_xq_info xq on c.xq_code=xq.code
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{params.areaId},'%')) area on area.area_id=xq.sso_regionalcode
+        where 1=1
+        <if test="params.xqCode != null and params.xqCode != ''">
+            and c.xq_code in (${params.xqCode})
+        </if>
+        <if test="params.wyCode != null and params.wyCode != ''">
+            and wy.wy_code in (#{params.wyCode})
+        </if>
+        <if test="params.todayStartTime !=null and params.todayStartTime !='' and params.todayEndTime !=null and params.todayEndTime!=''">
+            and c.oper_date  between  STR_TO_DATE(#{params.todayStartTime},'%Y-%m-%d %H:%i:%s')and STR_TO_DATE(#{params.todayEndTime},'%Y-%m-%d %H:%i:%s')
+        </if>
+        group by c.timing
+    </select>
+</mapper>

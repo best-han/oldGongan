@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.windaka.suizhi.mpi.dao.AbnormalRecordDao">
+
+
+    <sql id="where" >
+        <if test="captureTime != null and captureTime != ''">
+            and capture_time=#{captureTime}
+        </if>
+        <if test="captureDeviceId != null and captureDeviceId != ''">
+            and capture_device_id=#{captureDeviceId}
+        </if>
+        <if test="captureDeviceName != null and captureDeviceName != ''">
+            capture_device_name=#{captureDeviceName},
+        </if>
+        <if test="captureImg != null and captureImg != ''">
+            and capture_img=#{captureImg}
+        </if>
+        <if test="event != null and event != ''">
+            and event=#{event}
+        </if>
+        <if test="beginTime != null and beginTime != ''">
+            and begin_time=#{beginTime}
+        </if>
+        <if test="endTime != null and endTime != ''">
+            and end_time=#{endTime}
+        </if>
+        <if test="alarmLevel != null and alarmLevel != ''">
+            and alarm_level=#{alarmLevel}
+        </if>
+        <if test="handler != null and handler != ''">
+            and handler=#{handler}
+        </if>
+        <if test="handleTime != null and handleTime != ''">
+            and handle_time=#{handleTime}
+        </if>
+        <if test="handleConn != null and handleConn != ''">
+            and handle_conn=#{handleConn}
+        </if>
+        <if test="handleStatus != null and handleStatus != ''">
+            and handle_status=#{handleStatus}
+        </if>
+        <if test="handleImage1 != null and handleImage1 != ''">
+            and handle_image1=#{handleImage1}
+        </if>
+        <if test="handleImage2 != null and handleImage2 != ''">
+            and handle_image2=#{handleImage2}
+        </if>
+        <if test="location != null and location != ''">
+            and location=#{location}
+        </if>
+        <if test="mid != null and mid != ''">
+            and  a.manage_id=#{manageId}
+        </if>
+        <if test="xqCode != null and xqCode != ''">
+            and a.xq_code=#{xqCode}
+        </if>
+    </sql>
+
+    <select id="queryAbnormalRecordById" parameterType="int" resultType="com.windaka.suizhi.mpi.model.RecordAbnormal">
+        select r.id,r.xq_code xqCode,r.capture_time captureTime,concat_ws('',h.name,r.location) location,
+        r.base64_img img,r.event event,
+        r.event_name eventName,r.alarm_level alarmLevel
+        from record_abnormal r join ht_xq_info h on h.code= r.xq_code
+        where r.id <![CDATA[ > ]]> #{id} and r.event = 4 and r.handle_status =0 order by r.id asc
+    </select>
+    
+    <select id="queryPersonInOut" parameterType="int" resultType="com.windaka.suizhi.mpi.model.PersonInOut">
+       SELECT f.id,
+            f.NAME,
+            h.name xqName,
+            f.person_id personId,
+            DATE_FORMAT(f.capture_time, '%Y-%m-%d %H:%i:%s') time,
+            f.base64_img img 
+               
+        FROM
+            face_person_attr f
+            JOIN face_capture_device d ON f.capture_device_id = d.manage_id
+            LEFT JOIN ht_xq_info h ON h.CODE = f.xq_code 
+        WHERE
+            d.device_type = 0
+            AND d.STATUS = 0 
+            AND f.NAME != '陌生人'
+        and f.id <![CDATA[ > ]]> #{id}  order by f.id asc limit 200
+    </select>
+    
+    <select id="queryCarInOut" parameterType="int" resultType="com.windaka.suizhi.mpi.model.CarInOut">
+       SELECT
+    c.id,
+    h.NAME xqName,
+    c.car_num carNum,
+    c.dev_chn_id devId,
+    c.cap_time captureTime,
+    DATE_FORMAT( c.cap_time, '%Y-%m-%d %H:%i:%s' ) time,
+    c.base64_img img 
+FROM
+    car_access_record c
+    LEFT JOIN ht_xq_info h ON h.CODE = c.xq_code
+        where c.id <![CDATA[ > ]]> #{id}  order by c.id asc
+    </select>
+
+    <!-- 根据manageId获取主键 -->
+    <select id="getMaxRecordId" resultType="int">
+        select MAX(id) from
+        record_abnormal
+    </select>
+</mapper>

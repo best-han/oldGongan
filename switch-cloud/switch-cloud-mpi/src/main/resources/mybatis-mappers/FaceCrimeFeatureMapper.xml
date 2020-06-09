@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.windaka.suizhi.mpi.dao.FaceCrimeFeatureDao">
+
+    <!--查询单个记录-->
+    <select id="queryById" parameterType="int" resultType="Map">
+        SELECT f.alarm_level alarmLevel,f.person_name personName,f.face_crime_type faceCrimeType,f.image_path imagePath,
+        d.dict_value faceTypeName
+        FROM face_crime_feature  f
+        left join ht_dict d on  f.face_crime_type = d.dict_label
+        WHERE id = #{id}
+        and d.dict_code='crime_type'
+    </select>
+    <!-- 查询人员库记录 -->
+    <select id="queryTypePerson" parameterType="int" resultType="Map">
+        SELECT
+        p.person_name personName,
+        p.image_path imagePath,
+        p.face_type_code faceTypeCode,
+        t.library_name groupName,
+        p.alarm_level alarmLevel,
+        p.person_paper_num personPaperNum
+        FROM face_type_person  p
+        left join face_type t on t.face_type_code = p.face_type_code
+        WHERE p.id = #{id}
+    </select>
+</mapper>

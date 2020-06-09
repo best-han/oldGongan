@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.windaka.suizhi.mpi.dao.PersonDao">
+
+    <select id="queryPersonNoCompareList" parameterType="int" resultType="com.windaka.suizhi.mpi.model.Person">
+       SELECT p.id,
+            p.name,p.sex,p.birthday,p.nation,
+            p.company,p.phone,p.email,p.title,p.status,p.remarks,p.occupation,
+            p.paper_type as paperType,p.paper_number as paperNumber,p.orgion_place as origionPlace,
+            p.marriage_status as marriageStatus,p.political_status as politicalStatus,p.technical_degree as technicalDegree,p.person_identity_name as personIdentityName,p.person_identity_id as personIdentityId,
+            p.person_status as personStatus,p.create_date as createDate,p.update_date as updateDate,p.update_by as updateBy,p.valid_flag as validFlag,
+            p.code as personCode,p.manage_id manageId,
+            p.extend_s4 imgPath
+        FROM
+            zs_person_info p
+        where p.id <![CDATA[ > ]]> #{id}  order by p.id asc limit 100
+    </select>
+    <update id="updatePsersonFaceTypePersonId" parameterType="map">
+        update zs_person_info set face_type_person_id=#{faceTypePersonId} where id=#{id}
+    </update>
+
+    <select id="queryPerson" parameterType="String" resultType="Map">
+     select p.name,p.sex,p.birthday,p.nation,
+        p.company,p.phone,p.email,p.title,p.status,p.remarks,p.occupation,
+        p.paper_type as paperType,p.paper_number as paperNumber,p.orgion_place as origionPlace,
+        p.marriage_status as marriageStatus,p.political_status as politicalStatus,p.technical_degree as technicalDegree,p.person_identity_name as personIdentityName,p.person_identity_id as personIdentityId,
+        p.person_status as personStatus,p.create_date as createDate,p.update_date as updateDate,p.update_by as updateBy,p.valid_flag as validFlag,
+		p.code as personCode,xq.xq_code as xqCode,x.name xqName,
+        p.t_code as tCode from zs_person_info as p
+        join zs_person_xq as xq on p.manage_id=xq.person_id
+        join ht_xq_info x on x.code=xq.xq_code
+        where p.status='0' and p.manage_id=#{personId} limit 1
+    </select>
+
+
+
+</mapper>

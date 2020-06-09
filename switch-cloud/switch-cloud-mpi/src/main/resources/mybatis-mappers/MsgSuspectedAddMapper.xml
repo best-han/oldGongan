@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.windaka.suizhi.mpi.dao.MsgSuspectedAddDao">
+
+    <select id="queryMsgSuspectedAddList" parameterType="Map" resultType="Map">
+        select a.id,a.xq_code xqCode,a.person_id personId,a.car_num carNum,a.type,a.msg_status msgStatus,a.sense_days senseDays,
+        DATE_FORMAT(a.create_time,'%Y-%m-%d %H:%i:%s') createTime,DATE_FORMAT(a.update_time,'%Y-%m-%d %H:%i:%s') updateTime,
+        xq.name xqName
+        from msg_suspected_add a
+        join ht_xq_info xq on xq.code=a.xq_code
+        where 1=1
+        <if test="createTime != null and createTime != ''">
+          and DATE_FORMAT(a.create_time,'%Y-%m-%d') = #{createTime}
+        </if>
+        <if test="type != null and type != ''">
+            and a.type = #{type}
+        </if>
+        <if test="msgStatus != null and msgStatus != ''">
+            and a.msg_status= #{msgStatus}
+        </if>
+    </select>
+
+    <update id="updateMsgSuspectedAddById" parameterType="int">
+        update msg_suspected_add set msg_status='1' where id=#{id}
+    </update>
+    
+
+</mapper>

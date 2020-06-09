@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.windaka.suizhi.mpi.dao.CarRecordDao">
+
+    <select id="queryCarAlarmRecordById" parameterType="int" resultType="java.util.Map">
+        select ca.xq_code xqCode,xq.name xqName,
+        ca.car_alarm_id alarmId,date_format(ca.cap_time,'%Y-%m-%d %H:%i:%s') alarmTime,ca.device_name deviceAddr,
+        ca.car_number carNumber,co.color_name carColor,ct.car_type_name carVehicleType,
+        ca.car_imgpath capImgUrl,
+        ca.cl_user clUser,date_format(ca.cl_time,'%Y-%m-%d %H:%i:%s') clTime,ca.cl_content clContent,
+        ca.cap_video_url capVideoUrl,ca.cap_dev_channel capDevChannel,ca.capVUrl
+        from car_alarm_record ca inner join ht_xq_info xq on xq.code=ca.xq_code
+        left join ht_color co on co.color_code=ca.car_color
+        left join ht_car_type ct on ct.car_vehicle_type=ca.car_vehicle_type
+        where ca.id=#{id}
+    </select>
+    <select id="queryCarJeevesRecordById" parameterType="int" resultType="java.util.Map">
+        select cj.xq_code xqCode,xq.name xqName,
+        cj.jeeves_id alarmId,date_format(cj.cap_time,'%Y-%m-%d %H:%i:%s') alarmTime,cj.device_name deviceAddr,
+        cj.car_number carNumber,co.color_name carColor,ct.car_type_name carVehicleType,
+        cj.car_imgpath capImgUrl,
+        cj.cl_user clUser,date_format(cj.cl_time,'%Y-%m-%d %H:%i:%s') clTime,cj.cl_content clContent,
+        cj.cap_video_url capVideoUrl,cj.cap_dev_channel capDevChannel,cj.capVUrl
+        from car_jeeves_record cj inner join ht_xq_info xq on xq.code=cj.xq_code
+        left join ht_color co on co.color_code=cj.car_color
+        left join ht_car_type ct on ct.car_vehicle_type=cj.car_vehicle_type
+        where cj.id=#{id}
+    </select>
+
+    <!-- 获取最大主键 -->
+    <select id="getMaxRecord" resultType="int">
+        select MAX(id) from car_alarm_record
+    </select>
+    <!-- 获取最大车道占用最大主键 -->
+    <select id="getCarMaxRecord" resultType="int">
+        select MAX(id) from car_jeeves_record
+    </select>
+
+</mapper>

@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.windaka.suizhi.user.dao.AppUserDao">
+
+	<update id="updateAppUserByUserId">
+		update ht_user
+		<set>
+			<if test="password != null and password != ''">
+				password = #{password,jdbcType=VARCHAR},
+			</if>
+			<if test="cname != null and cname != ''">
+				cname = #{cname,jdbcType=VARCHAR},
+			</if>
+			<!-- <if test="wyCode != null and wyCode != ''">
+				wy_code = #{wyCode,jdbcType=VARCHAR},
+			</if>
+			<if test="xqCode != null and xqCode != ''">
+				xq_code = #{xqCode,jdbcType=VARCHAR},
+			</if> -->
+			<if test="phone != null and phone != ''">
+				phone = #{phone,jdbcType=VARCHAR},
+			</if>
+			<if test="enabled != null">
+				enabled = #{enabled,jdbcType=BIT},
+			</if>
+			<if test="updTime != null">
+				upd_time = #{updTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="image != null">
+				image = #{image,jdbcType=VARCHAR},
+			</if>
+		</set>
+		where user_id = #{userId,jdbcType=INTEGER}
+	</update>
+	<update id="updateAppUserByUsername">
+		update ht_user
+		<set>
+			<if test="password != null and password != ''">
+				password = #{password,jdbcType=VARCHAR},
+			</if>
+			<if test="cname != null and cname != ''">
+				cname = #{cname,jdbcType=VARCHAR},
+			</if>
+			<!-- <if test="wyCode != null and wyCode != ''">
+				wy_code = #{wyCode,jdbcType=VARCHAR},
+			</if>
+			<if test="xqCode != null and xqCode != ''">
+				xq_code = #{xqCode,jdbcType=VARCHAR},
+			</if> -->
+			<if test="phone != null and phone != ''">
+				phone = #{phone,jdbcType=VARCHAR},
+			</if>
+			<if test="enabled != null">
+				enabled = #{enabled,jdbcType=BIT},
+			</if>
+			<if test="updTime != null">
+				upd_time = #{updTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="image != null">
+				image = #{image,jdbcType=VARCHAR},
+			</if>
+		</set>
+		where username = #{username,jdbcType=INTEGER} and del_flag=1
+	</update>
+
+	<sql id="where">
+		<where>
+			<if test="enabled != null">
+				and a.enabled = #{enabled,jdbcType=BIT}
+			</if>
+			<if test="cname != null and cname != ''">
+				<bind name="_cname" value="'%' + cname + '%'"/>
+				and a.cname like #{_cname}
+			</if>
+			<if test="username != null and username != ''">
+				<bind name="_username" value="'%' + username + '%'"/>
+				and a.username like #{_username}
+			</if>
+			<!--<if test="wyCode != null and wyCode != ''">
+				and a.wy_code = #{wyCode}
+			</if>
+			<if test="xqCode != null and xqCode != ''">
+				and a.xq_code = #{xqCode}
+			</if>-->
+			<!--<if test="startTime !=null and startTime !=''">
+				<![CDATA[ and a.cre_time  >=  #{startTime}]]>
+			</if>
+			<if test="endTime !=null and endTime!=''">
+				<![CDATA[ and a.cre_time <=  #{endTime}]]>
+			</if>-->
+			<if test="startTime != null and startTime != '' and endTime != null and endTime != ''">
+				and a.cre_time  between  STR_TO_DATE(#{startTime},'%Y-%m-%d %H:%i:%s') and STR_TO_DATE(#{endTime},'%Y-%m-%d %H:%i:%s')
+			</if>
+			and a.del_flag = 1
+    	</where>
+	</sql>
+<select id="totalRows" resultType="int">
+    select count(*) totalRows from ht_user a
+    <include refid="where" />
+</select>
+<!--enabled*1 将TINYINT类型转为INT类型-->
+	<select id="queryList" resultType="java.util.Map">
+		select a.user_id userId,a.username,a.cname,a.phone,<!-- b.dept_name deptName, -->
+			enabled*1 enabledMc
+				,date_format(a.cre_time,'%Y-%m-%d %H:%i:%s') creTime
+				,date_format(a.upd_time,'%Y-%m-%d %H:%i:%s') updTime
+		  from ht_user a <!-- left join ht_dept b on a.dept_id = b.dept_id and b.del_flag=1 -->
+		<include refid="where" />
+		order by a.cre_time
+		limit #{start}, #{limit}
+	</select>
+</mapper>

@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.windaka.suizhi.webapi.dao.DeviceDao">
+    <!--  获取设备数量信息 -->
+    <select id="queryDeviceNum" parameterType="map" resultType="map">
+        SELECT SUM(	CASE	WHEN `online` = '1' THEN		1	ELSE	0	END	) AS onlineNum, SUM(	CASE	WHEN `online` = '0' THEN		1	ELSE		0	END	) AS offlineNum, COUNT(1) AS totalNum
+        FROM ( SELECT
+        a.`online`,a.id
+        FROM device_info a
+        inner join ht_xq_info xq on xq.code=a.xq_code and xq.status='0'
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on area.area_id=xq.sso_regionalcode
+        where 1=1
+        <if test="xqCode != null and xqCode != ''">
+            and a.xq_code in (${xqCode})
+        </if>
+        group by a.id) b
+    </select>
+    <!--获取设备类型数据信息-->
+    <select id="queryDeviceTypeNum" parameterType="map" resultType="map">
+   SELECT
+	t.device_type_name,
+	t.device_type_code,
+	CASE  WHEN i.online IS null THEN	0 ELSE	i.online END AS online,
+    CASE  WHEN i.offline IS null THEN	0 ELSE	i.offline END AS offline,
+    CASE WHEN  i.totalDevice IS NULL THEN  0  ELSE i.totalDevice END AS totalDevice,
+    CASE WHEN i.percent IS NULL THEN '0.00%' ELSE i.percent END AS percent
+  FROM
+	device_type t
+  LEFT JOIN (
+	SELECT
+		sum(b.online = '1') AS ONLINE,
+        sum(b.online = '0') AS OFFLINE,
+		COUNT(*) AS totalDevice,
+		b.device_type_code,
+		CONCAT(ROUND(sum(b.online = '1') / COUNT(*) * 100,2),'','%') AS percent
+	FROM
+		(
+			SELECT	a.* FROM device_info a
+			INNER JOIN ht_xq_info xq ON xq. CODE = a.xq_code
+			AND xq. STATUS = '0'
+			INNER JOIN (
+				SELECT area_id FROM ht_area WHERE	parent_ids LIKE concat('%', #{areaId}, '%')) area ON area.area_id = xq.sso_regionalcode
+			WHERE	1 = 1
+        <if test="xqCode != null and xqCode != ''">
+            and a.xq_code in (${xqCode})
+        </if>
+			GROUP BY a.id
+		) b
+	GROUP BY
+		b.device_type_code
+    ) i ON t.device_type_code = i.device_type_code
+    </select>
+    <!--获取设备分布信息-->
+    <select id="queryDeviceDistributionInfo" parameterType="map" resultType="map">
+    SELECT
+        b.xq_code AS xqCode,
+        b.`name` AS xqName,
+        COUNT(*) AS deviceNum
+    FROM
+        (
+            SELECT
+                a.xq_code,
+                a.id,
+                xq.`name`
+            FROM
+                device_info a
+            INNER JOIN ht_xq_info xq ON xq. CODE = a.xq_code
+            AND xq. STATUS = '0'
+            INNER JOIN (
+                SELECT
+                    area_id
+                FROM
+                    ht_area
+                WHERE
+                    parent_ids LIKE concat('%',#{areaId}, '%')
+            ) area ON area.area_id = xq.sso_regionalcode
+            WHERE
+                1 = 1
+        <if test="xqCode != null and xqCode != ''">
+            and a.xq_code in (${xqCode})
+        </if>
+            GROUP BY
+                a.id
+        ) b
+    GROUP BY
+        b.xq_code
+    </select>
+    <!--获取设备明细信息-->
+    <select id="queryDeviceInfo" parameterType="map" resultType="map">
+    SELECT
+    a.ip,
+    a.`online`,
+    a.device_name,
+    xq.`name`,
+    ty.device_type_name,
+    su.`name` as disName
+    FROM   device_info a
+    INNER JOIN ht_xq_info xq ON xq.`code` = a.xq_code AND xq. STATUS = '0'
+    INNER JOIN (
+        SELECT  area_id  FROM  ht_area
+        WHERE  parent_ids LIKE concat('%',  #{areaId}, '%')) area ON area.area_id = xq.sso_regionalcode
+    LEFT JOIN device_type ty ON ty.device_type_code = a.device_type_code
+    LEFT JOIN ht_xq_subdistrict xqsu ON xqsu.xq_code = a.xq_code and xqsu.`status` = 0
+    LEFT JOIN ht_subdistrict_info su ON xqsu.subdistrict_id = su.id
+    WHERE 1 = 1
+    <if test="xqCode != null and xqCode != ''">
+        and a.xq_code in (${xqCode})
+    </if>
+    group by a.id
+    limit ${start},${end}
+    </select>
+</mapper>

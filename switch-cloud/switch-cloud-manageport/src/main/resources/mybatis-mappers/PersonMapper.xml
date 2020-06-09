@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.windaka.suizhi.manageport.dao.PersonDao">
+
+<!--    <sql id="personwhere"> //模糊查询-->
+<!--        <where>-->
+<!--            <if test="wyCode!= null and wyCode != ''">-->
+<!--                <bind name="_wyCode" value="'%'+wyCode+'%'"/>-->
+<!--                wyCode like #{_wyCode}-->
+<!--            </if>-->
+<!--            <if test="sex != null and sex != ''">-->
+<!--                <bind name="_sex" value="'%' + sex + '%'"/>-->
+<!--                and sex like #{_sex}-->
+<!--            </if>-->
+<!--            <if test="xqCode != null and xqCode != ''">-->
+<!--                <bind name="_xqCode" value="'%'+xqCode+'%'"/>-->
+<!--                and xqCode = #{_xqCode}-->
+<!--            </if>-->
+<!--        </where>-->
+<!--    </sql>-->
+
+    <sql id="Base_Column_List" >
+    code,name,sex, birthday, paper_type, paper_number
+         ,nation,orgion_place,marriage_status,education,political_status,company,
+        phone,email,address,title,technical_degree,person_identity_name,person_identity_id,
+        person_status,status,remarks,create_date,create_by,update_date,update_by,
+        valid_flag,occupation,t_code,extend_s1,extend_s2,extend_s3,extend_s4,extend_s5,
+        extend_s6,extend_s7,extend_s8,extend_i1,extend_i2,extend_i3,extend_i4,extend_f1,
+        extend_f2,extend_f3,extend_f4,extend_d1,extend_d2,extend_d3,extend_d4,manage_id,
+        sex_name,paper_type_name,nation_name,marriage_status_name,education_name,political_status_name,person_type_name,nationality_name
+  </sql>
+    <!--插入小区人员-->
+    <insert id="savePerson" parameterType="Map">
+        insert into zs_person_info (code,name,sex, birthday, paper_type, paper_number
+         ,nation,orgion_place,marriage_status,education,political_status,company,
+        phone,email,address,title,technical_degree,person_identity_name,person_identity_id,
+        person_status,status,remarks,create_date,create_by,update_date,update_by,
+        valid_flag,occupation,t_code,extend_s1,extend_s2,extend_s3,extend_s4,extend_s5,
+        extend_s6,extend_s7,extend_s8,extend_i1,extend_i2,extend_i3,extend_i4,extend_f1,
+        extend_f2,extend_f3,extend_f4,extend_d1,extend_d2,extend_d3,extend_d4,manage_id,
+        sex_name,paper_type_name,nation_name,marriage_status_name,education_name,political_status_name,person_type_name,nationality_name) values (
+        #{code,jdbcType=VARCHAR},
+        #{name,jdbcType=VARCHAR},
+        #{sex,jdbcType=VARCHAR},
+        #{birthday,jdbcType=VARCHAR},
+        #{paperType,jdbcType=VARCHAR},
+        #{paperNumber,jdbcType=VARCHAR},
+        #{nation,jdbcType=VARCHAR},
+        #{orgionPlace,jdbcType=VARCHAR},
+        #{marriageStatus,jdbcType=VARCHAR},
+        #{education,jdbcType=VARCHAR},
+        #{politicalStatus,jdbcType=VARCHAR},
+        #{company,jdbcType=VARCHAR},
+        #{phone,jdbcType=VARCHAR},
+        #{email,jdbcType=VARCHAR},
+        #{address,jdbcType=VARCHAR},
+        #{title,jdbcType=VARCHAR},
+        #{technicalDegree,jdbcType=VARCHAR},
+        #{personIdentityName,jdbcType=VARCHAR},
+        #{personIdentityId,jdbcType=BIGINT},
+        #{personStatus,jdbcType=VARCHAR},
+        #{status,jdbcType=VARCHAR},
+        #{remarks,jdbcType=VARCHAR},
+        #{createDate,jdbcType=TIMESTAMP}, #{createBy,jdbcType=VARCHAR}, #{updateDate,jdbcType=DATE}, #{updateBy,jdbcType=VARCHAR}, #{validFlag,jdbcType=VARCHAR},
+        #{occupation,jdbcType=VARCHAR}, #{tCode,jdbcType=VARCHAR}, #{extendS1,jdbcType=VARCHAR}, #{extendS2,jdbcType=VARCHAR}, #{extendS3,jdbcType=VARCHAR},
+        #{extendS4,jdbcType=VARCHAR}, #{extendS5,jdbcType=VARCHAR}, #{extendS6,jdbcType=VARCHAR}, #{extendS7,jdbcType=VARCHAR}, #{extendS8,jdbcType=VARCHAR},
+        #{extendI1,jdbcType=DECIMAL}, #{extendI2,jdbcType=DECIMAL}, #{extendI3,jdbcType=DECIMAL}, #{extendI4,jdbcType=DECIMAL}, #{extendF1,jdbcType=DECIMAL},
+        #{extendF2,jdbcType=DECIMAL}, #{extendF3,jdbcType=DECIMAL}, #{extendF4,jdbcType=DECIMAL}, #{extendD1,jdbcType=DATE}, #{extendD2,jdbcType=DATE},
+        #{extendD3,jdbcType=DATE}, #{extendD4,jdbcType=DATE},#{manageId,jdbcType=VARCHAR},
+        #{sexName}, #{paperTypeName},#{nationName},#{marriageStatusName}, #{educationName},#{politicalStatusName},#{personTypeName},#{nationalityName})
+<!--        <foreach collection="list" item="item" index="index" separator=",">-->
+<!--            (-->
+<!--            #{item.code},-->
+<!--            #{item.name},-->
+<!--            #{item.sex},-->
+<!--            #{item.birthday},-->
+<!--            #{item.paper_type},-->
+<!--            #{item.paper_number},-->
+<!--            #{item.nation},-->
+<!--            #{item.orgion_place},-->
+<!--            #{item.marriage_status},-->
+<!--            #{item.education},-->
+<!--            #{item.political_status},-->
+<!--            #{item.company},-->
+<!--            #{item.phone},-->
+<!--            #{item.email},-->
+<!--            #{item.address},-->
+<!--            #{item.title},-->
+<!--            #{item.technical_degree},-->
+<!--            #{item.person_identity_name},-->
+<!--            #{item.person_identity_id},-->
+<!--            #{item.person_status},-->
+<!--            #{item.status},-->
+<!--            #{item.remarks},-->
+<!--            #{item.create_date}, #{item.create_by}, #{item.update_date}, #{item.update_by}, #{item.valid_flag},-->
+<!--            #{item.occupation}, #{item.t_code}, #{item.extend_s1}, #{item.extend_s2}, #{item.extend_s3},-->
+<!--            #{item.extend_s4}, #{item.extend_s5}, #{item.extend_s6}, #{item.extend_s7}, #{item.extend_s8},-->
+<!--            #{item.extend_i1}, #{item.extend_i2}, #{item.extend_i3}, #{item.extend_i4}, #{item.extend_f1},-->
+<!--            #{item.extend_f2}, #{item.extend_f3}, #{item.extend_f4}, #{item.extend_d1}, #{item.extend_d2},-->
+<!--            #{item.extend_d3}, #{item.extend_d4}-->
+<!--            )-->
+<!--        </foreach>-->
+    </insert>
+    <!--修改小区人员信息-->
+    <update id="updatePerson" parameterType="Map">
+        update zs_person_info  SET code = #{code},name=#{name},sex=#{sex},birthday=#{birthday},paper_type=#{paper_type},paper_number=#{paper_number},nation=#{nation},orgion_place=#{orgion_place},marriage_status=#{marriage_status},
+        education=#{education},political_status=#{political_status},company=#{company},phone=#{phone},email=#{email},address=#{address},title=#{title},technical_degree=#{technical_degree},person_identity_name=#{person_identity_name},person_identity_id=#{person_identity_id},person_status=#{person_status},
+        status=#{status},remarks=#{remarks},create_date=#{createDate},create_by=#{createBy},update_date=#{updateDate},update_by=#{updateBy},valid_flag=#{validFlag},occupation=#{occupation},t_code=#{tCode},extend_s1=#{extendS1},extend_s2=#{extendS2},
+        extend_s3=#{extendS3},extend_s4=#{extendS4},extend_s5=#{extendS5},extend_s6=#{extendS6},extend_s7=#{extendS7},extend_s8=#{extendS8},extend_i1=#{extendI1},extend_i2=#{extendI2},extend_i3=#{extendI3},extend_i4=#{extendI4},extend_f1=#{extendF1},
+        extend_f2=#{extendF2},extend_f3=#{extendF3},extend_f4=#{extendF4},extend_d1=#{extendD1},extend_d2=#{extendD2},extend_d3=#{extendD3},extend_d4=#{extendD4},
+        sex_name=#{sexName},paper_type_name=#{paperTypeName},nation_name=#{nationName},marriage_status_name=#{marriageStatusName},education_name=#{educationName},political_status_name=#{politicalStatusName},person_type_name=#{personTypeName},nationality_name=#{nationalityName}
+        where manage_id = #{manageId}
+    </update>
+    <!--删除小区人员-->
+    <delete id="deletePerson" parameterType="String">
+        delete from zs_person_info where manage_id = #{manageId}
+    </delete>
+
+    <!--personMap:将实体类Person字段属性名和表的字段名进行对应-->
+<!--    <resultMap id="personMap" type="Person" >-->
+<!--        &lt;!&ndash; 用id属性映射主键字段 &ndash;&gt;-->
+<!--        <id property="stuId" column="stu_id" />-->
+<!--        &lt;!&ndash; 用result属性来映射非主键字段 &ndash;&gt;-->
+<!--        <result property="stuName" column="stu_name"/>-->
+<!--        <result property="sex" column="sex" />-->
+<!--    </resultMap>-->
+
+    <!--查询小区人员-->
+    <select id="queryPerson" parameterType="String" resultType="Map">
+     select p.name,p.sex,p.birthday,p.nation,
+        p.company,p.phone,p.email,p.title,p.status,p.remarks,p.occupation,
+        p.paper_type as paperType,p.paper_number as paperNumber,p.orgion_place as origionPlace,
+        p.marriage_status as marriageStatus,p.political_status as politicalStatus,p.technical_degree as technicalDegree,p.person_identity_name as personIdentityName,p.person_identity_id as personIdentityId,
+        p.person_status as personStatus,p.create_date as createDate,p.update_date as updateDate,p.update_by as updateBy,p.valid_flag as validFlag,
+		p.code as personCode,wy.wy_code as wyCode,xq.xq_code as xqCode,
+        p.t_code as tCode from zs_person_info as p
+        join zs_person_xq as xq on p.code=xq.person_code
+        join ht_xq_wy as wy on xq.xq_code=wy.xq_code
+        where p.code=#{personCode}
+
+    </select>
+    <!--查询小区所有的人员数量-->
+    <select id="totalRows" resultType="int" parameterType="Map">
+        select count(*) totalRows from zs_person_info as p
+        inner join zs_person_xq as xq on p.code=xq.person_code
+        inner join ht_xq_info as xqi on xq.xq_code=xqi.code
+        inner join ht_xq_wy as wy on xq.xq_code=wy.xq_code
+        inner join ht_wy_info as wyi on wy.wy_code=wyi.wy_code
+ <!--       where wy.wy_code like concat('%',#{params.wyCode},'%') and xq.xq_code like concat('%',#{params.xqCode},'%')-->
+<!--        <include refid="personwhere" />-->
+<!--        <bind name="wyCode" value="'%' + wyCode + '%'" />-->
+<!--        <bind name="xqCode" value="'%' + xqCode + '%'" />-->
+<!--        <bind name="sex" value="'%' + xqCode + '%'" />-->
+<!--         where wy.wy_code=#{wyCode} and xq.xq_code=#{xqCode} and p.sex=#{sex}-->
+        where 1=1
+        <if test="name != null and name != ''">
+            and p.name like concat('%',#{name},'%')
+        </if>
+    </select>
+    <select id="queryPersonList" resultType="Map" parameterType="Map">
+       select p.name,p.sex,p.birthday,p.nation,
+       p.company,p.phone,p.email,p.title,p.status,p.remarks,p.occupation,
+       p.paper_type as paperType,p.paper_number as paperNumber,p.orgion_place as orgionPlace,p.marriage_status as marriageStatus,p.political_status as politicalStatus,p.technical_degree as technicalDegree,p.person_identity_name as personIdentityName,p.person_identity_id as personIdentityId,
+        p.person_status as personStatus,p.create_date as createDate,p.update_date as updateDate,p.update_by as updateBy,p.valid_flag as validFlag,
+        p.t_code as tCode,
+        p.code as personCode,wy.wy_code as wyCode,xq.xq_code as xqCode,
+        xqi.name as xqName,wyi.wy_name as wyName
+        from zs_person_info as p
+        inner join zs_person_xq as xq on p.code=xq.person_code
+        inner join ht_xq_info as xqi on xq.xq_code=xqi.code
+        inner join ht_xq_wy as wy on xq.xq_code=wy.xq_code
+        inner join ht_wy_info as wyi on wy.wy_code=wyi.wy_code
+<!--        <include refid="personwhere" />-->
+        <!--order by a.cre_time 无排序-->
+<!--        <bind name="xqCode" value="'%' + xqCode + '%'" />-->
+<!--        <bind name="wyCode" value="'%' + wyCode + '%'" />-->
+ <!--       where wy.wy_code =#{wyCode} and xq.xq_code =#{xqCode} and p.sex=#{sex} -->
+<!--         where wy.wy_code like concat('%',#{params.wyCode},'%') and xq.xq_code like concat('%',#{params.xqCode},'%')-->
+        where 1=1
+        <if test="name != null and name != ''">
+            and p.name like concat('%',#{name},'%')
+        </if>
+        order by p.create_date
+        limit ${start},${limit}
+
+    </select>
+
+    <!--根据图片查询小区单个人员Code-->
+    <select id="queryPersonCode" resultType="String" parameterType="Map">
+    select code from zs_person_info where extend_s4=#{img}
+    </select>
+
+    <select id="queryPersonByNameList" resultType="Map" parameterType="Map">
+    select p.name personOrCarName,p.code personOrCarCode
+    from zs_person_info as p
+    join zs_person_xq px on px.person_code=p.code
+    where p.name like concat('%',#{personOrCarName},'%')
+        <if test="xqCode != null and xqCode != ''">
+            and px.xq_code in (${xqCode})
+        </if>
+    order by p.create_date limit 10
+    </select>
+    <select id="getPersonListPure" resultType="Map" parameterType="Map">
+        select
+        <include refid="Base_Column_List" />
+        from zs_person_info
+        where 1=1
+        <if test="manageId != null and manageId != ''">
+            and manage_id =#{manageId}
+        </if>
+
+    </select>
+</mapper>

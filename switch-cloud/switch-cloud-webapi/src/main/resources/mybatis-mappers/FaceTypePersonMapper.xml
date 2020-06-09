@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.windaka.suizhi.webapi.dao.FaceTypePersonDao">
+    <!--人脸-人脸类别维护-->
+    <!--人员布控-新增 ygy-->
+    <insert id="saveFaceTypePerson" parameterType="map">
+        insert into face_type_person (face_type_code,alarm_level,control_reason,person_name,phone,person_paper_num,image_path,create_by,update_by,create_date,update_date,control_status
+        ,face_feature,source,control_beginTime,control_endTime)
+        values (#{faceTypeCode},#{alarmLevel},#{controlReason},#{personName},#{phone},#{personPaperNum},#{personImg},#{userId},#{userId},now(),now(),0
+        ,#{faceFeature},#{source},#{beginTime},#{endTime})
+    </insert>
+
+    <!-- 获取最大主键 -->
+    <select id="getMaxRecordId" resultType="int">
+        select MAX(id) from face_type_person
+    </select>
+
+    <!--人员布控-撤控 ygy-->
+    <update id="delFaceTypePerson" parameterType="Map">
+        update face_type_person set control_status='1', update_by=#{userId} where face_type_person.id=#{id}
+    </update>
+    <!--人员布控-删除 ygy-->
+    <delete id="deletFaceTypePerson" parameterType="Map">
+        DELETE  from face_type_person where face_type_person.id=#{id}
+    </delete>
+
+    <!--人员布控-列表查询 ygy-->
+    <select id="faceFaceTypeList" parameterType="Map" resultType="Map">
+      select person.id id,type1.library_name faceTypeCode,person.alarm_level alarmLevel,person.control_reason controlReason,
+      person.person_name personName,person.phone phone,person.person_paper_num personPaperNum,person.image_path personImg,user1.cname createUserName,
+        date_format(control_beginTime,'%Y-%m-%d %H:%i:%s') beginTime,date_format(control_endTime,'%Y-%m-%d %H:%i:%s') endTime
+      from face_type_person person
+      inner join face_type type1 on type1.face_type_code=person.face_type_code
+      left join ht_user user1 on user1.user_id=person.create_by
+      where control_status=0
+      <if test="faceTypeCode!=null and faceTypeCode!=''">
+          and person.face_type_code=#{faceTypeCode}
+      </if>
+        <if test="alarmLevel!=null and alarmLevel!=''">
+            and person.alarm_level=#{alarmLevel}
+        </if>
+        <if test="likeStr!=null and likeStr!=''">
+            and concat_WS(" ",person.face_type_code,person.alarm_level,person.control_reason,person.person_name,person.phone,person.person_paper_num,person.create_by)
+            LIKE concat("%",#{likeStr},"%")
+        </if>
+        order by person.update_date desc
+    </select>
+
+    <!--&lt;!&ndash;//人员犯罪库列表&ndash;&gt;-->
+    <!--<select id="crimeFaceTypeList" parameterType="Map" resultType="Map">-->
+        <!--select   crime.id id ,ifnull(crime.alarm_level,'') alarmLevel,ifnull(crime.person_name,'') personName,ifnull(crime.face_crime_type,'')  faceTypeCode,ifnull(crime.image_path,'') personImg-->
+        <!--from face_crime_feature crime-->
+    <!--</select>-->
+
+    <!--人员布控-列表查询 total ygy-->
+    <select id="faceFaceTypeListTotal" resultType="int" parameterType="Map">
+      select count(*) from (
+        select person.id id
+        from face_type_person person
+        inner join face_type type1 on type1.face_type_code=person.face_type_code
+        left join ht_user user1 on user1.user_id=person.create_by
+        where control_status=0
+        <if test="faceTypeCode!=null and faceTypeCode!=''">
+            and person.face_type_code=#{faceTypeCode}
+        </if>
+        <if test="alarmLevel!=null and alarmLevel!=''">
+            and person.alarm_level=#{alarmLevel}
+        </if>
+        <if test="likeStr!=null and likeStr!=''">
+            and concat_WS(" ",person.face_type_code,person.alarm_level,person.control_reason,person.person_name,person.phone,person.person_paper_num,person.create_by)
+            LIKE concat("%",#{likeStr},"%")
+        </if>
+      )as total
+    </select>
+
+
+    <select id="queryFaceTypePersonNum" parameterType="map" resultType="int">
+        select count(1) from face_type_person a
+        inner join zs_person_info as p on a.person_id=p.code
+        inner join ht_xq_info xq on xq.code=a.xq_code and xq.status='0'
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on area.area_id=xq.sso_regionalcode
+        where a.face_type_code=#{faceTypeCode}
+        <if test="xqCode != null and xqCode != ''">
+            and a.xq_code in (${xqCode})
+        </if>
+    </select>
+
+    <!--根据faceTyperCode 批量删除相同人脸库的人员-->
+    <delete id="deleteFaceTypePersonByCode" parameterType="String" >
+         delete from face_type_person where face_type_code=#{id}
+    </delete>
+</mapper>

@@ -1,0 +1,467 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+                "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.windaka.suizhi.webapi.dao.SingleTableDao">
+
+    <select id="selectHouseRoom" parameterType="Map" resultType="Map">
+        select * from house_room where 1=1
+        <if test="xqCode != null and xqCode.length>0">
+            and house_room.xq_code in (${xqCode})
+        </if>
+        <if test="subdistrictId!=null and subdistrictId!=''">
+            and house_room.xq_code in (select ht_xq_subdistrict.xq_code from ht_xq_subdistrict where ht_xq_subdistrict.subdistrict_id=#{subdistrictId})
+        </if>
+        <if test="areaId!=null and areaId!=''">
+            and house_room.xq_code in (select ht_xq_info.code from ht_xq_info inner join (select distinct area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on area.area_id=ht_xq_info.sso_regionalcode)
+        </if>
+        <if test="purpose!=null and purpose!=''">
+            and house_room.purpose=#{purpose}
+        </if>
+        <if test="func!=null and func!=''">
+            and house_room.func=#{func}
+        </if>
+        <if test="likeStr!=null and likeStr!=''">
+            and (house_room.name like concat('%',#{likeStr},'%') or house_room.building_area like concat('%',#{likeStr},'%') or house_room.func_name like concat('%',#{likeStr},'%')) or house_room.purpose_name like concat('%',#{likeStr},'%'))
+        </if>
+        <if test="roomId!=null and roomId!=''">
+            and house_room.manage_id=#{roomId}
+        </if>
+        order by house_room.name
+    </select>
+
+    <select id="selectCarInfo" parameterType="Map" resultType="Map">
+        select xq_code,car_num,car_num_color_name,date_format(create_date,'%Y-%m-%d %H:%i:%s') as create_date,car_brand_name,car_color_name,car_img,owner_id,room_id from car_info where 1=1
+        <if test="xqCode != null and xqCode.length>0">
+            and car_info.xq_code in (${xqCode})
+        </if>
+        <if test="subdistrictId!=null and subdistrictId!=''">
+            and car_info.xq_code in (select ht_xq_subdistrict.xq_code from ht_xq_subdistrict where ht_xq_subdistrict.subdistrict_id=#{subdistrictId})
+        </if>
+        <if test="areaId!=null and areaId!=''">
+            and car_info.xq_code in (select ht_xq_info.code from ht_xq_info inner join (select distinct area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on area.area_id=ht_xq_info.sso_regionalcode)
+        </if>
+        <if test="carNumColor!=null and carNumColor!=''">
+            and car_info.car_num_color = #{carNumColor}
+        </if>
+        <if test="carBrandName!=null and carBrandName!=''">
+            and car_info.car_brand_name = #{carBrandName}
+        </if>
+        <if test="carColor!=null and carColor!=''">
+            and (car_info.car_color = #{carColor} or car_info.car_color_name = #{carColor})
+        </if>
+        <if test="createTimeStart!=null and createTimeStart!=''">
+            and UNIX_TIMESTAMP(car_info.create_date) &gt;=UNIX_TIMESTAMP(#{createTimeStart})
+        </if>
+        <if test="createTimeEnd!=null and createTimeEnd!=''">
+            and UNIX_TIMESTAMP(car_info.create_date) &lt;=UNIX_TIMESTAMP(#{createTimeEnd})
+        </if>
+        <if test="likeStr!=null and likeStr!=''">
+            and (car_info.xq_code like concat('%',#{likeStr},'%') or car_num like concat('%',#{likeStr},'%') or car_num_color_name like concat('%',#{likeStr},'%') or create_date like concat('%',#{likeStr},'%') or car_brand_name like concat('%',#{likeStr},'%') or car_color_name like concat('%',#{likeStr},'%'))
+        </if>
+        <if test="carNum!=null and carNum!=''">
+            and car_info.car_num = #{carNum}
+        </if>
+        <if test="ownerId!= null and ownerId!=''">
+            and car_info.owner_id = #{ownerId}
+        </if>
+    </select>
+
+    <select id="selectCarInfoAndHouseOwnerRoom" parameterType="Map" resultType="Map">
+        select car_info.xq_code,car_num,car_num_color_name,date_format(car_info.create_date,'%Y-%m-%d %H:%i:%s') as create_date,car_brand_name,car_color_name,car_img,car_info.owner_id,car_info.room_id,house_owner_room.live_type_name from car_info
+        inner join house_owner_room on car_info.owner_id=house_owner_room.owner_id and car_info.room_id=house_owner_room.room_id
+        where 1=1
+        <if test="xqCode != null and xqCode.length>0">
+            and car_info.xq_code in (${xqCode})
+        </if>
+        <if test="subdistrictId!=null and subdistrictId!=''">
+            and car_info.xq_code in (select ht_xq_subdistrict.xq_code from ht_xq_subdistrict where ht_xq_subdistrict.subdistrict_id=#{subdistrictId})
+        </if>
+        <if test="areaId!=null and areaId!=''">
+            and car_info.xq_code in (select ht_xq_info.code from ht_xq_info inner join (select distinct area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on area.area_id=ht_xq_info.sso_regionalcode)
+        </if>
+        <if test="carNumColor!=null and carNumColor!=''">
+            and car_info.car_num_color = #{carNumColor}
+        </if>
+        <if test="carBrandName!=null and carBrandName!=''">
+            and car_info.car_brand_name like concat('%',#{carBrandName},'%')
+        </if>
+        <if test="carColor!=null and carColor!=''">
+            and (car_info.car_color = #{carColor} or car_info.car_color_name like concat('%',#{carColor},'%'))
+        </if>
+        <if test="createTimeStart!=null and createTimeStart!=''">
+            and UNIX_TIMESTAMP(car_info.create_date) &gt;=UNIX_TIMESTAMP(#{createTimeStart})
+        </if>
+        <if test="createTimeEnd!=null and createTimeEnd!=''">
+            and UNIX_TIMESTAMP(car_info.create_date) &lt;=UNIX_TIMESTAMP(#{createTimeEnd})
+        </if>
+        <if test="likeStr!=null and likeStr!=''">
+            and (car_info.xq_code like concat('%',#{likeStr},'%') or car_num like concat('%',#{likeStr},'%') or car_num_color_name like concat('%',#{likeStr},'%') or car_info.create_date like concat('%',#{likeStr},'%') or car_brand_name like concat('%',#{likeStr},'%') or car_color_name like concat('%',#{likeStr},'%'))
+            or house_owner_room.live_type_name like concat('%',#{likeStr},'%')
+        </if>
+        <if test="carNum!=null and carNum!=''">
+            and car_info.car_num like concat('%',#{carNum},'%')
+        </if>
+        <if test="liveType!=null and liveType!=''">
+            <if test="liveType!=4">
+                and house_owner_room.live_type=#{liveType}
+            </if>
+            <if test="liveType==4">
+                and (house_owner_room.live_type='1' or house_owner_room.live_type='2')
+            </if>
+        </if>
+    </select>
+
+    <select id="selectHtXqInfo" parameterType="Map" resultType="Map">
+        select * from ht_xq_info where 1=1
+        <if test="xqCode!=null and xqCode!=''">
+            and ht_xq_info.code=#{xqCode}
+        </if>
+    </select>
+
+    <select id="selectHouseCell" parameterType="Map" resultType="Map">
+        select * from house_cell where 1=1
+        <if test="cellId!=null and cellId!=''">
+            and house_cell.manage_id=#{cellId}
+        </if>
+    </select>
+
+    <select id="selectHouseBuilding" parameterType="Map" resultType="Map">
+        select * from house_building where 1=1
+        <if test="buildingId!=null and buildingId!=''">
+            and house_building.manage_id=#{buildingId}
+        </if>
+    </select>
+
+    <select id="selectHouseOwnerRoom" parameterType="Map" resultType="Map">
+        select * from house_owner_room where 1=1
+        <if test="roomId!=null and roomId!=''">
+            and house_owner_room.room_id=#{roomId}
+        </if>
+        <if test="ownerId!=null and ownerId!=''">
+            and house_owner_room.owner_id=#{ownerId}
+        </if>
+        <if test="liveType!=null and liveType!=''">
+            <if test="liveType==0">
+                and (house_owner_room.live_type='1' or house_owner_room.live_type='2')
+            </if>
+            <if test="liveType==3">
+                and house_owner_room.live_type='3'
+            </if>
+        </if>
+        <if test="liveTypeR!=null and liveTypeR!=''">
+            and house_owner_room.live_type=#{liveTypeR}
+        </if>
+    </select>
+
+    <select id="selectZsPersonInfo" parameterType="Map" resultType="Map">
+        select * from zs_person_info where 1=1
+        <if test="personId!=null and personId!=''">
+            and zs_person_info.manage_id=#{personId}
+        </if>
+    </select>
+
+    <select id="selectRoomLiveNum" parameterType="Map" resultType="Map">
+        select * from (
+        select house_owner_room.room_id,count(*) as live_num from house_owner_room where house_owner_room.room_id is not null group by house_owner_room.room_id)
+        as A
+        where 1=1
+        <if test="roomId!=null and roomId!=''">
+            and A.room_id=#{roomId}
+        </if>
+    </select>
+
+    <select id="selectBindingCarNum" parameterType="Map" resultType="Map">
+        select * from (
+        select car_info.room_id,count(*) as binding_car_num from car_info where car_info.room_id is not null group by car_info.room_id
+        )as A
+        where 1=1
+        <if test="roomId!=null and roomId!=''">
+            and A.room_id=#{roomId}
+        </if>
+    </select>
+
+    <select id="selectCarAccessRecordSenseNum" parameterType="Map" resultType="Map">
+        select car_num,max(id) id,count(1) num from car_access_record where car_num is not null and car_num!=''
+        <if test="xqCode != null and xqCode.length>0">
+            and car_access_record.xq_code in (${xqCode})
+        </if>
+        <if test="subdistrictId!=null and subdistrictId!=''">
+            and car_access_record.xq_code in (select ht_xq_subdistrict.xq_code from ht_xq_subdistrict where ht_xq_subdistrict.subdistrict_id=#{subdistrictId})
+        </if>
+        <if test="areaId!=null and areaId!=''">
+            and car_access_record.xq_code in (select ht_xq_info.code from ht_xq_info inner join (select distinct area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on area.area_id=ht_xq_info.sso_regionalcode)
+        </if>
+        <if test="likeStr!=null and likeStr!=''">
+            and car_num like concat('%',#{likeStr},'%')
+        </if>
+        <if test="beginTime!=null and beginTime!=''">
+            and UNIX_TIMESTAMP(car_access_record.cap_time) &gt;=UNIX_TIMESTAMP(#{beginTime})
+        </if>
+        <if test="endTime!=null and endTime!=''">
+            and UNIX_TIMESTAMP(car_access_record.cap_time) &lt;=UNIX_TIMESTAMP(#{endTime})
+        </if>
+        group by car_num
+        having 1=1
+        <if test="accessNumSmall!=null and accessNumSmall!=''">
+            and num &gt;= #{accessNumSmall}
+        </if>
+        <if test="accessNumBig!=null and accessNumBig!=''">
+            and num &lt;= #{accessNumBig}
+        </if>
+        order by num desc
+    </select>
+
+    <select id="selectCarAccessRecord" parameterType="Map" resultType="Map">
+        select xq_code,base64_img,date_format(cap_time,'%Y-%m-%d %H:%i:%s') as cap_time,car_num from car_access_record where 1=1
+        <if test="id!=null and id!=''">
+            and car_access_record.id=#{id}
+        </if>
+    </select>
+
+    <select id="selectCarAttributeMaxId" parameterType="Map" resultType="Map">
+        select max(id) id,car_num from car_attribute
+        where car_num is not null and car_num!='' and DATE_SUB(CURDATE(), INTERVAL 15 DAY) &lt;= date(car_attribute.capture_time)
+        <if test="carNum!=null and carNum!=''">
+            and car_attribute.car_num=#{carNum}
+        </if>
+        <if test="xqCode!=null and xqCode.length>0">
+            and car_attribute.xq_code in (${xqCode})
+        </if>
+        <if test="subdistrictId!=null and subdistrictId!=''">
+            and car_attribute.xq_code in (select ht_xq_subdistrict.xq_code from ht_xq_subdistrict where ht_xq_subdistrict.subdistrict_id=#{subdistrictId})
+        </if>
+        <if test="areaId!=null and areaId!=''">
+            and car_attribute.xq_code in (select ht_xq_info.code from ht_xq_info inner join (select distinct area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on area.area_id=ht_xq_info.sso_regionalcode)
+        </if>
+        <if test="carNumColor!=null and carNumColor!=''">
+            and length(trim(car_attribute.car_num)) = #{carNumColor}
+        </if>
+        <if test="carColorName!=null and carColorName!=''">
+            and car_attribute.car_color_name = #{carColorName}
+        </if>
+        <if test="carBrandName!=null and carBrandName!=''">
+            and car_attribute.car_brand_name like concat('%',#{carBrandName},'%')
+        </if>
+        <if test="likeStr!=null and likeStr!=''">
+            and (car_attribute.car_num like concat('%',#{likeStr},'%') or car_attribute.car_color_name like concat('%',#{likeStr},'%') or car_attribute.car_brand_name like concat('%',#{likeStr},'%') or
+            car_attribute.xq_code in (select ht_xq_info.code from ht_xq_info where ht_xq_info.name like concat('%',#{likeStr},'%'))
+            <if test="likeStr=='蓝'.toString() or likeStr=='蓝色'.toString()">
+                or length(trim(car_attribute.car_num)) = 9
+            </if>
+            <if test="likeStr=='绿'.toString() or likeStr=='绿色'.toString()">
+                or length(trim(car_attribute.car_num)) = 10
+            </if>
+            <if test="likeStr=='黑'.toString() or likeStr=='黑色'.toString()">
+                or length(trim(car_attribute.car_num)) = 4
+            </if>
+            <if test="likeStr=='白'.toString() or likeStr=='白色'.toString()">
+                or length(trim(car_attribute.car_num)) = 5
+            </if>
+            )
+        </if>
+        group by car_num
+    </select>
+
+    <select id="selectCarAttribute" parameterType="Map" resultType="Map">
+        select * from car_attribute where 1=1
+        <if test="id!=null and id!=''">
+            and car_attribute.id=#{id}
+        </if>
+    </select>
+
+    <select id="selectWaterUserAndRoomInfo" parameterType="Map" resultType="Map">
+        select house_room.cell_id,house_room.xq_code,house_room.name as roomName,house_room.building_area as buildingArea,house_room.purpose_name as purposeName,house_room.func_name as funcName,house_room.manage_id as roomId,m1,m2,m3,m4,m5,m6,m7,m8,m9,m10,m11,m12,year from house_room
+        left join (select * from j_water_use where 1=1
+        <if test="currentY!=null and currentY!=''">
+            and j_water_use.year=#{currentY}
+        </if>
+        ) m_wu on m_wu.room_id=house_room.manage_id
+        where 1=1
+        <if test="xqCode != null and xqCode.length>0">
+            and house_room.xq_code in (${xqCode})
+        </if>
+        <if test="subdistrictId!=null and subdistrictId!=''">
+            and house_room.xq_code in (select ht_xq_subdistrict.xq_code from ht_xq_subdistrict where ht_xq_subdistrict.subdistrict_id=#{subdistrictId})
+        </if>
+        <if test="areaId!=null and areaId!=''">
+            and house_room.xq_code in (select ht_xq_info.code from ht_xq_info inner join (select distinct area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on area.area_id=ht_xq_info.sso_regionalcode)
+        </if>
+        <if test="purpose!=null and purpose!=''">
+            and house_room.purpose_name=#{purpose}
+        </if>
+        <if test="roomId!=null and roomId!=''">
+            and house_room.manage_id=#{roomId}
+        </if>
+        <if test="currentM==1">
+            and (m1 &lt;= 2 or m1 is null)
+        </if>
+        <if test="currentM==2">
+            and (m2 &lt;= 2 or m2 is null)
+        </if>
+        <if test="currentM==3">
+            and (m3 &lt;= 2 or m3 is null)
+        </if>
+        <if test="currentM==4">
+            and (m4 &lt;= 2 or m4 is null)
+        </if>
+        <if test="currentM==5">
+            and (m5 &lt;= 2 or m5 is null)
+        </if>
+        <if test="currentM==6">
+            and (m6 &lt;= 2 or m6 is null)
+        </if>
+        <if test="currentM==7">
+            and (m7 &lt;= 2 or m7 is null)
+        </if>
+        <if test="currentM==8">
+            and (m8 &lt;= 2 or m8 is null)
+        </if>
+        <if test="currentM==9">
+            and (m9 &lt;= 2 or m9 is null)
+        </if>
+        <if test="currentM==10">
+            and (m10 &lt;= 2 or m10 is null)
+        </if>
+        <if test="currentM==11">
+            and (m11 &lt;= 2 or m11 is null)
+        </if>
+        <if test="currentM==12">
+            and (m12 &lt;= 2 or m12 is null)
+        </if>
+        order by house_room.manage_id
+    </select>
+
+    <select id="selectArrearageRecordAndRoomInfo" parameterType="Map" resultType="Map">
+        select m_hr.cell_id,m_hr.name as roomName,A.xq_code as xqCode,m_hr.building_area as buildingArea,m_hr.purpose_name as purposeName,m_hr.func_name as funcName,A.arrearageNum,m_hr.manage_id as roomId from
+        (select j_pay_record.xq_code,j_pay_record.room_id,sum(payment1-payment2) as arrearageNum from j_pay_record
+        group by j_pay_record.room_id having sum(payment1-payment2)>0
+        <if test="xqCode != null and xqCode.length>0">
+            and j_pay_record.xq_code in (${xqCode})
+        </if>
+        <if test="subdistrictId!=null and subdistrictId!=''">
+            and j_pay_record.xq_code in (select ht_xq_subdistrict.xq_code from ht_xq_subdistrict where ht_xq_subdistrict.subdistrict_id=#{subdistrictId})
+        </if>
+        <if test="areaId!=null and areaId!=''">
+            and j_pay_record.xq_code in (select ht_xq_info.code from ht_xq_info inner join (select distinct area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on area.area_id=ht_xq_info.sso_regionalcode)
+        </if>
+        ) as A
+        inner join (select house_room.cell_id,house_room.name,house_room.building_area,house_room.purpose,house_room.purpose_name,house_room.func_name,house_room.manage_id from house_room
+        where 1=1
+        <if test="purpose!=null and purpose!=''">
+            and purpose=#{purpose}
+        </if>
+        <if test="func!=null and func!=''">
+            and func=#{func}
+        </if>
+        <if test="likeStr!=null and likeStr!=''">
+            and (house_room.name like concat('%',likeStr,'%') or house_room.building_area like concat('%',likeStr,'%') or house_room.purpose_name like concat('%',likeStr,'%') or house_room.func_name like concat('%',likeStr,'%'))
+        </if>
+        ) m_hr on m_hr.manage_id=A.room_id
+        order by m_hr.manage_id
+    </select>
+
+    <select id="selectArrearageRecordAndRoomInfoLikeStr" parameterType="Map" resultType="Map">
+        select * from (
+        select A.xq_code as xqCode,m_xq.name as xqName,m_hb.name as buildingName,m_hc.name as cellName,m_hr.name as roomName,m_hr.building_area as buildingArea,m_hr.purpose_name as purposeName,m_hr.func_name as funcName,A.arrearageNum,m_hr.manage_id as roomId
+        <if test="likeStr2!=null and likeStr2!=''">
+            ,m_pi.name as roomOwner,m_pi.phone as ownerPhone
+        </if>
+         from
+        (select j_pay_record.xq_code,j_pay_record.room_id,sum(payment1-payment2) as arrearageNum from j_pay_record
+        group by j_pay_record.room_id having sum(payment1-payment2)>0
+        <if test="xqCode != null and xqCode.length>0">
+            and j_pay_record.xq_code in (${xqCode})
+        </if>
+        <if test="subdistrictId!=null and subdistrictId!=''">
+            and j_pay_record.xq_code in (select ht_xq_subdistrict.xq_code from ht_xq_subdistrict where ht_xq_subdistrict.subdistrict_id=#{subdistrictId})
+        </if>
+        <if test="areaId!=null and areaId!=''">
+            and j_pay_record.xq_code in (select ht_xq_info.code from ht_xq_info inner join (select distinct area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on area.area_id=ht_xq_info.sso_regionalcode)
+        </if>
+        ) as A
+        inner join (select house_room.cell_id,house_room.name,house_room.building_area,house_room.purpose,house_room.purpose_name,house_room.func_name,house_room.manage_id from house_room
+        where 1=1
+        <if test="purpose!=null and purpose!=''">
+            and purpose=#{purpose}
+        </if>
+        <if test="func!=null and func!=''">
+            and func=#{func}
+        </if>
+        ) m_hr on m_hr.manage_id=A.room_id
+		inner join (select house_cell.name,house_cell.manage_id,house_cell.building_id from house_cell) m_hc on m_hc.manage_id=m_hr.cell_id
+		inner join (select house_building.name,house_building.manage_id from house_building) m_hb on m_hb.manage_id=m_hc.building_id
+		inner join (select ht_xq_info.name,ht_xq_info.code from ht_xq_info) m_xq on m_xq.code=A.xq_code
+		<if test="likeStr2!=null and likeStr2!=''">
+            inner join (select distinct house_owner_room.owner_id,house_owner_room.owner_name,house_owner_room.room_id from house_owner_room where house_owner_room.live_type=1) m_hor_lt1 on m_hr.manage_id=m_hor_lt1.room_id
+            inner join (select distinct zs_person_info.manage_id,zs_person_info.name,zs_person_info.phone from zs_person_info
+            where (zs_person_info.name like concat('%',#{likeStr2},'%') or zs_person_info.phone like concat('%',#{likeStr2},'%'))
+            ) m_pi on m_hor_lt1.owner_id=m_pi.manage_id
+        </if>
+		where 1=1
+		<if test="likeStr1!=null and likeStr1!=''">
+            and (m_xq.name like concat('%',#{likeStr1},'%') or concat(m_hb.name,m_hc.name,m_hr.name) like concat('%',#{likeStr1},'%') or m_hr.building_area like concat('%',#{likeStr1},'%') or m_hr.purpose_name like concat('%',#{likeStr1},'%') or m_hr.func_name like concat('%',#{likeStr1},'%'))
+        </if>
+		) as C
+        order by C.roomId
+    </select>
+
+    <select id="selectArrearageLastPaymentTime" parameterType="Map" resultType="Map">
+        select room_id,DATEDIFF(now(),max(should_pay_date))/30 as jump_month from j_pay_record
+        where 1=1
+        <if test="payType!=null and payType!=''">
+            and pay_type=#{payType}
+        </if>
+        and payment2!=0
+        group by j_pay_record.room_id
+        order by room_id
+    </select>
+
+    <select id="selectArrearageLastPaymentTimeWy" parameterType="Map" resultType="Map">
+        select count(*) as jump_month from (
+        select should_pay_date,sum(payment1-payment2) as paymentSub from j_pay_record
+        where 1=1
+        <if test="roomId!=null and roomId!=''">
+            and room_id=#{roomId}
+        </if>
+        <if test="payType!=null and payType!=''">
+            and pay_type=#{payType}
+        </if>
+        group by should_pay_date) as A
+        where paymentSub>0
+    </select>
+
+    <select id="selectPayRecord" parameterType="Map" resultType="Map">
+        select * from j_pay_record where 1=1
+        <if test="roomId!=null and roomId!=''">
+            and room_id=#{roomId}
+        </if>
+        <if test="beginTime!=null and beginTime!=''">
+            and UNIX_TIMESTAMP(payment_date) &gt;=UNIX_TIMESTAMP(#{beginTime})
+        </if>
+        <if test="endTime!=null and endTime!=''">
+            and UNIX_TIMESTAMP(payment_date) &lt;=UNIX_TIMESTAMP(#{endTime})
+        </if>
+        <if test="payType!=null and payType!=''">
+            and pay_type=#{payType}
+        </if>
+        <if test="sBeginTime!=null and sEndTime!=''">
+            and UNIX_TIMESTAMP(should_pay_date) &gt;=UNIX_TIMESTAMP(#{sBeginTime})
+        </if>
+        <if test="sBeginTime!=null and sEndTime!=''">
+            and UNIX_TIMESTAMP(should_pay_date) &lt;=UNIX_TIMESTAMP(#{sEndTime})
+        </if>
+    </select>
+
+    <select id="selectWaterUse" parameterType="Map" resultType="Map">
+        select * from j_water_use
+        where 1=1
+        <if test="roomId!=null and roomId!=''">
+            and room_id=#{roomId}
+        </if>
+        <if test="currentY!=null and currentY!=''">
+            and j_water_use.year=#{currentY}
+        </if>
+        order by room_id,year
+    </select>
+
+</mapper>

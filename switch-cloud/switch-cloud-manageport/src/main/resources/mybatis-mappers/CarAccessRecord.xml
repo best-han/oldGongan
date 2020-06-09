@@ -1,0 +1,24 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.windaka.suizhi.manageport.dao.CarAccessRecordDao">
+
+    <!--车辆出入场记录-->
+    <insert id="saveCarAccessRecord" parameterType="map">
+        INSERT INTO car_access_record(xq_code,dev_chn_name,dev_chn_id,dev_chn_num,car_num,
+          car_color,
+          car_color_name,
+          carnum_color,
+          carnum_color_name
+        ,real_capture_pic_path,cap_time,car_direct,original_pic_path,base64_img)
+        values (#{xqCode},#{carAccessRecord.devChnName},#{carAccessRecord.devChnId},#{carAccessRecord.devChnNum},#{carAccessRecord.carNum},
+        #{carAccessRecord.carColor},
+        #{carAccessRecord.carColorName},
+        #{carAccessRecord.carNumcolor},
+        #{carAccessRecord.carNumcolorName},
+        #{carAccessRecord.realCapturePicPath},#{carAccessRecord.capTime},#{carAccessRecord.carDirect},#{carAccessRecord.originalPicPath},#{carAccessRecord.base64Img})
+    </insert>
+    <!-- 获取最大主键 -->
+    <select id="getMaxRecordId" resultType="int">
+        select MAX(id) from car_access_record
+    </select>
+</mapper>

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.windaka.suizhi.mpi.dao.CarAccessRecordDao">
+    <!-- 根据manageId获取主键 -->
+    <select id="queryCarInOut" parameterType="int" resultType="com.windaka.suizhi.mpi.model.CarInOut">
+       SELECT
+    c.id,
+    h.NAME xqName,
+    c.car_num carNum,
+    c.dev_chn_id devId,
+    c.cap_time captureTime,
+    DATE_FORMAT( c.cap_time, '%Y-%m-%d %H:%i:%s' ) time,
+    c.base64_img img
+FROM
+    car_access_record c
+    LEFT JOIN ht_xq_info h ON h.CODE = c.xq_code
+        where c.id <![CDATA[ > ]]> #{id}  order by c.id asc limit 200
+    </select>
+    <!-- 查询车辆进出数据给海博 -->
+    <select id="queryCarInfoForHb" parameterType="int" resultType="com.windaka.suizhi.mpi.model.CarInOut">
+       SELECT
+    a.id,
+    a.car_num carNum,
+    a.dev_chn_id devId,
+    a.cap_time captureTime,
+    DATE_FORMAT(a.cap_time, '%Y-%m-%d %H:%i:%s' ) time,
+    p.paper_number idCard,
+    a.carnum_color plateColor,
+    a.base64_img img
+FROM
+    car_access_record a
+     left  join car_info c on a.car_num  = c.car_num
+    left  join zs_person_info p on c.owner_id = p.manage_id
+        where a.id <![CDATA[ > ]]> #{id}
+         order by a.id asc
+    </select>
+    <!-- 查询车辆进出数据给以萨 -->
+    <select id="queryCarInfoForYs" parameterType="int" resultType="com.windaka.suizhi.mpi.model.CarInOut">
+       SELECT
+    c.id,
+    h.NAME xqName,
+    c.car_num carNum,
+    c.dev_chn_id devId,
+    c.cap_time captureTime,
+    DATE_FORMAT( c.cap_time, '%Y-%m-%d %H:%i:%s' ) time,
+    c.base64_img img
+    FROM
+    car_access_record c
+    LEFT JOIN ht_xq_info h ON h.CODE = c.xq_code
+        where c.id <![CDATA[ > ]]> #{id}  order by c.id asc
+    </select>
+    <!-- 查询与车辆库匹配的最新数据 -->
+    <select id="queryCarForAlarm" parameterType="int" resultType="com.windaka.suizhi.mpi.model.RecordAbnormal">
+    SELECT
+    c.id id,
+    c.xq_code xqCode,
+    h.NAME xqName,
+    c.car_num carNum,
+    c.dev_chn_id devId,
+    c.dev_chn_name devName,
+    c.cap_time captureTime,
+    DATE_FORMAT( c.cap_time, '%Y-%m-%d %H:%i:%s' ) time,
+    c.base64_img img,
+    c.base64_img captureImg,
+    cg.type type,
+    cg.name groupName,
+    g.alarm_level alarmLevel
+    FROM
+    car_access_record c
+    inner  join  car_group_car g on c.car_num = g.car_num
+    left join car_group cg on  cg.type = g.group_code
+    LEFT JOIN ht_xq_info h ON h.CODE = c.xq_code
+      where c.id <![CDATA[ > ]]> #{id} and g.car_num is not null and g.car_num!=""
+      group  by  c.car_num
+    </select>
+</mapper>

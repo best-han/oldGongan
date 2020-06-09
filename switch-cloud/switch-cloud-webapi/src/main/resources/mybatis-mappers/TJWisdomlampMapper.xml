@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.windaka.suizhi.webapi.dao.TJWisdomlampDao">
+
+    <!--新增统计－人员信息-->
+    <insert id="save" parameterType="com.windaka.suizhi.webapi.model.TJWisdomlamp">
+        INSERT INTO tj_wisdomlamp(xq_code,gb_device_online,gb_device_all,light_device_online,light_device_all,LED_device_online,LED_device_all,hjjc_device_online,hjjc_device_all,
+                                   cre_by,cre_time,upd_by,upd_time)
+        values (#{xq_code}, #{gb_device_online}, #{gb_device_all}, #{light_device_online}, #{light_device_all}, #{LED_device_online}, #{LED_device_all}, #{hjjc_device_online}, #{hjjc_device_all}
+                   ,#{cre_by},#{cre_time},#{upd_by},#{upd_time})
+
+    </insert>
+
+    <!--根据小区Codde删除记录-->
+    <delete id="delete" parameterType="String">
+        delete from tj_wisdomlamp where xq_code = #{xqCode}
+    </delete>
+
+    <!--根据小区Code、物业Code，查询统计信息 p.xq_code as xqCode,wy.wy_code as wyCode-->
+    <select id="query" parameterType="Map" resultType="Map">
+        select sum(w.gb_device_online) as gbDeviceOnline,sum(w.gb_device_all) as gbDeviceAll,
+               sum(w.light_device_online) as lightDeviceOnline,sum(w.light_device_all) as lightDeviceAll,
+               sum(w.LED_device_online) as LEDDeviceOnline,sum(w.LED_device_all) as LEDDeviceAll,
+               sum(w.hjjc_device_online) as hjjcDeviceOnline,sum(w.hjjc_device_all) as hjjcDeviceAll
+        from tj_wisdomlamp as w
+        inner join ht_xq_wy as xw on w.xq_code=xw.xq_code and xw.status=0
+        inner join ht_wy_info as wy on xw.wy_code=wy.wy_code
+        inner join ht_xq_info xq on w.xq_code=xq.code
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{params.areaId},'%')) area on area.area_id=xq.sso_regionalcode
+        where 1=1
+        <if test="params.xqCode != null and params.xqCode != ''">
+            and w.xq_code in (${params.xqCode})
+        </if>
+        <if test="params.wyCode != null and params.wyCode != ''">
+            and wy.wy_code in (${params.wyCode})
+        </if>
+    </select>
+</mapper>

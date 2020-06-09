@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.windaka.suizhi.webapi.dao.CarInfoDao">
+
+    <!--新增车辆信息-->
+    <insert id="saveCarInfo" parameterType="map">
+        INSERT INTO car_info(xq_code,car_code,car_num,car_num_color,car_type,car_brand,car_color,car_mark,car_status,car_pic,person_code,memo,park_type
+                               ,parkinglot_code,list_type,status,create_by,create_time,update_by,update_time,remarks,extend_s1)
+        values (#{xqCode},#{carInfo.carCode},#{carInfo.carNum},#{carInfo.carNumColor},#{carInfo.carType},#{carInfo.carBrand},#{carInfo.carColor},#{carInfo.carMark}
+        ,#{carInfo.carStatus},#{carInfo.carPic},#{carInfo.personCode},#{carInfo.memo},#{carInfo.parkType},#{carInfo.parkinglotCode},#{carInfo.listType}
+        ,#{carInfo.status},#{carInfo.creatBy},#{carInfo.creatTime},#{carInfo.updateBy},#{carInfo.updateTime},#{carInfo.remarks},#{carInfo.extend_s1})
+    </insert>
+
+    <!--修改车辆信息-->
+    <update id="updateCarInfo" parameterType="com.windaka.suizhi.webapi.model.CarInfo">
+        update car_info  SET car_num=#{carNum},car_num_color=#{carNumColor},car_type=#{carType},car_brand=#{carBrand},car_color=#{carColor},car_mark=#{carMark}
+            ,car_status=#{carStatus},car_pic=#{carPic},person_code=#{personCode},memo=#{memo},park_type=#{parkType},parkinglot_code=#{parkinglotCode}
+            ,list_type=#{listType},status=#{status},update_by=#{updateBy},update_time=#{updateTime},remarks=#{remarks},extend_s1=#{extend_s1}
+        where xq_code=#{xqCode} and car_code=#{carCode}
+    </update>
+
+</mapper>

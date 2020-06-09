@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.windaka.suizhi.webapi.dao.CarGroupCarDao">
+
+    <select id="queryCarGroupCarNum" parameterType="map" resultType="int">
+        select count(1) from car_group_car a
+        inner join car_info as c on c.car_code=a.car_code
+        inner join ht_xq_info xq on xq.code=a.xq_code and xq.status='0'
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on area.area_id=xq.sso_regionalcode
+        where a.group_code=#{carType}
+        <if test="xqCode != null and xqCode != ''">
+            and a.xq_code in (${xqCode})
+        </if>
+    </select>
+
+    <insert id="saveCarGroupCar" parameterType="map">
+        insert into car_group_car (group_code,car_num,alarm_level,control_reason,create_by,create_date,update_by,update_date,control_beginTime,control_endTime)
+        values (#{carType},#{carNum},#{alarmLevel},#{controlReason},#{userId},now(),#{userId},now(),#{beginTime},#{endTime})
+    </insert>
+    
+    <update id="deleteCarGroupCar" parameterType="map">
+        update car_group_car set car_group_car.control_status=1,car_group_car.update_by=#{userId} where car_group_car.id=#{id}
+    </update>
+
+    <delete id="deleteCarGroupCarPermenently" parameterType="map">
+        delete from car_group_car where car_group_car.id=#{id}
+    </delete>
+
+    <delete id="deleteCarGroupCarR" parameterType="map">
+        delete from car_group_car where car_group_car.group_code=#{id}
+    </delete>
+
+    <select id="queryCarGroupCar" parameterType="map" resultType="map">
+        select * from car_group_car
+        inner join (select car_group.name as carGroupName,car_group.type from car_group) m_cg on m_cg.type=car_group_car.group_code
+        inner join (select ht_user.user_id,ht_user.cname as createUserName from ht_user) m_user on m_user.user_id=car_group_car.create_by
+        where 1=1
+        <if test="carType != null and carType != ''">
+            and group_code=#{carType}
+        </if>
+        <if test="alarmLevel != null and alarmLevel != ''">
+            and alarm_level=#{alarmLevel}
+        </if>
+        <if test="likeStr != null and likeStr != ''">
+            and (group_code like concat('%',#{likeStr},'%') or alarm_level like concat('%',#{likeStr},'%') or control_reason like concat('%',#{likeStr},'%') or car_num like concat('%',#{likeStr},'%') or m_cg.carGroupName like concat('%',#{likeStr},'%')
+            or m_user.createUserName like concat('%',#{likeStr},'%'))
+        </if>
+        and control_status=0
+        order by update_date desc
+    </select>
+
+    <select id="queryCarGroup" parameterType="map" resultType="map">
+        select * from car_group
+        where 1=1
+        <if test="carType != null and carType != ''">
+            and car_group.type=#{carType}
+        </if>
+        <if test="id!=null and id!=''">
+            and car_group.id=#{id}
+        </if>
+    </select>
+
+    <select id="queryHtUser" parameterType="map" resultType="map">
+        select * from ht_user
+        where 1=1
+        <if test="userId != null and userId != ''">
+            and ht_user.user_id=#{userId}
+        </if>
+    </select>
+
+</mapper>

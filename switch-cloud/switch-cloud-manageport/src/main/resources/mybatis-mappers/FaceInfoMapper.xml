@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.windaka.suizhi.manageport.dao.FaceInfoDao">
+    <insert id="saveFaceInfos" parameterType="map">
+        insert into face_information (xq_code,manage_id,
+        `person_face` ,
+        `person_id`
+        )
+        values
+        <foreach collection="list" index="index" item="item" open="" close="" separator=",">
+            (#{xqCode},#{item.manageId},
+            #{item.personFace},#{item.personId}
+            )
+        </foreach>
+    </insert>
+    <update id="updateFaceInfo" parameterType="map" >
+        update face_information set person_face=#{personFace},person_id=#{personId}
+        where xq_code=#{xqCode} and manage_id=#{manageId}
+    </update>
+    <delete id="deleteFaceInfo" parameterType="map">
+        delete from face_information where xq_code=#{xqCode} and manage_id=#{manageId}
+    </delete>
+</mapper>

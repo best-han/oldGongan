@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.windaka.suizhi.manageport.dao.FaceStrangerInfoDao">
+    <insert id="saveFaceStrangerInfos" parameterType="map">
+        insert into face_stranger_info (xq_code,manage_id,
+        `model_sex` ,
+        `model_age` ,
+        `model_quality` ,
+        `model_width` ,
+        `model_height` ,
+        `image_url` ,
+        `feature`
+        )
+        values
+        <foreach collection="list" index="index" item="item" open="" close="" separator=",">
+            (#{xqCode},#{item.manageId},
+            #{item.modelSex},#{item.modelAge},#{item.modelQuality},#{item.modelWidth},#{item.modelHeight},
+            #{item.imageUrl},#{item.feature}
+            )
+        </foreach>
+    </insert>
+    <update id="updateFaceStrangerInfo" parameterType="map" >
+        update face_stranger_info set model_sex=#{modelSex},model_age=#{modelAge},model_quality=#{modelQuality},
+        model_width=#{modelWidth},model_height=#{modelHeight},
+        image_url=#{imageUrl},feature=#{feature}
+        where xq_code=#{xqCode} and manage_id=#{manageId}
+    </update>
+    <delete id="deleteFaceStrangerInfo" parameterType="map">
+        delete from face_stranger_info where xq_code=#{xqCode} and manage_id=#{manageId}
+    </delete>
+</mapper>

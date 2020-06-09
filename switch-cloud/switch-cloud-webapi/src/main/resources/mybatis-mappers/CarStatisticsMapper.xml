@@ -1,0 +1,1032 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.windaka.suizhi.webapi.dao.CarStatisticsDao">
+    <select id="queryCarSenseTop12ByXq" parameterType="Map" resultType="java.util.Map">
+        select distinct A.carNum,A.xqCode,m_xq.name as xqName,A.senseNum,A.original_pic_path as image,date_format(B.lastCaptureTime,'%Y-%m-%d %H:%i:%s' ) as lastCaptureTime,m_owner.owner_name as ownerName,A.real_capture_pic_path as lastCaptureImage from
+        (select distinct car_access_record.car_num as carNum,car_access_record.xq_code as xqCode,count(car_access_record.car_num) as senseNum,car_access_record.real_capture_pic_path,car_access_record.original_pic_path from car_access_record group by car_num) as A
+        inner join (select distinct car_access_record.car_num as carNum,max(car_access_record.cap_time) as lastCaptureTime from car_access_record
+        <if test="beginTime!= null and beginTime!= '' and endTime!= null and endTime!= ''">
+            where car_access_record.cap_time between
+            #{beginTime} and #{endTime}
+        </if>
+        group by car_num) B on A.carNum=B.carNum
+        inner join (select distinct ht_xq_info.code,ht_xq_info.name from ht_xq_info where ht_xq_info.code=#{xqCode}) m_xq on m_xq.code=A.xqCode
+        left join (select distinct car_info.car_num,car_info.owner_id from car_info) m_car on m_car.car_num=A.carNum
+        left join (select distinct house_owner_room.owner_name,house_owner_room.owner_id,house_owner_room.live_type from house_owner_room) m_owner on m_owner.owner_id=m_car.owner_id
+        where 1=1
+        <if test="liveType== null or liveType== ''">
+            and m_owner.live_type is NULL
+        </if>
+        <if test="liveType!= null and liveType!= ''">
+            and m_owner.live_type=#{liveType}
+        </if>
+        order by A.senseNum desc limit 12
+    </select>
+    <select id="queryCarSenseTop12BySub" parameterType="Map" resultType="java.util.Map">
+        select distinct A.carNum,A.xqCode,m_xq.name as xqName,A.senseNum,A.original_pic_path as image,date_format(B.lastCaptureTime,'%Y-%m-%d %H:%i:%s' ) as lastCaptureTime,m_owner.owner_name as ownerName,A.real_capture_pic_path as lastCaptureImage from
+        (select distinct car_access_record.car_num as carNum,car_access_record.xq_code as xqCode,count(car_access_record.car_num) as senseNum,car_access_record.real_capture_pic_path,car_access_record.original_pic_path from car_access_record
+        <if test="beginTime!= null and beginTime!= '' and endTime!= null and endTime!= ''">
+            where car_access_record.cap_time between
+            #{beginTime} and #{endTime}
+        </if>
+        group by car_num) as A
+        inner join (select distinct car_access_record.car_num as carNum,max(car_access_record.cap_time) as lastCaptureTime from car_access_record group by car_num) B on A.carNum=B.carNum
+        inner join (select distinct ht_xq_info.code,ht_xq_info.name from ht_xq_info
+        inner join (select distinct ht_xq_subdistrict.xq_code,ht_xq_subdistrict.subdistrict_id from ht_xq_subdistrict) m_sub on m_sub.xq_code=ht_xq_info.code
+        where m_sub.subdistrict_id=#{subdistrictId}) m_xq on m_xq.code=A.xqCode
+        left join (select distinct car_info.car_num,car_info.owner_id from car_info) m_car on m_car.car_num=A.carNum
+        left join (select distinct house_owner_room.owner_name,house_owner_room.owner_id,house_owner_room.live_type from house_owner_room) m_owner on m_owner.owner_id=m_car.owner_id
+        where 1=1
+        <if test="liveType== null or liveType== ''">
+            and m_owner.live_type is NULL
+        </if>
+        <if test="liveType!= null and liveType!= ''">
+            and m_owner.live_type=#{liveType}
+        </if>
+        order by A.senseNum desc limit 12
+    </select>
+    <select id="queryCarSenseTop12ByArea" parameterType="Map" resultType="java.util.Map">
+        select distinct A.carNum,A.xqCode,m_xq.name as xqName,A.senseNum,A.original_pic_path as image,date_format(B.lastCaptureTime,'%Y-%m-%d %H:%i:%s' ) as lastCaptureTime,m_owner.owner_name as ownerName,A.real_capture_pic_path as lastCaptureImage from
+        (select distinct car_access_record.car_num as carNum,car_access_record.xq_code as xqCode,count(car_access_record.car_num) as senseNum,car_access_record.real_capture_pic_path,car_access_record.original_pic_path from car_access_record
+        <if test="beginTime!= null and beginTime!= '' and endTime!= null and endTime!= ''">
+            where car_access_record.cap_time between
+            #{beginTime} and #{endTime}
+        </if>
+        group by car_num) as A
+        inner join (select distinct car_access_record.car_num as carNum,max(car_access_record.cap_time) as lastCaptureTime from car_access_record group by car_num) B on A.carNum=B.carNum
+        inner join (select distinct ht_xq_info.code,ht_xq_info.name from ht_xq_info
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on area.area_id=ht_xq_info.sso_regionalcode) m_xq on m_xq.code=A.xqCode
+        left join (select distinct car_info.car_num,car_info.owner_id from car_info) m_car on m_car.car_num=A.carNum
+        left join (select distinct house_owner_room.owner_name,house_owner_room.owner_id,house_owner_room.live_type from house_owner_room) m_owner on m_owner.owner_id=m_car.owner_id
+        where 1=1
+        <if test="liveType== null or liveType== ''">
+            and m_owner.live_type is NULL
+        </if>
+        <if test="liveType!= null and liveType!= ''">
+            and m_owner.live_type=#{liveType}
+        </if>
+        order by A.senseNum desc limit 12
+    </select>
+    <select id="queryCarSpecialListByXq" parameterType="Map" resultType="java.util.Map">
+        select A.carNum,m_cg.type as carGroupType,m_cg.type_name as carGroupTypeName,date_format(A.lastCaptureTime,'%Y-%m-%d %H:%i:%s' ) as lastCaptureTime,A.xqName,A.image from
+        (select car_access_record.car_num as carNum,max(car_access_record.cap_time) as lastCaptureTime,car_access_record.real_capture_pic_path as image,car_access_record.xq_code,m_xq.name as xqName from car_access_record
+				inner join (select ht_xq_info.code,ht_xq_info.name from ht_xq_info where ht_xq_info.code=#{xqCode}) m_xq on m_xq.code=car_access_record.xq_code
+				group by car_access_record.car_num) as A
+				left join (select car_info.manage_id,car_info.car_num from car_info) m_ci on m_ci.car_num=A.carNum
+        left join (select car_group_car.car_code,car_group_car.manage_id from car_group_car) as m_cgc on m_cgc.car_code=m_ci.manage_id
+        left join (select car_group.manage_id,car_group.type,car_group.type_name from car_group) as m_cg on m_cg.manage_id=m_cgc.manage_id
+        order by lastCaptureTime desc
+    </select>
+    <select id="queryCarSpecialListBySub" parameterType="Map" resultType="java.util.Map">
+        select A.carNum,m_cg.type as carGroupType,m_cg.type_name as carGroupTypeName,date_format(A.lastCaptureTime,'%Y-%m-%d %H:%i:%s' ) as lastCaptureTime,A.xqName,A.image from
+        (select car_access_record.car_num as carNum,max(car_access_record.cap_time) as lastCaptureTime,car_access_record.real_capture_pic_path as image,car_access_record.xq_code,m_xq.name as xqName from car_access_record
+        inner join (select ht_xq_info.code,ht_xq_info.name from ht_xq_info
+        inner join (select ht_xq_subdistrict.subdistrict_id,ht_xq_subdistrict.xq_code from ht_xq_subdistrict where ht_xq_subdistrict.subdistrict_id=#{subdistrictId}) m_sub on m_sub.xq_code=ht_xq_info.code) m_xq on m_xq.code=car_access_record.xq_code
+        group by car_access_record.car_num) as A
+        left join (select car_info.manage_id,car_info.car_num from car_info) m_ci on m_ci.car_num=A.carNum
+        left join (select car_group_car.car_code,car_group_car.manage_id from car_group_car) as m_cgc on m_cgc.car_code=m_ci.manage_id
+        left join (select car_group.manage_id,car_group.type,car_group.type_name from car_group) as m_cg on m_cg.manage_id=m_cgc.manage_id
+        order by lastCaptureTime desc
+    </select>
+    <select id="queryCarSpecialListByArea" parameterType="Map" resultType="java.util.Map">
+        select A.carNum,m_cg.type as carGroupType,m_cg.type_name as carGroupTypeName,date_format(A.lastCaptureTime,'%Y-%m-%d %H:%i:%s') as lastCaptureTime,A.xqName,A.image from
+        (select car_access_record.car_num as carNum,max(car_access_record.cap_time) as lastCaptureTime,car_access_record.real_capture_pic_path as image,car_access_record.xq_code,m_xq.name as xqName from car_access_record
+				inner join (select ht_xq_info.code,ht_xq_info.name from ht_xq_info
+				inner join (select distinct area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on area.area_id=ht_xq_info.sso_regionalcode) m_xq on m_xq.code=car_access_record.xq_code
+				group by car_access_record.car_num) as A
+				left join (select car_info.manage_id,car_info.car_num from car_info) m_ci on m_ci.car_num=A.carNum
+        left join (select car_group_car.car_code,car_group_car.manage_id from car_group_car) as m_cgc on m_cgc.car_code=m_ci.manage_id
+        left join (select car_group.manage_id,car_group.type,car_group.type_name from car_group) as m_cg on m_cg.manage_id=m_cgc.manage_id
+        order by lastCaptureTime desc
+    </select>
+
+    <select id="queryCarTotalNumByXq" parameterType="Map" resultType="java.util.Map">
+        select count(*) as carTotalNum from car_info where car_info.xq_code=#{xqCode} group by car_info.xq_code
+        <if test="beginTime!= null and beginTime!= '' and endTime!= null and endTime!= ''">
+            and car_info.create_date between
+            #{beginTime} and #{endTime}
+        </if>
+        and car_info.create_date is not null
+    </select>
+    <select id="queryCarTotalNumBySub" parameterType="Map" resultType="java.util.Map">
+        select count(*) as carTotalNum from car_info
+        inner join (select ht_xq_subdistrict.xq_code,ht_xq_subdistrict.subdistrict_id from ht_xq_subdistrict where ht_xq_subdistrict.subdistrict_id=#{subdistrictId}) m_sub on m_sub.xq_code=car_info.xq_code
+        <if test="beginTime!= null and beginTime!= '' and endTime!= null and endTime!= ''">
+            where car_info.create_date between
+            #{beginTime} and #{endTime}
+        </if>
+        and car_info.create_date is not null
+    </select>
+    <select id="queryCarTotalNumByArea" parameterType="Map" resultType="java.util.Map">
+        select count(*) as carTotalNum from
+        (select distinctrow xq.code,car_info.create_date,car_info.car_num from car_info
+        inner join ht_xq_info xq on car_info.xq_code=xq.code
+        inner join (select distinct area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on area.area_id=xq.sso_regionalcode) as A
+        where 1=1
+        <if test="beginTime!= null and beginTime!= '' and endTime!= null and endTime!= ''">
+            and A.create_date between
+            #{beginTime} and #{endTime}
+        </if>
+        and A.create_date is not null
+    </select>
+
+    <select id="queryCarSenseNumByXq" parameterType="Map" resultType="java.util.Map">
+        select count(*) as senseNum from car_access_record
+        where car_access_record.cap_time between #{beginTime} and #{endTime} and car_access_record.xq_code=#{xqCode}
+    </select>
+    <select id="queryCarSenseNumBySub" parameterType="Map" resultType="java.util.Map">
+        select count(*) as senseNum from car_access_record
+        inner join (select ht_xq_subdistrict.xq_code,ht_xq_subdistrict.subdistrict_id from ht_xq_subdistrict where ht_xq_subdistrict.subdistrict_id=#{subdistrictId}) m_sub on m_sub.xq_code=car_access_record.xq_code
+        where car_access_record.cap_time between #{beginTime} and #{endTime}
+    </select>
+    <select id="queryCarSenseNumByArea" parameterType="Map" resultType="java.util.Map">
+        select count(*) as senseNum from car_access_record
+        inner join ht_xq_info xq on car_access_record.xq_code=xq.code
+        inner join (select distinct area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on area.area_id=xq.sso_regionalcode
+        where car_access_record.cap_time between #{beginTime} and #{endTime}
+    </select>
+
+    <select id="queryCarSerseStrangerNumByXq" parameterType="Map" resultType="java.util.Map">
+        select count(*) as todaySerseStrangerNum from
+        (select car_access_record.cap_time,car_access_record.xq_code from car_access_record
+        left join (select car_num,manage_id from car_info) m_ci on m_ci.car_num=car_access_record.car_num
+        where m_ci.manage_id is NULL or m_ci.manage_id='') as A
+        where A.xq_code=#{xqCode} and A.cap_time between #{beginTime} and #{endTime}
+    </select>
+    <select id="queryCarSerseStrangerNumBySub" parameterType="Map" resultType="java.util.Map">
+        select count(*) as todaySerseStrangerNum from
+        (select car_access_record.cap_time,car_access_record.xq_code from car_access_record
+        left join (select car_num,manage_id from car_info) m_ci on m_ci.car_num=car_access_record.car_num
+        where m_ci.manage_id is NULL or m_ci.manage_id='') as A
+        inner join (select ht_xq_subdistrict.xq_code,ht_xq_subdistrict.subdistrict_id from ht_xq_subdistrict where ht_xq_subdistrict.subdistrict_id=#{subdistrictId}) m_sub on m_sub.xq_code=A.xq_code
+        where A.cap_time between #{beginTime} and #{endTime}
+    </select>
+    <select id="queryCarSerseStrangerNumByArea" parameterType="Map" resultType="java.util.Map">
+        select count(*) as todaySerseStrangerNum from
+        (select car_access_record.cap_time,car_access_record.xq_code from car_access_record
+        left join (select car_num,manage_id from car_info) m_ci on m_ci.car_num=car_access_record.car_num
+        where m_ci.manage_id is NULL or m_ci.manage_id='') as A
+        inner join ht_xq_info xq on A.xq_code=xq.code
+        inner join (select distinct area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on area.area_id=xq.sso_regionalcode
+        where A.cap_time between #{beginTime} and #{endTime}
+    </select>
+
+    <select id="queryCarPassNumByXq" parameterType="Map" resultType="java.util.Map">
+        select count(*) as passNum from
+        (select * from car_access_record where car_access_record.car_direct=#{carDirect} and car_access_record.cap_time between #{beginTime} and #{endTime} and car_access_record.xq_code=#{xqCode}) as A
+    </select>
+    <select id="queryCarPassNumBySub" parameterType="Map" resultType="java.util.Map">
+        select count(*) as passNum from
+        (select * from car_access_record where car_access_record.car_direct=#{carDirect} and car_access_record.cap_time between #{beginTime} and #{endTime}) as A
+        inner join (select distinct ht_xq_subdistrict.xq_code from ht_xq_subdistrict where ht_xq_subdistrict.subdistrict_id=#{subdistrictId}) m_sub on m_sub.xq_code=A.xq_code
+    </select>
+    <select id="queryCarPassNumByArea" parameterType="Map" resultType="java.util.Map">
+        select count(*) as passNum from
+        (select * from car_access_record where car_access_record.car_direct=#{carDirect} and car_access_record.cap_time between #{beginTime} and #{endTime}) as A
+        inner join ht_xq_info m_xq on A.xq_code=m_xq.code
+        inner join (select distinct area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on area.area_id=m_xq.sso_regionalcode
+    </select>
+
+    <select id="queryCarDistributionNumByXq" parameterType="Map" resultType="java.util.Map">
+        select A.xqCode,A.xqName,A.carNum from
+        (select car_info.xq_code as xqCode,m_xq.name as xqName,count(*) as carNum from car_info
+        inner join (select distinct ht_xq_info.code,ht_xq_info.name from ht_xq_info) m_xq on m_xq.code=car_info.xq_code
+        group by car_info.xq_code) as A
+        where A.xqCode=#{xqCode}
+    </select>
+    <select id="queryCarDistributionNumBySub" parameterType="Map" resultType="java.util.Map">
+        select A.xqCode,A.xqName,A.carNum from
+        (select car_info.xq_code as xqCode,m_xq.name as xqName,count(*) as carNum from car_info
+        inner join (select distinct ht_xq_info.code,ht_xq_info.name from ht_xq_info) m_xq on m_xq.code=car_info.xq_code
+        group by car_info.xq_code) as A
+        inner join (select distinct ht_xq_subdistrict.xq_code,ht_xq_subdistrict.subdistrict_id from ht_xq_subdistrict where ht_xq_subdistrict.subdistrict_id=#{subdistrictId}) m_sub on m_sub.xq_code=A.xqCode
+    </select>
+    <select id="queryCarDistributionNumByArea" parameterType="Map" resultType="java.util.Map">
+        select A.xqCode,A.xqName,A.carNum from
+        (select car_info.xq_code as xqCode,m_xq.name as xqName,count(*) as carNum from car_info
+        inner join (select distinct ht_xq_info.code,ht_xq_info.name,ht_xq_info.sso_regionalcode from ht_xq_info) m_xq on m_xq.code=car_info.xq_code
+        inner join (select distinct area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on area.area_id=m_xq.sso_regionalcode
+        group by car_info.xq_code) as A
+    </select>
+
+    <select id="queryCarListByXq" parameterType="Map" resultType="Map">
+        select car_info.xq_code as xqCode,m_xq.name as xqName,car_info.car_num as carNum,IFNULL(car_info.car_num_color_name,'未识别') as carNumColorName,IFNULL(date_format(car_info.create_date,'%Y-%m-%d %H:%i:%s' ),'') as checkinDate,IFNULL(car_info.car_brand_name,'未识别') as carBrandName,IFNULL(car_info.car_color_name,'未识别') as carColorName,IFNULL(car_info.car_img,'未录入') as image,car_info.room_id as roomId from car_info
+        left join (select distinct ht_xq_info.code,ht_xq_info.name from ht_xq_info) as m_xq on m_xq.code=car_info.xq_code
+        where car_info.xq_code in (${xqCodes})
+        <if test="carNum!=null and carNum!=''">
+            and car_info.car_num=#{carNum}
+        </if>
+        <if test="carNumColor!=null and carNumColor!=''">
+            and car_info.car_num_color=#{carNumColor}
+        </if>
+        <if test="carBrandName!=null and carBrandName!=''">
+            and car_info.car_brand_name=#{carBrandName}
+        </if>
+        <if test="carColor!=null and carColor!=''">
+            and car_info.car_color=#{carColor}
+        </if>
+        <if test="createTimeStart!=null and createTimeStart!=''">
+            and UNIX_TIMESTAMP(car_info.create_date) &gt;=UNIX_TIMESTAMP(#{createTimeStart})
+        </if>
+        <if test="createTimeEnd!=null and createTimeEnd!=''">
+            and UNIX_TIMESTAMP(car_info.create_date) &lt;=UNIX_TIMESTAMP(#{createTimeEnd})
+        </if>
+        <if test="likeStr!=null and likeStr!=''">
+            and (car_info.xq_code like concat('%',#{likeStr},'%') or car_info.car_num like concat('%',#{likeStr},'%') or car_info.car_num_color_name like concat('%',#{likeStr},'%') or car_info.create_date like concat('%',#{likeStr},'%') or car_info.car_brand_name like concat('%',#{likeStr},'%') or car_info.car_color_name like concat('%',#{likeStr},'%') or car_info.car_img like concat('%',#{likeStr},'%')
+        </if>
+    </select>
+    <select id="queryCarListBySub" parameterType="Map" resultType="java.util.Map">
+        select car_info.xq_code as xqCode,m_xq.name as xqName,car_info.car_num as carNum,IFNULL(car_info.car_num_color_name,'未识别') as carNumColorName,IFNULL(date_format(car_info.create_date,'%Y-%m-%d %H:%i:%s' ),'') as checkinDate,IFNULL(car_info.car_brand_name,'未识别') as carBrandName,IFNULL(car_info.car_color_name,'未识别') as carColorName,IFNULL(car_info.car_img,'未录入') as image,car_info.room_id as roomId from car_info
+        inner join (select distinct ht_xq_subdistrict.xq_code,ht_xq_subdistrict.subdistrict_id from ht_xq_subdistrict where ht_xq_subdistrict.subdistrict_id=#{subdistrictId}) as m_sub on m_sub.xq_code=car_info.xq_code
+        left join (select distinct ht_xq_info.code,ht_xq_info.name from ht_xq_info) as m_xq on m_xq.code=car_info.xq_code
+        where 1=1
+        <if test="carNum!=null and carNum!=''">
+            and car_info.car_num=#{carNum}
+        </if>
+        <if test="carNumColor!=null and carNumColor!=''">
+            and car_info.car_num_color=#{carNumColor}
+        </if>
+        <if test="carBrandName!=null and carBrandName!=''">
+            and car_info.car_brand_name=#{carBrandName}
+        </if>
+        <if test="carColor!=null and carColor!=''">
+            and car_info.car_color=#{carColor}
+        </if>
+        <if test="createTimeStart!=null and createTimeStart!=''">
+            and UNIX_TIMESTAMP(car_info.create_date) &gt;=UNIX_TIMESTAMP(#{createTimeStart})
+        </if>
+        <if test="createTimeEnd!=null and createTimeEnd!=''">
+            and UNIX_TIMESTAMP(car_info.create_date) &lt;=UNIX_TIMESTAMP(#{createTimeEnd})
+        </if>
+        <if test="likeStr!=null and likeStr!=''">
+            and (car_info.xq_code like concat('%',#{likeStr},'%') or car_info.car_num like concat('%',#{likeStr},'%') or car_info.car_num_color_name like concat('%',#{likeStr},'%') or car_info.create_date like concat('%',#{likeStr},'%') or car_info.car_brand_name like concat('%',#{likeStr},'%') or car_info.car_color_name like concat('%',#{likeStr},'%') or car_info.car_img like concat('%',#{likeStr},'%')
+        </if>
+    </select>
+    <select id="queryCarListByArea" parameterType="Map" resultType="java.util.Map">
+        select car_info.xq_code as xqCode,m_xq.name as xqName,car_info.car_num as carNum,IFNULL(car_info.car_num_color_name,'未识别') as carNumColorName,IFNULL(date_format(car_info.create_date,'%Y-%m-%d %H:%i:%s' ),'') as checkinDate,IFNULL(car_info.car_brand_name,'未识别') as carBrandName,IFNULL(car_info.car_color_name,'未识别') as carColorName,IFNULL(car_info.car_img,'未录入') as image,car_info.room_id as roomId from car_info
+        left join (select distinct ht_xq_info.code,ht_xq_info.name,ht_xq_info.sso_regionalcode from ht_xq_info) as m_xq on m_xq.code=car_info.xq_code
+        inner join (select distinct area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on area.area_id=m_xq.sso_regionalcode
+        where 1=1
+        <if test="carNum!=null and carNum!=''">
+            and car_info.car_num=#{carNum}
+        </if>
+        <if test="carNumColor!=null and carNumColor!=''">
+            and car_info.car_num_color=#{carNumColor}
+        </if>
+        <if test="carBrandName!=null and carBrandName!=''">
+            and car_info.car_brand_name=#{carBrandName}
+        </if>
+        <if test="carColor!=null and carColor!=''">
+            and car_info.car_color=#{carColor}
+        </if>
+        <if test="createTimeStart!=null and createTimeStart!=''">
+            and UNIX_TIMESTAMP(car_info.create_date) &gt;=UNIX_TIMESTAMP(#{createTimeStart})
+        </if>
+        <if test="createTimeEnd!=null and createTimeEnd!=''">
+            and UNIX_TIMESTAMP(car_info.create_date) &lt;=UNIX_TIMESTAMP(#{createTimeEnd})
+        </if>
+        <if test="likeStr!=null and likeStr!=''">
+            and (car_info.xq_code like concat('%',#{likeStr},'%') or car_info.car_num like concat('%',#{likeStr},'%') or car_info.car_num_color_name like concat('%',#{likeStr},'%') or car_info.create_date like concat('%',#{likeStr},'%') or car_info.car_brand_name like concat('%',#{likeStr},'%') or car_info.car_color_name like concat('%',#{likeStr},'%') or car_info.car_img like concat('%',#{likeStr},'%')
+        </if>
+    </select>
+
+    <select id="queryCarListLikeStr" parameterType="Map" resultType="java.util.Map">
+        select car_info.xq_code as xqCode,m_xq.name as xqName,car_info.car_num as carNum,car_info.car_num_color_name as carNumColorName,date_format(car_info.create_date,'%Y-%m-%d %H:%i:%s' ) as checkinDate,car_info.car_brand_name as carBrandName,car_info.car_color_name as carColorName,IFNULL(car_info.car_img,'未录入') as image,concat(m_building.name,m_cell.name,m_hr.name) as roomName,car_info.owner_id as ownerId,
+        car_info.room_id as roomId
+            ,m_hor.live_type_name as liveTypeName
+        <if test="likeStr3!=null">
+            ,m_pi.name as personName
+        </if>
+        from car_info
+        left join (select distinct ht_xq_info.code,ht_xq_info.name,ht_xq_info.sso_regionalcode from ht_xq_info) as m_xq on m_xq.code=car_info.xq_code
+        left join (select house_owner_room.live_type_name,house_owner_room.live_type,house_owner_room.room_id,house_owner_room.owner_id from house_owner_room) m_hor on m_hor.room_id=car_info.room_id and m_hor.owner_id=car_info.owner_id
+        <if test="likeStr3!=null">
+            left join (select zs_person_info.name,zs_person_info.manage_id from zs_person_info) m_pi on m_pi.manage_id=car_info.owner_id
+        </if>
+        left join (select distinct house_room.manage_id,house_room.cell_id,house_room.name from house_room) m_hr on m_hr.manage_id=car_info.room_id
+        left join (select distinct house_cell.manage_id,house_cell.name,house_cell.building_id from house_cell) m_cell
+        on m_hr.cell_id=m_cell.manage_id
+        left join (select distinct house_building.manage_id,house_building.name from house_building) m_building
+        on m_cell.building_id=m_building.manage_id
+        where 1=1
+        <if test="liveType!=null and liveType!=''">
+            <if test="liveType!=4">
+                and m_hor.live_type=#{liveType}
+            </if>
+            <if test="liveType==4">
+                and (m_hor.live_type='1' or m_hor.live_type='2')
+            </if>
+        </if>
+        <if test="likeStr2!=null">
+            and m_hor.live_type_name like concat('%',#{likeStr2},'%')
+        </if>
+        <if test="likeStr3!=null">
+            and m_pi.name like concat('%',#{likeStr3},'%')
+        </if>
+
+        <if test="xqCodes != null and xqCodes.length>0">
+            and car_info.xq_code in (${xqCodes})
+        </if>
+        <if test="xqCode != null and xqCode.length>0">
+            and car_info.xq_code in (${xqCode})
+        </if>
+        <if test="subdistrictId!=null and subdistrictId!=''">
+            and car_info.xq_code in (select ht_xq_subdistrict.xq_code from ht_xq_subdistrict where ht_xq_subdistrict.subdistrict_id=#{subdistrictId})
+        </if>
+        <if test="areaId!=null and areaId!=''">
+            and car_info.xq_code in (select ht_xq_info.code from ht_xq_info inner join (select distinct area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on area.area_id=ht_xq_info.sso_regionalcode)
+        </if>
+
+        <if test="carNum!=null and carNum!=''">
+            and car_info.car_num like concat('%',#{carNum},'%')
+        </if>
+        <if test="carNumColor!=null and carNumColor!=''">
+            and car_info.car_num_color=#{carNumColor}
+        </if>
+        <if test="carBrandName!=null and carBrandName!=''">
+            and car_info.car_brand_name like concat('%',#{carBrandName},'%')
+        </if>
+        <if test="carColor!=null and carColor!=''">
+            and (car_info.car_color = #{carColor} or car_info.car_color_name like concat('%',#{carColor},'%'))
+        </if>
+        <if test="createTimeStart!=null and createTimeStart!=''">
+            and UNIX_TIMESTAMP(car_info.create_date) &gt;=UNIX_TIMESTAMP(#{createTimeStart})
+        </if>
+        <if test="createTimeEnd!=null and createTimeEnd!=''">
+            and UNIX_TIMESTAMP(car_info.create_date) &lt;=UNIX_TIMESTAMP(#{createTimeEnd})
+        </if>
+        <if test="likeStr1!=null and likeStr1!=''">
+            and (car_info.xq_code like concat('%',#{likeStr1},'%') or car_info.car_num like concat('%',#{likeStr1},'%') or car_info.car_num_color_name like concat('%',#{likeStr1},'%') or car_info.create_date like concat('%',#{likeStr1},'%') or car_info.car_brand_name like concat('%',#{likeStr1},'%') or car_info.car_color_name like concat('%',#{likeStr1},'%') or car_info.car_img like concat('%',#{likeStr1},'%')
+            or m_xq.name like concat('%',#{likeStr1},'%'))
+        </if>
+    </select>
+
+    <select id="queryCarList2" parameterType="Map" resultType="java.util.Map">
+        select j_car_list.xqCode,j_car_list.xqName,j_car_list.personName,j_car_list.carNum,j_car_list.carNumColorName,date_format(j_car_list.checkinDate,'%Y-%m-%d %H:%i:%s' ) as checkinDate,j_car_list.carBrandName,j_car_list.liveTypeName,j_car_list.carColorName,j_car_list.image from j_car_list
+        where 1=1
+        <if test="carNum!=null and carNum!=''">
+            and j_car_list.carNum=#{carNum}
+        </if>
+        <if test="carBrandName!=null and carBrandName!=''">
+            and j_car_list.carBrandName=#{carBrandName}
+        </if>
+        <if test="carColor!=null and carColor!=''">
+            and j_car_list.carColor=#{carColor}
+        </if>
+        <if test="liveType!=null and liveType!=''">
+            <if test="liveType==0">
+                and (j_car_list.liveTypeName='业主' or j_car_list.liveTypeName='家庭成员')
+            </if>
+            <if test="liveType==3">
+                and j_car_list.liveTypeName='租户'
+            </if>
+        </if>
+        <if test="createTimeStart!=null and createTimeStart!=''">
+            and UNIX_TIMESTAMP(checkinDate) &gt;=UNIX_TIMESTAMP(#{createTimeStart})
+        </if>
+        <if test="createTimeEnd!=null and createTimeEnd!=''">
+            and UNIX_TIMESTAMP(checkinDate) &lt;=UNIX_TIMESTAMP(#{createTimeEnd})
+        </if>
+        <if test="likeStr!=null and likeStr!=''">
+            and (j_car_list.xqCode like concat('%',#{likeStr},'%') or j_car_list.xqName like concat('%',#{likeStr},'%') or j_car_list.personName like concat('%',#{likeStr},'%') or j_car_list.carNum like concat('%',#{likeStr},'%') or j_car_list.carNumColorName like concat('%',#{likeStr},'%') or j_car_list.checkinDate like concat('%',#{likeStr},'%') or j_car_list.carBrandName like concat('%',#{likeStr},'%') or j_car_list.liveTypeName like concat('%',#{likeStr},'%') or j_car_list.carColorName like concat('%',#{likeStr},'%'))
+        </if>
+    </select>
+
+    <select id="queryCarBaseInfoNewByXq" parameterType="Map" resultType="java.util.Map">
+        select count(*) as carNum from
+        (select car_info.xq_code as xqCode,m_xq.name as xqName,IFNULL(m_hor.owner_name,'陌生人') as personName,car_info.car_num as carNum,IFNULL(car_info.car_num_color_name,'未识别') as carNumColorName,IFNULL(car_info.create_date,'') as checkinDate,IFNULL(car_info.car_brand_name,'未识别') as carBrandName,IFNULL(m_hor.live_type_name,'无') as liveTypeName,IFNULL(car_info.car_color_name,'未识别') as carColorName from car_info
+        inner join (select house_owner_room.room_id,house_owner_room.owner_id,house_owner_room.owner_name,house_owner_room.live_type_name,house_owner_room.live_type from house_owner_room) m_hor on m_hor.owner_id=car_info.owner_id and m_hor.room_id=car_info.room_id
+        left join (select distinct ht_xq_info.code,ht_xq_info.name from ht_xq_info) as m_xq on m_xq.code=car_info.xq_code
+        where car_info.xq_code=#{xqCode}
+        <if test="liveType!=null and liveType!=''">
+            <if test="liveType==0">
+                and (m_hor.live_type='1' or m_hor.live_type='2')
+            </if>
+            <if test="liveType==3">
+                and m_hor.live_type='3'
+            </if>
+        </if>
+        <if test="beginTime!=null and beginTime!='' and endTime!=null and endTime!=''">
+            and car_info.create_date between #{beginTime} and #{endTime}
+        </if>
+        and car_info.create_date is not null
+        ) as A
+    </select>
+    <select id="queryCarBaseInfoNewBySub" parameterType="Map" resultType="java.util.Map">
+        select count(*) as carNum from
+        (select car_info.xq_code as xqCode,m_xq.name as xqName,IFNULL(m_hor.owner_name,'陌生人') as personName,car_info.car_num as carNum,IFNULL(car_info.car_num_color_name,'未识别') as carNumColorName,IFNULL(car_info.create_date,'') as checkinDate,IFNULL(car_info.car_brand_name,'未识别') as carBrandName,IFNULL(m_hor.live_type_name,'无') as liveTypeName,IFNULL(car_info.car_color_name,'未识别') as carColorName from car_info
+        inner join (select house_owner_room.room_id,house_owner_room.owner_id,house_owner_room.owner_name,house_owner_room.live_type_name,house_owner_room.live_type from house_owner_room) m_hor on m_hor.owner_id=car_info.owner_id and m_hor.room_id=car_info.room_id
+        left join (select distinct ht_xq_info.code,ht_xq_info.name from ht_xq_info) as m_xq on m_xq.code=car_info.xq_code
+        inner join (select distinct ht_xq_subdistrict.xq_code,ht_xq_subdistrict.subdistrict_id from ht_xq_subdistrict where ht_xq_subdistrict.subdistrict_id=#{subdistrictId}) as m_sub on m_sub.xq_code=car_info.xq_code
+        where 1=1
+        <if test="liveType!=null and liveType!=''">
+            <if test="liveType==0">
+                and (m_hor.live_type='1' or m_hor.live_type='2')
+            </if>
+            <if test="liveType==3">
+                and m_hor.live_type='3'
+            </if>
+        </if>
+        <if test="beginTime!=null and beginTime!='' and endTime!=null and endTime!=''">
+            and car_info.create_date between #{beginTime} and #{endTime}
+        </if>
+        and car_info.create_date is not null
+        ) as A
+    </select>
+    <select id="queryCarBaseInfoNewByArea" parameterType="Map" resultType="java.util.Map">
+        select count(*) as carNum from
+        (select car_info.xq_code as xqCode,m_xq.name as xqName,IFNULL(m_hor.owner_name,'陌生人') as personName,car_info.car_num as carNum,IFNULL(car_info.car_num_color_name,'未识别') as carNumColorName,IFNULL(car_info.create_date,'') as checkinDate,IFNULL(car_info.car_brand_name,'未识别') as carBrandName,IFNULL(m_hor.live_type_name,'无') as liveTypeName,IFNULL(car_info.car_color_name,'未识别') as carColorName from car_info
+        inner join (select house_owner_room.room_id,house_owner_room.owner_id,house_owner_room.owner_name,house_owner_room.live_type_name,house_owner_room.live_type from house_owner_room) m_hor on m_hor.owner_id=car_info.owner_id and m_hor.room_id=car_info.room_id
+        left join (select distinct ht_xq_info.code,ht_xq_info.name,ht_xq_info.sso_regionalcode from ht_xq_info) as m_xq on m_xq.code=car_info.xq_code
+        inner join (select distinct area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on area.area_id=m_xq.sso_regionalcode
+        where 1=1
+        <if test="liveType!=null and liveType!=''">
+            <if test="liveType==0">
+                and (m_hor.live_type='1' or m_hor.live_type='2')
+            </if>
+            <if test="liveType==3">
+                and m_hor.live_type='3'
+            </if>
+        </if>
+        <if test="beginTime!=null and beginTime!='' and endTime!=null and endTime!=''">
+            and car_info.create_date between #{beginTime} and #{endTime}
+        </if>
+        and car_info.create_date is not null
+        ) as A
+    </select>
+
+    <select id="queryHighSenseByXq" parameterType="Map" resultType="java.util.Map">
+        select C.carNum,C.xqCode,m_xq.name as xqName,C.senseNum,C.image,C.lastCaptureTime,IFNULL(m_pi.name,'陌生人') as ownerName,C.lastCaptureImage from
+        (select car_access_record.car_num as carNum,car_access_record.xq_code as xqCode,A.senseNum,car_access_record.base64_img as image,car_access_record.cap_time as lastCaptureTime,car_access_record.base64_img as lastCaptureImage from car_access_record
+        inner join (select car_access_record.car_num,count(*) as senseNum from car_access_record where car_access_record.car_num!='' and car_access_record.car_num is not null group by car_access_record.car_num order by senseNum) A on A.car_num=car_access_record.car_num
+        inner join (select car_access_record.car_num,max(car_access_record.id) as maxId from car_access_record where car_access_record.car_num!='' and car_access_record.car_num is not null group by car_access_record.car_num) B on B.maxId=car_access_record.id
+        where 1=1
+        <if test="beginTime!= null and beginTime!= '' and endTime!= null and endTime!= ''">
+            and car_access_record.cap_time between
+            #{beginTime} and #{endTime}
+        </if>
+        order by A.senseNum desc
+        limit 250) as C
+        inner join (select distinct ht_xq_info.code,ht_xq_info.name from ht_xq_info where ht_xq_info.code=#{xqCode}) m_xq on m_xq.code=C.xqCode
+        left join (select distinct car_info.car_num,car_info.owner_id from car_info) m_car on m_car.car_num=C.carNum
+        left join (select distinct house_owner_room.room_id,house_owner_room.owner_name,house_owner_room.owner_id,house_owner_room.live_type from house_owner_room) m_owner on m_owner.owner_id=m_car.owner_id
+        left join (select zs_person_info.name,zs_person_info.manage_id from zs_person_info) m_pi on m_pi.manage_id=m_owner.owner_id
+        order by C.senseNum desc
+    </select>
+    <select id="queryHighSenseBySub" parameterType="Map" resultType="java.util.Map">
+        select C.carNum,C.xqCode,m_xq.name as xqName,C.senseNum,C.image,C.lastCaptureTime,IFNULL(m_pi.name,'陌生人') as ownerName,C.lastCaptureImage from
+        (select car_access_record.car_num as carNum,car_access_record.xq_code as xqCode,A.senseNum,car_access_record.base64_img as image,car_access_record.cap_time as lastCaptureTime,car_access_record.base64_img as lastCaptureImage from car_access_record
+        inner join (select car_access_record.car_num,count(*) as senseNum from car_access_record where car_access_record.car_num!='' and car_access_record.car_num is not null group by car_access_record.car_num order by senseNum) A on A.car_num=car_access_record.car_num
+        inner join (select car_access_record.car_num,max(car_access_record.id) as maxId from car_access_record where car_access_record.car_num!='' and car_access_record.car_num is not null group by car_access_record.car_num) B on B.maxId=car_access_record.id
+        where 1=1
+        <if test="beginTime!= null and beginTime!= '' and endTime!= null and endTime!= ''">
+            and car_access_record.cap_time between
+            #{beginTime} and #{endTime}
+        </if>
+        order by A.senseNum desc
+        limit 250) as C
+        inner join (select distinct ht_xq_info.code,ht_xq_info.name from ht_xq_info
+        inner join (select distinct ht_xq_subdistrict.xq_code,ht_xq_subdistrict.subdistrict_id from ht_xq_subdistrict) m_sub on m_sub.xq_code=ht_xq_info.code
+        where m_sub.subdistrict_id=#{subdistrictId}) m_xq on m_xq.code=C.xqCode
+        left join (select distinct car_info.car_num,car_info.owner_id from car_info) m_car on m_car.car_num=C.carNum
+        left join (select distinct house_owner_room.room_id,house_owner_room.owner_name,house_owner_room.owner_id,house_owner_room.live_type from house_owner_room) m_owner on m_owner.owner_id=m_car.owner_id
+        left join (select zs_person_info.name,zs_person_info.manage_id from zs_person_info) m_pi on m_pi.manage_id=m_owner.owner_id
+        order by C.senseNum desc
+    </select>
+    <select id="queryHighSenseByArea" parameterType="Map" resultType="java.util.Map">
+        select C.carNum,C.xqCode,m_xq.name as xqName,C.senseNum,C.image,C.lastCaptureTime,IFNULL(m_pi.name,'陌生人') as ownerName,C.lastCaptureImage from
+        (select car_access_record.car_num as carNum,car_access_record.xq_code as xqCode,A.senseNum,car_access_record.base64_img as image,car_access_record.cap_time as lastCaptureTime,car_access_record.base64_img as lastCaptureImage from car_access_record
+        inner join (select car_access_record.car_num,count(*) as senseNum from car_access_record where car_access_record.car_num!='' and car_access_record.car_num is not null group by car_access_record.car_num order by senseNum) A on A.car_num=car_access_record.car_num
+        inner join (select car_access_record.car_num,max(car_access_record.id) as maxId from car_access_record where car_access_record.car_num!='' and car_access_record.car_num is not null group by car_access_record.car_num) B on B.maxId=car_access_record.id
+        where 1=1
+        <if test="beginTime!= null and beginTime!= '' and endTime!= null and endTime!= ''">
+            and car_access_record.cap_time between
+            #{beginTime} and #{endTime}
+        </if>
+        order by A.senseNum desc
+        limit 250) as C
+        inner join (select distinct ht_xq_info.code,ht_xq_info.name from ht_xq_info
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on area.area_id=ht_xq_info.sso_regionalcode) m_xq on m_xq.code=C.xqCode
+        left join (select distinct car_info.car_num,car_info.owner_id from car_info) m_car on m_car.car_num=C.carNum
+        left join (select distinct house_owner_room.room_id,house_owner_room.owner_name,house_owner_room.owner_id,house_owner_room.live_type from house_owner_room) m_owner on m_owner.owner_id=m_car.owner_id
+        left join (select zs_person_info.name,zs_person_info.manage_id from zs_person_info) m_pi on m_pi.manage_id=m_owner.owner_id
+        order by C.senseNum desc
+    </select>
+
+    <select id="queryTjCarAccessListByXq" parameterType="Map" resultType="java.util.Map">
+        select * from
+        (select A.xqCode,IFNULL(m_zs_person_info.name,'陌生人') as personName,A.devChnId,A.devChnNum,A.carNum,A.xqName,A.originalPicPath,A.capTime,A.carDirect,IFNULL(m_zs_person_info.manage_id,'无') as personCode,A.realCapturePicPath,A.carColorName,IFNULL(m_hor.live_type_name,'无') as liveTypeName,m_hor.live_type as liveType,m_hr.manage_id as roomId,A.devChnName from
+        (select car_access_record.xq_code as xqCode,car_access_record.dev_chn_id as devChnId,car_access_record.dev_chn_num as devChnNum,car_access_record.car_num as carNum,m_ht_xq_info.name as xqName,car_access_record.base64_img as originalPicPath,IFNULL(date_format(car_access_record.cap_time,'%Y-%m-%d %H:%i:%s' ),'') as capTime,car_access_record.car_direct as carDirect,car_access_record.base64_img as realCapturePicPath,IFNULL(car_access_record.car_color_name,'未识别') as carColorName,car_access_record.dev_chn_name as devChnName
+        from car_access_record
+        inner join (select ht_xq_info.code,ht_xq_info.name from ht_xq_info
+        where ht_xq_info.code in (${xqCode})
+        ) m_ht_xq_info on m_ht_xq_info.code=car_access_record.xq_code
+        where 1=1
+        <if test="beginTime!=null and beginTime!=''">
+            and UNIX_TIMESTAMP(car_access_record.cap_time) &gt;=UNIX_TIMESTAMP(#{beginTime})
+        </if>
+        <if test="endTime!=null and endTime!=''">
+            and UNIX_TIMESTAMP(car_access_record.cap_time) &lt;=UNIX_TIMESTAMP(#{endTime})
+        </if>
+        order by car_access_record.cap_time desc
+        limit 0,400 ) as A
+        left join (select car_info.xq_code,car_info.room_id,car_info.car_color_name,car_info.car_num,car_info.owner_id from car_info) m_car_info on m_car_info.car_num=A.carNum
+        left join (select zs_person_info.name,zs_person_info.manage_id from zs_person_info) m_zs_person_info on m_zs_person_info.manage_id=m_car_info.owner_id
+        left join (select house_owner_room.owner_id,house_owner_room.room_id,house_owner_room.live_type_name,house_owner_room.live_type from house_owner_room) m_hor on m_hor.owner_id=m_zs_person_info.manage_id and m_hor.room_id=m_car_info.room_id
+        left join (select distinct house_room.name,house_room.manage_id,house_room.xq_code,house_room.cell_id from house_room) m_hr on m_hr.manage_id=m_hor.room_id
+        )
+        as B
+        where 1=1
+        <if test="liveType!=null and liveType!=''">
+            and B.liveType = #{liveType}
+        </if>
+        <if test="carDirect!=null and carDirect!=''">
+            and B.carDirect = #{carDirect}
+        </if>
+        <if test="likeStr!=null and likeStr!=''">
+            and (xqCode like concat('%',#{likeStr},'%') or personName like concat('%',#{likeStr},'%') or devChnId like concat('%',#{likeStr},'%') or devChnNum like concat('%',#{likeStr},'%') or carNum like concat('%',#{likeStr},'%') or xqName like concat('%',#{likeStr},'%') or originalPicPath like concat('%',#{likeStr},'%') or capTime like concat('%',#{likeStr},'%') or carDirect like concat('%',#{likeStr},'%') or personCode like concat('%',#{likeStr},'%') or realCapturePicPath like concat('%',#{likeStr},'%') or carColorName like concat('%',#{likeStr},'%') or liveTypeName like concat('%',#{likeStr},'%') or liveType like concat('%',#{likeStr},'%'))
+        </if>
+        order by B.capTime desc
+    </select>
+    <select id="queryTjCarAccessListByWy" parameterType="Map" resultType="java.util.Map">
+        select * from
+        (select A.xqCode,IFNULL(m_zs_person_info.name,'陌生人') as personName,A.devChnId,A.devChnNum,A.carNum,A.xqName,A.originalPicPath,A.capTime,A.carDirect,IFNULL(m_zs_person_info.manage_id,'无') as personCode,A.realCapturePicPath,A.carColorName,IFNULL(m_hor.live_type_name,'无') as liveTypeName,m_hor.live_type as liveType,m_hr.manage_id as roomId,A.devChnName from
+        (select car_access_record.xq_code as xqCode,car_access_record.dev_chn_id as devChnId,car_access_record.dev_chn_num as devChnNum,car_access_record.car_num as carNum,m_ht_xq_info.name as xqName,car_access_record.base64_img as originalPicPath,IFNULL(date_format(car_access_record.cap_time,'%Y-%m-%d %H:%i:%s' ),'') as capTime,car_access_record.car_direct as carDirect,car_access_record.base64_img as realCapturePicPath,IFNULL(car_access_record.car_color_name,'未识别') as carColorName,car_access_record.dev_chn_name as devChnName
+        from car_access_record
+        inner join (select ht_xq_info.code,ht_xq_info.name from ht_xq_info) m_ht_xq_info on m_ht_xq_info.code=car_access_record.xq_code
+        inner join (select ht_xq_wy.wy_code,ht_xq_wy.xq_code from ht_xq_wy where ht_xq_wy.wy_code=#{wyCode}) m_ht_wy_info on m_ht_wy_info.xq_code=car_access_record.xq_code
+        where 1=1
+        <if test="beginTime!=null and beginTime!=''">
+            and UNIX_TIMESTAMP(car_access_record.cap_time) &gt;=UNIX_TIMESTAMP(#{beginTime})
+        </if>
+        <if test="endTime!=null and endTime!=''">
+            and UNIX_TIMESTAMP(car_access_record.cap_time) &lt;=UNIX_TIMESTAMP(#{endTime})
+        </if>
+        order by car_access_record.cap_time desc
+        limit 0,400 ) as A
+        left join (select car_info.xq_code,car_info.room_id,car_info.car_color_name,car_info.car_num,car_info.owner_id from car_info) m_car_info on m_car_info.car_num=A.carNum
+        left join (select zs_person_info.name,zs_person_info.manage_id from zs_person_info) m_zs_person_info on m_zs_person_info.manage_id=m_car_info.owner_id
+        left join (select house_owner_room.owner_id,house_owner_room.room_id,house_owner_room.live_type_name,house_owner_room.live_type from house_owner_room) m_hor on m_hor.owner_id=m_zs_person_info.manage_id and m_hor.room_id=m_car_info.room_id
+        left join (select distinct house_room.name,house_room.manage_id,house_room.xq_code,house_room.cell_id from house_room) m_hr on m_hr.manage_id=m_hor.room_id
+        )
+        as B
+        where 1=1
+        <if test="liveType!=null and liveType!=''">
+            and B.liveType = #{liveType}
+        </if>
+        <if test="carDirect!=null and carDirect!=''">
+            and B.carDirect = #{carDirect}
+        </if>
+        <if test="likeStr!=null and likeStr!=''">
+            and (xqCode like concat('%',#{likeStr},'%') or personName like concat('%',#{likeStr},'%') or devChnId like concat('%',#{likeStr},'%') or devChnNum like concat('%',#{likeStr},'%') or carNum like concat('%',#{likeStr},'%') or xqName like concat('%',#{likeStr},'%') or originalPicPath like concat('%',#{likeStr},'%') or capTime like concat('%',#{likeStr},'%') or carDirect like concat('%',#{likeStr},'%') or personCode like concat('%',#{likeStr},'%') or realCapturePicPath like concat('%',#{likeStr},'%') or carColorName like concat('%',#{likeStr},'%') or liveTypeName like concat('%',#{likeStr},'%') or liveType like concat('%',#{likeStr},'%'))
+        </if>
+        order by B.capTime desc
+    </select>
+    <select id="queryTjCarAccessListByArea" parameterType="Map" resultType="java.util.Map">
+        select * from
+        (select A.xqCode,IFNULL(m_zs_person_info.name,'陌生人') as personName,A.devChnId,A.devChnNum,A.carNum,A.xqName,A.originalPicPath,A.capTime,A.carDirect,IFNULL(m_zs_person_info.manage_id,'无') as personCode,A.realCapturePicPath,A.carColorName,IFNULL(m_hor.live_type_name,'无') as liveTypeName,m_hor.live_type as liveType,m_hr.manage_id as roomId,A.devChnName from
+        (select car_access_record.xq_code as xqCode,car_access_record.dev_chn_id as devChnId,car_access_record.dev_chn_num as devChnNum,car_access_record.car_num as carNum,m_ht_xq_info.name as xqName,car_access_record.base64_img as originalPicPath,IFNULL(date_format(car_access_record.cap_time,'%Y-%m-%d %H:%i:%s' ),'') as capTime,car_access_record.car_direct as carDirect,car_access_record.base64_img as realCapturePicPath,IFNULL(car_access_record.car_color_name,'未识别') as carColorName,car_access_record.dev_chn_name as devChnName
+        from car_access_record
+        inner join (select ht_xq_info.code,ht_xq_info.name,ht_xq_info.sso_regionalcode from ht_xq_info) m_ht_xq_info on m_ht_xq_info.code=car_access_record.xq_code
+        inner join (select distinct area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on area.area_id=m_ht_xq_info.sso_regionalcode
+        where 1=1
+        <if test="beginTime!=null and beginTime!=''">
+            and UNIX_TIMESTAMP(car_access_record.cap_time) &gt;=UNIX_TIMESTAMP(#{beginTime})
+        </if>
+        <if test="endTime!=null and endTime!=''">
+            and UNIX_TIMESTAMP(car_access_record.cap_time) &lt;=UNIX_TIMESTAMP(#{endTime})
+        </if>
+        order by car_access_record.cap_time desc
+        limit 0,400
+        ) as A
+        left join (select car_info.xq_code,car_info.room_id,car_info.car_color_name,car_info.car_num,car_info.owner_id from car_info) m_car_info on m_car_info.car_num=A.carNum
+        left join (select zs_person_info.name,zs_person_info.manage_id from zs_person_info) m_zs_person_info on m_zs_person_info.manage_id=m_car_info.owner_id
+        left join (select house_owner_room.owner_id,house_owner_room.room_id,house_owner_room.live_type_name,house_owner_room.live_type from house_owner_room) m_hor on m_hor.owner_id=m_zs_person_info.manage_id and m_hor.room_id=m_car_info.room_id
+        left join (select distinct house_room.name,house_room.manage_id,house_room.xq_code,house_room.cell_id from house_room) m_hr on m_hr.manage_id=m_hor.room_id
+        )
+        as B
+        where 1=1
+        <if test="liveType!=null and liveType!=''">
+            and B.liveType = #{liveType}
+        </if>
+        <if test="carDirect!=null and carDirect!=''">
+            and B.carDirect = #{carDirect}
+        </if>
+        <if test="likeStr!=null and likeStr!=''">
+            and (xqCode like concat('%',#{likeStr},'%') or personName like concat('%',#{likeStr},'%') or devChnId like concat('%',#{likeStr},'%') or devChnNum like concat('%',#{likeStr},'%') or carNum like concat('%',#{likeStr},'%') or xqName like concat('%',#{likeStr},'%') or originalPicPath like concat('%',#{likeStr},'%') or capTime like concat('%',#{likeStr},'%') or carDirect like concat('%',#{likeStr},'%') or personCode like concat('%',#{likeStr},'%') or realCapturePicPath like concat('%',#{likeStr},'%') or carColorName like concat('%',#{likeStr},'%') or liveTypeName like concat('%',#{likeStr},'%') or liveType like concat('%',#{likeStr},'%'))
+        </if>
+        order by B.capTime desc
+    </select>
+
+    <select id="queryTjCarAccessList2" parameterType="Map" resultType="java.util.Map">
+        select A.*
+        <choose>
+            <when test="liveType!=null and liveType!=''">
+                ,m_car_info.owner_id as ownerId
+                ,m_car_info.room_id as roomId
+                ,m_hor.live_type as liveType
+                ,m_hor.live_type_name as liveTypeName
+                <if test="likeStr2!=null and likeStr2!=''">
+                    ,concat(m_building.name,m_cell.name,m_room.name) as roomName
+                </if>
+                <if test="likeStr3!=null and likeStr3!=''">
+                    ,m_pi.name as personName
+                </if>
+            </when>
+            <otherwise>
+                <if test="likeStr2!=null and likeStr2!=''">
+                    ,m_car_info.owner_id as ownerId
+                    ,m_car_info.room_id as roomId
+                    ,m_hor.live_type as liveType
+                    ,m_hor.live_type_name as liveTypeName
+                    ,concat(m_building.name,m_cell.name,m_room.name) as roomName
+                </if>
+                <if test="likeStr3!=null and likeStr3!=''">
+                    ,m_pi.name as personName
+                </if>
+            </otherwise>
+        </choose>
+        from (
+        select car_access_record.id,m_xq.name as xqName,car_access_record.xq_code as xqCode,car_access_record.dev_chn_id as devChnId,car_access_record.dev_chn_num as devChnNum,
+        car_access_record.car_num as carNum,car_access_record.base64_img as originalPicPath,IFNULL(date_format(car_access_record.cap_time,'%Y-%m-%d %H:%i:%s' ),'') as capTime,
+        car_access_record.car_direct as carDirect,car_access_record.base64_img as realCapturePicPath,car_access_record.car_color_name as carColorName,
+        car_access_record.dev_chn_name as devChnName
+        from car_access_record
+        inner join (select ht_xq_info.name,ht_xq_info.code from ht_xq_info
+        <if test="xqCode != null and xqCode.length>0">
+            where ht_xq_info.code in (${xqCode})
+        </if>
+        <if test="areaId!=null and areaId!=''">
+            inner join (select distinct area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on area.area_id=ht_xq_info.sso_regionalcode
+        </if>
+        ) m_xq on m_xq.code=car_access_record.xq_code
+        where 1=1
+        <if test="carDirect!=null and carDirect!=''">
+            and car_access_record.car_direct = #{carDirect}
+        </if>
+        <if test="beginTime!=null and beginTime!=''">
+            and UNIX_TIMESTAMP(car_access_record.cap_time) &gt;=UNIX_TIMESTAMP(#{beginTime})
+        </if>
+        <if test="endTime!=null and endTime!=''">
+            and UNIX_TIMESTAMP(car_access_record.cap_time) &lt;=UNIX_TIMESTAMP(#{endTime})
+        </if>
+        <if test="likeStr1!=null and likeStr1!=''">
+            and (m_xq.name like concat('%',#{likeStr1},'%') or car_access_record.dev_chn_id like concat('%',#{likeStr1},'%') or car_access_record.dev_chn_num like concat('%',#{likeStr1},'%') or
+            car_access_record.car_num like concat('%',#{likeStr1},'%') or car_access_record.cap_time like concat('%',#{likeStr1},'%') or car_access_record.car_color_name like concat('%',#{likeStr1},'%') or
+            car_access_record.dev_chn_name like concat('%',#{likeStr1},'%')
+            <if test='likeStr1=="进" or likeStr1=="进场"'>
+                or car_access_record.car_direct=8
+            </if>
+            <if test='likeStr1=="出" or likeStr1=="出场"'>
+                or car_access_record.car_direct=9
+            </if>
+            )
+        </if>
+        ) as A
+        <choose>
+            <when test="liveType!=null and liveType!=''">
+                inner join (select car_info.xq_code,car_info.room_id,car_info.car_num,car_info.owner_id from car_info) m_car_info on m_car_info.car_num=A.carNum
+                inner join (select house_owner_room.owner_id,house_owner_room.room_id,house_owner_room.live_type_name,house_owner_room.live_type from house_owner_room
+                where house_owner_room.live_type=#{liveType}
+                ) m_hor on m_hor.owner_id=m_car_info.owner_id and m_hor.room_id=m_car_info.room_id
+                <if test="likeStr2!=null and likeStr2!=''">
+                    inner join (select house_room.manage_id,house_room.name,house_room.cell_id from house_room) m_room
+                    on m_room.manage_id=m_hor.room_id
+                    inner join (select house_cell.manage_id,house_cell.name,house_cell.xq_code,house_cell.building_id from house_cell) m_cell
+                    on m_room.cell_id=m_cell.manage_id
+                    inner join (select house_building.manage_id,house_building.name from house_building) m_building
+                    on m_cell.building_id=m_building.manage_id
+                    where m_hor.live_type_name like concat('%',#{likeStr2},'%') or m_room.name like concat('%',#{likeStr2},'%')
+                    or m_cell.name like concat('%',#{likeStr2},'%') or m_building.name like concat('%',#{likeStr2},'%')
+                </if>
+                <if test="likeStr3!=null and likeStr3!=''">
+                    inner join (select zs_person_info.manage_id,zs_person_info.name from zs_person_info
+                    where zs_person_info.name like concat('%',#{likeStr3},'%')
+                    ) m_pi on m_pi.manage_id=m_car_info.owner_id
+                </if>
+            </when>
+            <otherwise>
+                <if test="likeStr2!=null and likeStr2!=''">
+                    inner join (select car_info.xq_code,car_info.room_id,car_info.car_num,car_info.owner_id from car_info) m_car_info on m_car_info.car_num=A.carNum
+                    inner join (select house_owner_room.owner_id,house_owner_room.room_id,house_owner_room.live_type_name,house_owner_room.live_type from house_owner_room
+                    ) m_hor on m_hor.owner_id=m_car_info.owner_id and m_hor.room_id=m_car_info.room_id
+                    inner join (select house_room.manage_id,house_room.name,house_room.cell_id from house_room) m_room
+                    on m_room.manage_id=m_hor.room_id
+                    inner join (select house_cell.manage_id,house_cell.name,house_cell.xq_code,house_cell.building_id from house_cell) m_cell
+                    on m_room.cell_id=m_cell.manage_id
+                    inner join (select house_building.manage_id,house_building.name from house_building) m_building
+                    on m_cell.building_id=m_building.manage_id
+                    where m_hor.live_type_name like concat('%',#{likeStr2},'%') or m_room.name like concat('%',#{likeStr2},'%')
+                    or m_cell.name like concat('%',#{likeStr2},'%') or m_building.name like concat('%',#{likeStr2},'%')
+                </if>
+                <if test="likeStr3!=null and likeStr3!=''">
+                    inner join (select car_info.xq_code,car_info.room_id,car_info.car_num,car_info.owner_id from car_info) m_car_info on m_car_info.car_num=A.carNum
+                    inner join (select zs_person_info.manage_id,zs_person_info.name from zs_person_info
+                    where zs_person_info.name like concat('%',#{likeStr3},'%')
+                    ) m_pi on m_pi.manage_id=m_car_info.owner_id
+                </if>
+            </otherwise>
+        </choose>
+        order by A.capTime desc
+    </select>
+
+    <select id="queryCarSenseHighAccessByXq" parameterType="Map" resultType="java.util.Map">
+        select C.carNum,C.xqCode,m_xq.name as xqName,C.senseNum,C.image,C.lastCaptureTime,IFNULL(m_pi.name,'陌生人') as ownerName,C.lastCaptureImage,IFNULL(concat(m_hb.name,m_hc.name,m_hr.name),'无') as roomName from
+        (select car_access_record.car_num as carNum,car_access_record.xq_code as xqCode,A.senseNum,car_access_record.base64_img as image,date_format(car_access_record.cap_time,'%Y-%m-%d %H:%i:%s' ) as lastCaptureTime,car_access_record.base64_img as lastCaptureImage from car_access_record
+        inner join (select car_access_record.car_num,count(*) as senseNum from car_access_record where car_access_record.car_num!='' and car_access_record.car_num is not null group by car_access_record.car_num order by senseNum) A on A.car_num=car_access_record.car_num
+        inner join (select car_access_record.car_num,max(car_access_record.id) as maxId from car_access_record where car_access_record.car_num!='' and car_access_record.car_num is not null group by car_access_record.car_num) B on B.maxId=car_access_record.id
+        where 1=1
+        <if test="accessNumSmall!= null and accessNumSmall!= ''">
+            and A.senseNum &gt;= #{accessNumSmall}
+        </if>
+        <if test="accessNumBig!= null and accessNumBig!= ''">
+            and A.senseNum &lt;= #{accessNumBig}
+        </if>
+        <if test="beginTime!= null and beginTime!= '' and endTime!= null and endTime!= ''">
+            and car_access_record.cap_time between
+            #{beginTime} and #{endTime}
+        </if>
+        order by A.senseNum desc
+        limit 250) as C
+        inner join (select distinct ht_xq_info.code,ht_xq_info.name from ht_xq_info where ht_xq_info.code=#{xqCode}) m_xq on m_xq.code=C.xqCode
+        left join (select distinct car_info.car_num,car_info.owner_id from car_info) m_car on m_car.car_num=C.carNum
+        left join (select distinct house_owner_room.room_id,house_owner_room.owner_name,house_owner_room.owner_id,house_owner_room.live_type from house_owner_room) m_owner on m_owner.owner_id=m_car.owner_id
+        left join (select distinct house_room.name,house_room.manage_id,house_room.xq_code,house_room.cell_id from house_room) m_hr on m_hr.manage_id=m_owner.room_id
+        left join (select distinct house_cell.manage_id,house_cell.name,house_cell.xq_code,house_cell.building_id from house_cell) m_hc on m_hc.manage_id=m_hr.cell_id
+        left join (select distinct house_building.manage_id,house_building.name from house_building) m_hb on m_hb.manage_id=m_hc.building_id
+        left join (select zs_person_info.name,zs_person_info.manage_id from zs_person_info) m_pi on m_pi.manage_id=m_owner.owner_id
+        where 1=1
+        and m_owner.live_type is null
+        <if test="likeStr!= null and likeStr!= ''">
+            and (C.carNum like concat('%',#{likeStr},'%') or C.xqCode like concat('%',#{likeStr},'%') or m_xq.name like concat('%',#{likeStr},'%') or C.senseNum like concat('%',#{likeStr},'%') or C.image like concat('%',#{likeStr},'%') or  C.lastCaptureTime like concat('%',#{likeStr},'%') or m_pi.name like concat('%',#{likeStr},'%') or C.lastCaptureImage like concat('%',#{likeStr},'%') or concat(m_hb.name,m_hc.name,m_hr.name) like concat('%',#{likeStr},'%'))
+        </if>
+        order by C.senseNum desc
+    </select>
+
+    <select id="queryCarSenseHighAccessBySub" parameterType="Map" resultType="java.util.Map">
+        select C.carNum,C.xqCode,m_xq.name as xqName,C.senseNum,C.image,C.lastCaptureTime,IFNULL(m_pi.name,'陌生人') as ownerName,C.lastCaptureImage,IFNULL(concat(m_hb.name,m_hc.name,m_hr.name),'无') as roomName from
+        (select car_access_record.car_num as carNum,car_access_record.xq_code as xqCode,A.senseNum,car_access_record.base64_img as image,date_format(car_access_record.cap_time,'%Y-%m-%d %H:%i:%s' ) as lastCaptureTime,car_access_record.base64_img as lastCaptureImage from car_access_record
+        inner join (select car_access_record.car_num,count(*) as senseNum from car_access_record where car_access_record.car_num!='' and car_access_record.car_num is not null group by car_access_record.car_num order by senseNum) A on A.car_num=car_access_record.car_num
+        inner join (select car_access_record.car_num,max(car_access_record.id) as maxId from car_access_record where car_access_record.car_num!='' and car_access_record.car_num is not null group by car_access_record.car_num) B on B.maxId=car_access_record.id
+        where 1=1
+        <if test="accessNumSmall!= null and accessNumSmall!= ''">
+            and A.senseNum &gt;= #{accessNumSmall}
+        </if>
+        <if test="accessNumBig!= null and accessNumBig!= ''">
+            and A.senseNum &lt;= #{accessNumBig}
+        </if>
+        <if test="beginTime!= null and beginTime!= '' and endTime!= null and endTime!= ''">
+            and car_access_record.cap_time between
+            #{beginTime} and #{endTime}
+        </if>
+        order by A.senseNum desc
+        limit 250) as C
+        inner join (select distinct ht_xq_info.code,ht_xq_info.name from ht_xq_info
+        inner join (select distinct ht_xq_subdistrict.xq_code,ht_xq_subdistrict.subdistrict_id from ht_xq_subdistrict) m_sub on m_sub.xq_code=ht_xq_info.code
+        where m_sub.subdistrict_id=#{subdistrictId}) m_xq on m_xq.code=A.xqCode
+        left join (select distinct car_info.car_num,car_info.owner_id from car_info) m_car on m_car.car_num=C.carNum
+        left join (select distinct house_owner_room.room_id,house_owner_room.owner_name,house_owner_room.owner_id,house_owner_room.live_type from house_owner_room) m_owner on m_owner.owner_id=m_car.owner_id
+        left join (select distinct house_room.name,house_room.manage_id,house_room.xq_code,house_room.cell_id from house_room) m_hr on m_hr.manage_id=m_owner.room_id
+        left join (select distinct house_cell.manage_id,house_cell.name,house_cell.xq_code,house_cell.building_id from house_cell) m_hc on m_hc.manage_id=m_hr.cell_id
+        left join (select distinct house_building.manage_id,house_building.name from house_building) m_hb on m_hb.manage_id=m_hc.building_id
+        left join (select zs_person_info.name,zs_person_info.manage_id from zs_person_info) m_pi on m_pi.manage_id=m_owner.owner_id
+        where 1=1
+        and m_owner.live_type is null
+        <if test="likeStr!= null and likeStr!= ''">
+            and (C.carNum like concat('%',#{likeStr},'%') or C.xqCode like concat('%',#{likeStr},'%') or m_xq.name like concat('%',#{likeStr},'%') or C.senseNum like concat('%',#{likeStr},'%') or C.image like concat('%',#{likeStr},'%') or  C.lastCaptureTime like concat('%',#{likeStr},'%') or m_pi.name like concat('%',#{likeStr},'%') or C.lastCaptureImage like concat('%',#{likeStr},'%') or concat(m_hb.name,m_hc.name,m_hr.name) like concat('%',#{likeStr},'%'))
+        </if>
+        order by C.senseNum desc
+    </select>
+
+    <select id="queryCarSenseHighAccessByArea" parameterType="Map" resultType="java.util.Map">
+        select C.carNum,C.xqCode,m_xq.name as xqName,C.senseNum,C.image,C.lastCaptureTime,IFNULL(m_pi.name,'陌生人') as ownerName,C.lastCaptureImage,IFNULL(concat(m_hb.name,m_hc.name,m_hr.name),'无') as roomName from
+        (select car_access_record.car_num as carNum,car_access_record.xq_code as xqCode,A.senseNum,car_access_record.base64_img as image,date_format(car_access_record.cap_time,'%Y-%m-%d %H:%i:%s' ) as lastCaptureTime,car_access_record.base64_img as lastCaptureImage from car_access_record
+        inner join (select car_access_record.car_num,count(*) as senseNum from car_access_record where car_access_record.car_num!='' and car_access_record.car_num is not null group by car_access_record.car_num order by senseNum) A on A.car_num=car_access_record.car_num
+        inner join (select car_access_record.car_num,max(car_access_record.id) as maxId from car_access_record where car_access_record.car_num!='' and car_access_record.car_num is not null group by car_access_record.car_num) B on B.maxId=car_access_record.id
+        where 1=1
+        <if test="accessNumSmall!= null and accessNumSmall!= ''">
+            and A.senseNum &gt;= #{accessNumSmall}
+        </if>
+        <if test="accessNumBig!= null and accessNumBig!= ''">
+            and A.senseNum &lt;= #{accessNumBig}
+        </if>
+        <if test="beginTime!= null and beginTime!= '' and endTime!= null and endTime!= ''">
+            and car_access_record.cap_time between
+            #{beginTime} and #{endTime}
+        </if>
+        order by A.senseNum desc
+        limit 250) as C
+        inner join (select distinct ht_xq_info.code,ht_xq_info.name from ht_xq_info
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on area.area_id=ht_xq_info.sso_regionalcode) m_xq on m_xq.code=C.xqCode
+        left join (select distinct car_info.car_num,car_info.owner_id from car_info) m_car on m_car.car_num=C.carNum
+        left join (select distinct house_owner_room.room_id,house_owner_room.owner_name,house_owner_room.owner_id,house_owner_room.live_type from house_owner_room) m_owner on m_owner.owner_id=m_car.owner_id
+        left join (select distinct house_room.name,house_room.manage_id,house_room.xq_code,house_room.cell_id from house_room) m_hr on m_hr.manage_id=m_owner.room_id
+        left join (select distinct house_cell.manage_id,house_cell.name,house_cell.xq_code,house_cell.building_id from house_cell) m_hc on m_hc.manage_id=m_hr.cell_id
+        left join (select distinct house_building.manage_id,house_building.name from house_building) m_hb on m_hb.manage_id=m_hc.building_id
+        left join (select zs_person_info.name,zs_person_info.manage_id from zs_person_info) m_pi on m_pi.manage_id=m_owner.owner_id
+        where 1=1
+        and m_owner.live_type is null
+        <if test="likeStr!= null and likeStr!= ''">
+            and (C.carNum like concat('%',#{likeStr},'%') or C.xqCode like concat('%',#{likeStr},'%') or m_xq.name like concat('%',#{likeStr},'%') or C.senseNum like concat('%',#{likeStr},'%') or C.image like concat('%',#{likeStr},'%') or  C.lastCaptureTime like concat('%',#{likeStr},'%') or m_pi.name like concat('%',#{likeStr},'%') or C.lastCaptureImage like concat('%',#{likeStr},'%') or concat(m_hb.name,m_hc.name,m_hr.name) like concat('%',#{likeStr},'%'))
+        </if>
+        order by C.senseNum desc
+    </select>
+
+    <select id="queryCarSenseHighAccessInfoByCarNum" parameterType="Map" resultType="java.util.Map">
+        select date_format(car_access_record.cap_time,'%Y-%m-%d %H:%i:%s' ) as capTime,m_xq.name as xqName,car_access_record.dev_chn_name as capAddress from car_access_record
+        inner join (select ht_xq_info.name,ht_xq_info.code from ht_xq_info
+        where 1=1
+        <if test="xqCode!=null and xqCode.length>0">
+            and ht_xq_info.code in (${xqCode})
+        </if>
+        ) m_xq on m_xq.code=car_access_record.xq_code
+        where car_access_record.car_num=#{carNum} order by capTime desc
+    </select>
+
+    <select id="selectCarInfoByCarNum" parameterType="String" resultType="java.util.Map">
+        select car_info.xq_code as xqCode,car_info.room_id as roomId,car_info.car_color_name as carColorName,car_info.car_num as carNum,car_info.owner_id as ownerId from car_info
+        where 1=1 and car_info.car_num=#{carNum}
+    </select>
+
+
+    <!-- 车辆抓拍记录查询 zhoutao -->
+    <select id="queryCarCaptureList" parameterType="Map" resultType="Map">
+        SELECT
+            car.xq_code xqCode,
+            ht_xq_info.name xqName,
+            car.car_color_name carColorName,
+            car.car_type_name carTypeName,
+            car.car_brand_name carBrandName,
+            date_format(car.capture_time,'%Y-%m-%d %H:%i:%s' ) capTime,
+            car.car_num carNum,
+            face_capture_device.device_name deviceName,
+            face_capture_device.device_location	deviceLocation,
+            car.id,
+            car.base64_img base64Img
+        FROM
+            car_attribute car
+            INNER JOIN ht_xq_info ON car.xq_code = ht_xq_info.code
+            INNER JOIN face_capture_device ON face_capture_device.manage_id = car.capture_device_id
+        WHERE 1=1
+            <if test="xqCode!=null and xqCode.length>0">
+                and car.xq_code in (${xqCode})
+            </if>
+            <!-- 车辆 -->
+            <if test="carColorName!=null and carColorName!=''">
+                and car.car_color_name = #{carColorName}
+            </if>
+            <!-- 车辆类型筛选条件 -->
+            <if test="carTypeName!=null and carTypeName!=''">
+                and car.car_type_name = #{carTypeName}
+            </if>
+            <!-- 车辆品牌筛选条件 -->
+            <if test="carBrandName!=null and carBrandName!=''">
+                and car.car_brand_name like concat('%',#{carBrandName},'%')
+            </if>
+            <!-- 抓拍时间筛选条件 -->
+            <if test="startTime!=null and endTime!=null and startTime!='' and endTime!=''">
+                and car.capture_time between #{startTime} and #{endTime}
+            </if>
+            <!-- 车辆车牌号筛选条件 -->
+            <if test="carNum!=null and carNum!=''">
+                and car.car_num = #{carNum}
+            </if>
+            <!-- 车辆车牌颜色筛选条件 -->
+            <if test="colorNum!=null and colorNum!=''">
+                and length(trim(car.car_num)) = #{colorNum}
+            </if>
+            ORDER BY car.capture_time DESC
+            limit #{start}, #{limit}
+    </select>
+
+    <!-- 车辆抓拍记录条数 zhoutao -->
+    <select id="queryCarCaptureNum" parameterType="Map" resultType="int">
+        SELECT
+            COUNT(*)
+        FROM
+            car_attribute car
+            INNER JOIN ht_xq_info ON car.xq_code = ht_xq_info.code
+            INNER JOIN face_capture_device ON face_capture_device.manage_id = car.capture_device_id
+        WHERE 1=1
+            <if test="xqCode!=null and xqCode.length>0">
+                and car.xq_code in (${xqCode})
+            </if>
+            <!-- 车辆 -->
+            <if test="carColorName!=null and carColorName!=''">
+                and car.car_color_name = #{carColorName}
+            </if>
+            <!-- 车辆类型筛选条件 -->
+            <if test="carTypeName!=null and carTypeName!=''">
+                and car.car_type_name = #{carTypeName}
+            </if>
+            <!-- 车辆品牌筛选条件 -->
+            <if test="carBrandName!=null and carBrandName!=''">
+                and car.car_brand_name like concat('%',#{carBrandName},'%')
+            </if>
+            <!-- 抓拍时间筛选条件 -->
+            <if test="startTime!=null and endTime!=null and startTime!='' and endTime!=''">
+                and car.capture_time between #{startTime} and #{endTime}
+            </if>
+            <!-- 车辆车牌号筛选条件 -->
+            <if test="carNum!=null and carNum!=''">
+                and car.car_num = #{carNum}
+            </if>
+            <!-- 车辆车牌颜色筛选条件 -->
+            <if test="colorNum!=null and colorNum!=''">
+                and length(trim(car.car_num)) = #{colorNum}
+            </if>
+    </select>
+
+    <select id="queryCarCaptureTrackByCarNum" parameterType="Map" resultType="Map">
+        SELECT
+        face_capture_device.device_location	deviceLocation
+        FROM
+        car_attribute car
+        INNER JOIN face_capture_device ON face_capture_device.manage_id = car.capture_device_id
+        WHERE 1=1
+            <if test="xqCode!=null and xqCode.length>0">
+                and car.xq_code in (${xqCode})
+            </if>
+            <!-- 车辆 -->
+            <if test="carColorName!=null and carColorName!=''">
+                and car.car_color_name = #{carColorName}
+            </if>
+            <!-- 车辆类型筛选条件 -->
+            <if test="carTypeName!=null and carTypeName!=''">
+                and car.car_type_name = #{carTypeName}
+            </if>
+            <!-- 车辆品牌筛选条件 -->
+            <if test="carBrandName!=null and carBrandName!=''">
+                and car.car_brand_name like concat('%',#{carBrandName},'%')
+            </if>
+            <!-- 抓拍时间筛选条件 -->
+            <if test="startTime!=null and endTime!=null and startTime!='' and endTime!=''">
+                and car.capture_time between #{startTime} and #{endTime}
+            </if>
+            <!-- 车辆车牌号筛选条件 -->
+            <if test="carNum!=null and carNum!=''">
+                and car.car_num = #{carNum}
+            </if>
+            <!-- 车辆车牌颜色筛选条件 -->
+            <if test="colorNum!=null and colorNum!=''">
+                and length(trim(car.car_num)) = #{colorNum}
+            </if>
+        ORDER BY car.capture_time DESC
+    </select>
+    <select id="queryCarCapDaysWithIn15Days" parameterType="Map" resultType="Map">
+        select car_num,count(*) as pass_num from (
+        select distinct car_num,DATE_FORMAT(B.capture_time,'%Y-%m-%d') as capture_time from (
+        select A.* from (select car_attribute.* from car_attribute where DATE_SUB(CURDATE(), INTERVAL 15 DAY) &lt; date(car_attribute.capture_time)
+        <if test="xqCode!=null and xqCode.length>0">
+            and car_attribute.xq_code in (${xqCode})
+        </if>
+        <if test="subdistrictId!=null and subdistrictId!=''">
+            and car_attribute.xq_code in (select ht_xq_subdistrict.xq_code from ht_xq_subdistrict where ht_xq_subdistrict.subdistrict_id=#{subdistrictId})
+        </if>
+        <if test="areaId!=null and areaId!=''">
+            and car_attribute.xq_code in (select ht_xq_info.code from ht_xq_info inner join (select distinct area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on area.area_id=ht_xq_info.sso_regionalcode)
+        </if>
+        <if test="carNum!=null and carNum!=''">
+            and car_attribute.car_num like concat('%',#{carNum},'%')
+        </if>
+        <if test="carNumColor!=null and carNumColor!=''">
+            and length(trim(car_attribute.car_num)) = #{carNumColor}
+        </if>
+        <if test="carColorName!=null and carColorName!=''">
+            and car_attribute.car_color_name = #{carColorName}
+        </if>
+        <if test="carBrandName!=null and carBrandName!=''">
+            and car_attribute.car_brand_name like concat('%',#{carBrandName},'%')
+        </if>
+        <if test="likeStr!=null and likeStr!=''">
+            and (car_attribute.car_num like concat('%',#{likeStr},'%') or car_attribute.car_color_name like concat('%',#{likeStr},'%') or car_attribute.car_brand_name like concat('%',#{likeStr},'%') or
+            car_attribute.xq_code in (select ht_xq_info.code from ht_xq_info where ht_xq_info.name like concat('%',#{likeStr},'%'))
+            <if test="likeStr=='蓝'.toString() or likeStr=='蓝色'.toString()">
+                or length(trim(car_attribute.car_num)) = 9
+            </if>
+            <if test="likeStr=='绿'.toString() or likeStr=='绿色'.toString()">
+                or length(trim(car_attribute.car_num)) = 10
+            </if>
+            <if test="likeStr=='黑'.toString() or likeStr=='黑色'.toString()">
+                or length(trim(car_attribute.car_num)) = 4
+            </if>
+            <if test="likeStr=='白'.toString() or likeStr=='白色'.toString()">
+                or length(trim(car_attribute.car_num)) = 5
+            </if>
+            )
+        </if>
+        ) as A
+        left join (select car_info.car_num from car_info) m_ci on m_ci.car_num=A.car_num
+        where m_ci.car_num is null) as B) as C
+        group by car_num
+        having pass_num>=8
+        <if test="daySmall!=null and daySmall!=''">
+            and pass_num &gt;= #{daySmall}
+        </if>
+        <if test="dayBig!=null and dayBig!=''">
+            and pass_num &lt;= #{dayBig}
+        </if>
+        order by pass_num desc
+    </select>
+</mapper>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.windaka.suizhi.user.dao.UserXqDao">
+
+	<insert id="saveUserXq">
+		INSERT INTO ht_user_xq(user_id, xq_code) VALUES
+		<foreach collection="xqCodes" index="index" item="xqCode" open="" separator="," close="">
+			(#{userId}, #{xqCode})
+		</foreach>
+	</insert>
+	<delete id="deleteUserXqByXqCodes">
+		delete from ht_user_xq where user_id=#{userId} and xq_code in  (
+		<foreach collection="xqCodes" index="index" item="xqCode" open="" separator="," close="">
+			#{xqCode}
+		</foreach>
+		)
+	</delete>
+	<select id="queryUserXqList" resultType="map">
+		select * from ht_user_xq where user_id=#{userId} and xq_code in (
+		<foreach collection="xqCodes" index="index" item="xqCode" open="" separator="," close="">
+			#{xqCode}
+		</foreach>
+		)
+	</select>
+</mapper>

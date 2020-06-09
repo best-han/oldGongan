@@ -1,0 +1,1623 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.windaka.suizhi.webapi.dao.PersonDao">
+
+    <!--    <sql id="personwhere"> //模糊查询-->
+    <!--        <where>-->
+    <!--            <if test="wyCode!= null and wyCode != ''">-->
+    <!--                <bind name="_wyCode" value="'%'+wyCode+'%'"/>-->
+    <!--                wyCode like #{_wyCode}-->
+    <!--            </if>-->
+    <!--            <if test="sex != null and sex != ''">-->
+    <!--                <bind name="_sex" value="'%' + sex + '%'"/>-->
+    <!--                and sex like #{_sex}-->
+    <!--            </if>-->
+    <!--            <if test="xqCode != null and xqCode != ''">-->
+    <!--                <bind name="_xqCode" value="'%'+xqCode+'%'"/>-->
+    <!--                and xqCode = #{_xqCode}-->
+    <!--            </if>-->
+    <!--        </where>-->
+    <!--    </sql>-->
+
+
+    <!--插入小区人员-->
+    <insert id="savePerson" parameterType="Map">
+        insert into zs_person_info (code,name,sex, birthday, paper_type, paper_number
+        ,nation,orgion_place,marriage_status,education,political_status,company,
+        phone,email,address,title,technical_degree,person_identity_name,person_identity_id,
+        person_status,status,remarks,create_date,create_by,update_date,update_by,
+        valid_flag,occupation,t_code,extend_s1,extend_s2,extend_s3,extend_s4,extend_s5,
+        extend_s6,extend_s7,extend_s8,extend_i1,extend_i2,extend_i3,extend_i4,extend_f1,
+        extend_f2,extend_f3,extend_f4,extend_d1,extend_d2,extend_d3,extend_d4) values (
+        #{code,jdbcType=VARCHAR},
+        #{name,jdbcType=VARCHAR},
+        #{sex,jdbcType=VARCHAR},
+        #{birthday,jdbcType=VARCHAR},
+        #{paperType,jdbcType=VARCHAR},
+        #{paperNumber,jdbcType=VARCHAR},
+        #{nation,jdbcType=VARCHAR},
+        #{orgionPlace,jdbcType=VARCHAR},
+        #{marriageStatus,jdbcType=VARCHAR},
+        #{education,jdbcType=VARCHAR},
+        #{politicalStatus,jdbcType=VARCHAR},
+        #{company,jdbcType=VARCHAR},
+        #{phone,jdbcType=VARCHAR},
+        #{email,jdbcType=VARCHAR},
+        #{address,jdbcType=VARCHAR},
+        #{title,jdbcType=VARCHAR},
+        #{technicalDegree,jdbcType=VARCHAR},
+        #{personIdentityName,jdbcType=VARCHAR},
+        #{personIdentityId,jdbcType=BIGINT},
+        #{personStatus,jdbcType=VARCHAR},
+        #{status,jdbcType=VARCHAR},
+        #{remarks,jdbcType=VARCHAR},
+        #{createDate,jdbcType=TIMESTAMP}, #{createBy,jdbcType=VARCHAR}, #{updateDate,jdbcType=DATE},
+        #{updateBy,jdbcType=VARCHAR}, #{validFlag,jdbcType=VARCHAR},
+        #{occupation,jdbcType=VARCHAR}, #{tCode,jdbcType=VARCHAR}, #{extendS1,jdbcType=VARCHAR},
+        #{extendS2,jdbcType=VARCHAR}, #{extendS3,jdbcType=VARCHAR},
+        #{extendS4,jdbcType=VARCHAR}, #{extendS5,jdbcType=VARCHAR}, #{extendS6,jdbcType=VARCHAR},
+        #{extendS7,jdbcType=VARCHAR}, #{extendS8,jdbcType=VARCHAR},
+        #{extendI1,jdbcType=DECIMAL}, #{extendI2,jdbcType=DECIMAL}, #{extendI3,jdbcType=DECIMAL},
+        #{extendI4,jdbcType=DECIMAL}, #{extendF1,jdbcType=DECIMAL},
+        #{extendF2,jdbcType=DECIMAL}, #{extendF3,jdbcType=DECIMAL}, #{extendF4,jdbcType=DECIMAL},
+        #{extendD1,jdbcType=DATE}, #{extendD2,jdbcType=DATE},
+        #{extendD3,jdbcType=DATE}, #{extendD4,jdbcType=DATE})
+        <!--        <foreach collection="list" item="item" index="index" separator=",">-->
+        <!--            (-->
+        <!--            #{item.code},-->
+        <!--            #{item.name},-->
+        <!--            #{item.sex},-->
+        <!--            #{item.birthday},-->
+        <!--            #{item.paper_type},-->
+        <!--            #{item.paper_number},-->
+        <!--            #{item.nation},-->
+        <!--            #{item.orgion_place},-->
+        <!--            #{item.marriage_status},-->
+        <!--            #{item.education},-->
+        <!--            #{item.political_status},-->
+        <!--            #{item.company},-->
+        <!--            #{item.phone},-->
+        <!--            #{item.email},-->
+        <!--            #{item.address},-->
+        <!--            #{item.title},-->
+        <!--            #{item.technical_degree},-->
+        <!--            #{item.person_identity_name},-->
+        <!--            #{item.person_identity_id},-->
+        <!--            #{item.person_status},-->
+        <!--            #{item.status},-->
+        <!--            #{item.remarks},-->
+        <!--            #{item.create_date}, #{item.create_by}, #{item.update_date}, #{item.update_by}, #{item.valid_flag},-->
+        <!--            #{item.occupation}, #{item.t_code}, #{item.extend_s1}, #{item.extend_s2}, #{item.extend_s3},-->
+        <!--            #{item.extend_s4}, #{item.extend_s5}, #{item.extend_s6}, #{item.extend_s7}, #{item.extend_s8},-->
+        <!--            #{item.extend_i1}, #{item.extend_i2}, #{item.extend_i3}, #{item.extend_i4}, #{item.extend_f1},-->
+        <!--            #{item.extend_f2}, #{item.extend_f3}, #{item.extend_f4}, #{item.extend_d1}, #{item.extend_d2},-->
+        <!--            #{item.extend_d3}, #{item.extend_d4}-->
+        <!--            )-->
+        <!--        </foreach>-->
+    </insert>
+    <!--修改小区人员信息-->
+    <update id="updatePerson" parameterType="Map">
+        update zs_person_info  SET name=#{name},sex=#{sex},birthday=#{birthday},paper_type=#{paper_type},paper_number=#{paper_number},nation=#{nation},orgion_place=#{orgion_place},marriage_status=#{marriage_status},
+        education=#{education},political_status=#{political_status},company=#{company},phone=#{phone},email=#{email},address=#{address},title=#{title},technical_degree=#{technical_degree},person_identity_name=#{person_identity_name},person_identity_id=#{person_identity_id},person_status=#{person_status},
+        status=#{status},remarks=#{remarks},create_date=#{createDate},create_by=#{createBy},update_date=#{updateDate},update_by=#{updateBy},valid_flag=#{validFlag},occupation=#{occupation},t_code=#{tCode},extend_s1=#{extendS1},extend_s2=#{extendS2},
+        extend_s3=#{extendS3},extend_s4=#{extendS4},extend_s5=#{extendS5},extend_s6=#{extendS6},extend_s7=#{extendS7},extend_s8=#{extendS8},extend_i1=#{extendI1},extend_i2=#{extendI2},extend_i3=#{extendI3},extend_i4=#{extendI4},extend_f1=#{extendF1},
+        extend_f2=#{extendF2},extend_f3=#{extendF3},extend_f4=#{extendF4},extend_d1=#{extendD1},extend_d2=#{extendD2},extend_d3=#{extendD3},extend_d4=#{extendD4}
+        where code=#{code}
+    </update>
+    <!--删除小区人员-->
+    <delete id="deletePerson" parameterType="String">
+        delete from zs_person_info where code = #{personCode}
+    </delete>
+
+    <!--personMap:将实体类Person字段属性名和表的字段名进行对应-->
+    <!--    <resultMap id="personMap" type="Person" >-->
+    <!--        &lt;!&ndash; 用id属性映射主键字段 &ndash;&gt;-->
+    <!--        <id property="stuId" column="stu_id" />-->
+    <!--        &lt;!&ndash; 用result属性来映射非主键字段 &ndash;&gt;-->
+    <!--        <result property="stuName" column="stu_name"/>-->
+    <!--        <result property="sex" column="sex" />-->
+    <!--    </resultMap>-->
+
+    <!--查询小区人员-->
+    <select id="queryPerson" parameterType="String" resultType="Map">
+     select p.name,p.sex,p.birthday,p.nation,
+        p.company,p.phone,p.email,p.title,p.status,p.remarks,p.occupation,
+        p.paper_type as paperType,p.paper_number as paperNumber,p.orgion_place as origionPlace,
+        p.marriage_status as marriageStatus,p.political_status as politicalStatus,p.technical_degree as technicalDegree,p.person_identity_name as personIdentityName,p.person_identity_id as personIdentityId,
+        p.person_status as personStatus,p.create_date as createDate,p.update_date as updateDate,p.update_by as updateBy,p.valid_flag as validFlag,
+		p.code as personCode,wy.wy_code as wyCode,xq.xq_code as xqCode,
+        p.t_code as tCode from zs_person_info as p
+        join zs_person_xq as xq on p.code=xq.person_code
+        join ht_xq_wy as wy on xq.xq_code=wy.xq_code
+        where p.code=#{personCode}
+
+    </select>
+    <!--查询小区所有的人员数量-->
+    <select id="totalRows" resultType="int" parameterType="Map">
+        select count(*) totalRows from zs_person_info as p
+        inner join zs_person_xq as xq on p.code=xq.person_code
+        inner join ht_xq_info as xqi on xq.xq_code=xqi.code
+        inner join ht_xq_wy as wy on xq.xq_code=wy.xq_code
+        inner join ht_wy_info as wyi on wy.wy_code=wyi.wy_code
+        <!--       where wy.wy_code like concat('%',#{params.wyCode},'%') and xq.xq_code like concat('%',#{params.xqCode},'%')-->
+        <!--        <include refid="personwhere" />-->
+        <!--        <bind name="wyCode" value="'%' + wyCode + '%'" />-->
+        <!--        <bind name="xqCode" value="'%' + xqCode + '%'" />-->
+        <!--        <bind name="sex" value="'%' + xqCode + '%'" />-->
+        <!--         where wy.wy_code=#{wyCode} and xq.xq_code=#{xqCode} and p.sex=#{sex}-->
+        where 1=1
+        <if test="name != null and name != ''">
+            and p.name like concat('%',#{name},'%')
+        </if>
+    </select>
+    <select id="queryPersonList" resultType="Map" parameterType="Map">
+        select p.name,p.sex,p.birthday,p.nation,
+        p.company,p.phone,p.email,p.title,p.status,p.remarks,p.occupation,
+        p.paper_type as paperType,p.paper_number as paperNumber,p.orgion_place as orgionPlace,p.marriage_status as
+        marriageStatus,p.political_status as politicalStatus,p.technical_degree as
+        technicalDegree,p.person_identity_name as personIdentityName,p.person_identity_id as personIdentityId,
+        p.person_status as personStatus,p.create_date as createDate,p.update_date as updateDate,p.update_by as
+        updateBy,p.valid_flag as validFlag,p.education_name as education,p.address as address,p.create_by as createBy,
+        p.t_code as personCode,p.t_code as tCode,
+        p.code as personCode,wy.wy_code as wyCode,xq.xq_code as xqCode,
+        xqi.name as xqName,wyi.wy_name as wyName
+
+        from zs_person_info as p
+        inner join zs_person_xq as xq on p.code=xq.person_code
+        inner join ht_xq_info as xqi on xq.xq_code=xqi.code
+        inner join ht_xq_wy as wy on xq.xq_code=wy.xq_code
+        inner join ht_wy_info as wyi on wy.wy_code=wyi.wy_code
+        <!--        <include refid="personwhere" />-->
+        <!--order by a.cre_time 无排序-->
+        <!--        <bind name="xqCode" value="'%' + xqCode + '%'" />-->
+        <!--        <bind name="wyCode" value="'%' + wyCode + '%'" />-->
+        <!--       where wy.wy_code =#{wyCode} and xq.xq_code =#{xqCode} and p.sex=#{sex} -->
+        <!--         where wy.wy_code like concat('%',#{params.wyCode},'%') and xq.xq_code like concat('%',#{params.xqCode},'%')-->
+        where 1=1
+        <if test="name != null and name != ''">
+            and p.name like concat('%',#{name},'%')
+        </if>
+        order by p.create_date
+        limit ${start},${limit}
+
+    </select>
+
+    <!--根据图片查询小区单个人员Code-->
+    <select id="queryPersonCode" resultType="String" parameterType="Map">
+    select code from zs_person_info where extend_s4=#{img}
+    </select>
+
+    <select id="queryPersonByNameList" resultType="Map" parameterType="Map">
+        select p.name personOrCarName,p.code personOrCarCode
+        from zs_person_info as p
+        join zs_person_xq px on px.person_code=p.code
+        where p.name like concat('%',#{personOrCarName},'%')
+        <if test="xqCode != null and xqCode != ''">
+            and px.xq_code in (${xqCode})
+        </if>
+        order by p.create_date limit 10
+    </select>
+
+    <!--人口总数 y-->
+    <select id="personTotalNum" parameterType="Map" resultType="int">
+        select count(DISTINCT owner.owner_id) count from house_owner_room owner
+        inner join ht_xq_info xq on owner.xq_code=xq.code
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on
+        area.area_id=xq.sso_regionalcode
+        <if test="xqCode != null and xqCode != ''">
+            where owner.xq_code in (${xqCode})
+        </if>
+    </select>
+
+    <!--本月感知人数y-->
+    <select id="monthSenseNum" resultType="int" parameterType="Map">
+        SELECT count(DISTINCT person_id) count FROM face_person_attr as person
+        inner join ht_xq_info xq on person.xq_code=xq.code
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on
+        area.area_id=xq.sso_regionalcode
+        WHERE DATE_FORMAT(person.capture_time, '%Y-%m') = DATE_FORMAT(CURDATE() ,'%Y-%m' )
+        <if test="xqCode != null and xqCode != ''">
+            and person.xq_code in (${xqCode})
+        </if>
+    </select>
+
+    <!--当日感知人数y-->
+    <select id="todaySenseNum" resultType="int" parameterType="Map">
+        SELECT count(DISTINCT person_id)count FROM face_person_attr as person
+        inner join ht_xq_info xq on person.xq_code=xq.code
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on
+        area.area_id=xq.sso_regionalcode
+        WHERE DATE_FORMAT(person.capture_time, '%y%m%d') = DATE_FORMAT(CURDATE() ,'%y%m%d' )
+        <if test="xqCode != null and xqCode != ''">
+            and person.xq_code in (${xqCode})
+        </if>
+    </select>
+
+    <!--当日感知陌生人数y-->
+    <select id="todaySenseStrangerNum" resultType="int" parameterType="Map">
+        SELECT count(DISTINCT person_id)count FROM face_person_attr as a
+        inner join ht_xq_info xq on a.xq_code=xq.code
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on
+        area.area_id=xq.sso_regionalcode
+        WHERE DATE_FORMAT(capture_time, '%y%m%d') = DATE_FORMAT(CURDATE() ,'%y%m%d' ) and a.type="1"
+        <if test="xqCode != null and xqCode != ''">
+            and a.xq_code in (${xqCode})
+        </if>
+    </select>
+
+    <!--常住人口数量y-->
+    <select id="permanentPersonNum" resultType="int" parameterType="Map">
+        select count(DISTINCT owner.owner_id) num from house_owner_room as owner
+        inner join ht_xq_info xq on owner.xq_code=xq.code
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on
+        area.area_id=xq.sso_regionalcode
+        where owner.live_type in (1,2)
+        <if test="xqCode != null and xqCode != ''">
+            and owner.xq_code in (${xqCode})
+        </if>
+    </select>
+
+    <!--流动人口数量y-->
+    <select id="floatPersonNum" parameterType="Map" resultType="int">
+        select count(DISTINCT owner.owner_id) num from house_owner_room as owner
+        inner join ht_xq_info xq on owner.xq_code=xq.code
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on
+        area.area_id=xq.sso_regionalcode
+        where owner.live_type in (3)
+        <if test="xqCode != null and xqCode != ''">
+            and owner.xq_code in (${xqCode})
+        </if>
+    </select>
+
+    <!--本月新增流动人口y-->
+    <select id="monthAddFloatPersonNum" resultType="int" parameterType="Map">
+        select count(DISTINCT owner.owner_id) num from house_owner_room as owner
+        inner join ht_xq_info xq on owner.xq_code=xq.code
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on
+        area.area_id=xq.sso_regionalcode
+        where owner.live_type in (3)
+        and DATE_FORMAT(owner.checkin_time, '%Y-%m')=DATE_FORMAT(NOW(), '%Y-%m')
+        <if test="xqCode != null and xqCode != ''">
+            and owner.xq_code in (${xqCode})
+        </if>
+    </select>
+
+    <!--外籍人数量-->
+    <select id="foreignerPersonNum" resultType="int" parameterType="Map">
+        select count(DISTINCT owner.owner_id) num
+        from house_owner_room owner
+        inner join zs_person_info person on person.manage_id=owner.owner_id
+        where person.extend_s6!="1" and person.extend_s6 is not null and person.extend_s6!=""
+        <if test="xqCode != null and xqCode != ''">
+            and owner.xq_code in (${xqCode})
+        </if>
+    </select>
+    <!--each 小区总人数-->
+    <select id="personTotalXq" resultType="int" parameterType="String">
+        SELECT count(*) FROM zs_person_xq where xq_code=#{xqCode}
+    </select>
+
+    <!--小区list:xqCode xqName-->
+    <select id="infoXq" resultType="Map" parameterType="Map">
+        SELECT DISTINCT(xq.code) as xqCode ,xq.name as xqName
+        FROM ht_xq_info as xq
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on
+        area.area_id=xq.sso_regionalcode
+        <if test="xqCode != null and xqCode != ''">
+            and xq.code in (${xqCode})
+        </if>
+    </select>
+
+    <!--人口流动统计24小时-->
+    <select id="personStreamDay" resultType="Map" parameterType="Map">
+       select HOUR(a.capture_time) as openTime,device.access as accessType,count(*)as count from face_person_attr as a
+        inner join ht_xq_info xq on a.xq_code=xq.code
+        inner join (select area_id from ht_area where parent_ids like concat('%','1','%')) area on area.area_id=xq.sso_regionalcode
+		inner join face_capture_device device on device.device_type=a.capture_device_id
+        WHERE 1=1
+       and a.capture_time  between  STR_TO_DATE(#{params.todayStartTime},'%Y-%m-%d %T')and STR_TO_DATE(#{params.todayEndTime},'%Y-%m-%d %T')
+        group by HOUR (a.capture_time),device.access
+    </select>
+    <!--30天-->
+    <select id="personStreamMonth" resultType="Map" parameterType="Map">
+        select date_format(a.click_date,'%y-%m-%d')as openTime,ifnull(b.accessType,3) as accessType,IFNULL(b.count,0)as count
+      from (
+      SELECT curdate() as click_date
+      union all
+      SELECT date_sub(curdate(), interval 1 day) as click_date
+      union all
+      SELECT date_sub(curdate(), interval 2 day) as click_date
+      union all
+      SELECT date_sub(curdate(), interval 3 day) as click_date
+      union all
+      SELECT date_sub(curdate(), interval 4 day) as click_date
+      union all
+      SELECT date_sub(curdate(), interval 5 day) as click_date
+      union all
+      SELECT date_sub(curdate(), interval 6 day) as click_date
+			union all
+      SELECT date_sub(curdate(), interval 7 day) as click_date
+			union all
+      SELECT date_sub(curdate(), interval 8 day) as click_date
+			union all
+      SELECT date_sub(curdate(), interval 9 day) as click_date
+			union all
+      SELECT date_sub(curdate(), interval 10 day) as click_date
+			union all
+      SELECT date_sub(curdate(), interval 11 day) as click_date
+			union all
+      SELECT date_sub(curdate(), interval 12 day) as click_date
+			union all
+      SELECT date_sub(curdate(), interval 13 day) as click_date
+			union all
+      SELECT date_sub(curdate(), interval 14 day) as click_date
+			union all
+      SELECT date_sub(curdate(), interval 15 day) as click_date
+			union all
+      SELECT date_sub(curdate(), interval 16 day) as click_date
+			union all
+      SELECT date_sub(curdate(), interval 17 day) as click_date
+			union all
+      SELECT date_sub(curdate(), interval 18 day) as click_date
+			union all
+      SELECT date_sub(curdate(), interval 19 day) as click_date
+			union all
+      SELECT date_sub(curdate(), interval 20 day) as click_date
+			union all
+      SELECT date_sub(curdate(), interval 21 day) as click_date
+			union all
+      SELECT date_sub(curdate(), interval 22 day) as click_date
+			union all
+      SELECT date_sub(curdate(), interval 23 day) as click_date
+			union all
+      SELECT date_sub(curdate(), interval 24 day) as click_date
+			union all
+      SELECT date_sub(curdate(), interval 25 day) as click_date
+			union all
+      SELECT date_sub(curdate(), interval 26 day) as click_date
+			union all
+      SELECT date_sub(curdate(), interval 27 day) as click_date
+			union all
+      SELECT date_sub(curdate(), interval 28 day) as click_date
+			union all
+      SELECT date_sub(curdate(), interval 29 day) as click_date
+
+      ) a
+      left join (
+      select date(person.capture_time) as datetime, device.access as accessType,count(*) as count
+      from face_person_attr as person
+	  inner join face_capture_device device on device.dchnl_code=person.capture_device_id
+	  inner join (select code,name,sso_regionalcode from ht_xq_info) xq on person.xq_code=xq.code
+      inner join (select area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on area.area_id=xq.sso_regionalcode
+      group by date(person.capture_time) and device.access
+      ) b on a.click_date = b.datetime
+    </select>
+
+
+    <!--近一周 or get someone StreamRule ByPersonId-->
+    <select id="personStreamWeek" parameterType="Map" resultType="Map">
+        select date_format(a.click_date,'%W')as openTime,ifnull(b.accessType,3) as accessType,IFNULL(b.count,0)as count
+        from (
+        SELECT curdate() as click_date
+        union all
+        SELECT date_sub(curdate(), interval 1 day) as click_date
+        union all
+        SELECT date_sub(curdate(), interval 2 day) as click_date
+        union all
+        SELECT date_sub(curdate(), interval 3 day) as click_date
+        union all
+        SELECT date_sub(curdate(), interval 4 day) as click_date
+        union all
+        SELECT date_sub(curdate(), interval 5 day) as click_date
+        union all
+        SELECT date_sub(curdate(), interval 6 day) as click_date
+        ) a
+        left join (
+        select date(person.capture_time) as datetime, device.access as accessType,count(*) as count
+        from face_person_attr as person
+        inner join face_capture_device device on device.dchnl_code=person.capture_device_id
+        inner join (select code,name,sso_regionalcode from ht_xq_info) xq on person.xq_code=xq.code
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on
+        area.area_id=xq.sso_regionalcode
+        where 1=1
+        <if test="personId != null and personId != ''">
+            and person.person_id=#{personId}
+        </if>
+        group by date(person.capture_time) and device.access
+        ) b on a.click_date = b.datetime
+    </select>
+
+    <!--街道-统计常住人口-->
+    <select id="personSensePermanent" resultType="Map" parameterType="Map">
+        select person.owner_name personName,person.live_type personType,count(*) as SenseNum,
+        a.capture_img as image from face_person_attr as person
+        inner join (select code,name,sso_regionalcode from ht_xq_info) xq on a.xq_code=xq.code
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on
+        area.area_id=xq.sso_regionalcode
+        inner join house_owner_room owner as owner on owner.owner_id=a.person_id
+        where 1=1
+        <if test="timeType=='day'">
+            and date(a.capture_time)=CURDATE()
+        </if>
+        <if test="timeType=='month'">
+            and MONTH(a.capture_time)=DATE_FORMAT(NOW(), '%Y-%m')
+        </if>
+        and (person.live_type='1' OR person.live_type='2')
+        GROUP BY a.manage_id
+    </select>
+
+    <!--街道-统计流动人口-->
+    <select id="personSenseFlow" resultType="Map" parameterType="Map">
+        select IFNULL(concat(xq.name,'',m_house_building.name,'',m_house_cell.name,'',m_house_room.name),"无")as
+        houseName,IFNULL(person.owner_name,"无") as personName,IFNULL(person.live_type,'无') as personType,count(*) as
+        SenseNum,
+        IFNULL(a.capture_img,"无") as image from face_person_attr as a
+
+        inner join (select code,name,sso_regionalcode from ht_xq_info) xq on a.xq_code=xq.code
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on
+        area.area_id=xq.sso_regionalcode
+        inner join (SELECT owner_name,owner_id,room_id,live_type from house_owner_room) as person on
+        person.owner_id=a.person_id
+        inner join (select distinct house_room.manage_id,house_room.name,house_room.xq_code,house_room.cell_id from
+        house_room) m_house_room on m_house_room.manage_id=person.room_id
+        inner join (select distinct house_cell.manage_id,house_cell.name,house_cell.xq_code,house_cell.building_id from
+        house_cell) m_house_cell on concat(m_house_room.xq_code,'_',m_house_room.cell_id)=m_house_cell.manage_id
+        inner join (select distinct house_building.manage_id,house_building.name from house_building) m_house_building
+        on concat(m_house_cell.xq_code,'_',m_house_cell.building_id)=m_house_building.manage_id
+        where 1=1
+        <if test="timeType=='day'">
+            and date(a.capture_time)=CURDATE()
+        </if>
+        <if test="timeType=='month'">
+            and MONTH(a.capture_time)=DATE_FORMAT(NOW(), '%Y-%m')
+        </if>
+        and person.live_type='3'
+        GROUP BY a.manage_id
+    </select>
+
+    <!--街道-陌生人流动人口-->
+    <select id="personSenseStrange" resultType="Map" parameterType="Map">
+        select IFNULL(concat(xq.name,'',m_house_building.name,'',m_house_cell.name,'',m_house_room.name),"无")as
+        houseName,IFNULL(person.owner_name,"无") as personName,IFNULL(person.live_type,'无') as personType,count(*) as
+        SenseNum,
+        IFNULL(a.capture_img,"无") as image from face_person_attr as a
+
+        inner join (select code,name,sso_regionalcode from ht_xq_info) xq on a.xq_code=xq.code
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on
+        area.area_id=xq.sso_regionalcode
+        inner join (SELECT owner_name,owner_id,room_id,live_type from house_owner_room) as person on
+        person.owner_id=a.person_id
+        inner join (select distinct house_room.manage_id,house_room.name,house_room.xq_code,house_room.cell_id from
+        house_room) m_house_room on m_house_room.manage_id=person.room_id
+        inner join (select distinct house_cell.manage_id,house_cell.name,house_cell.xq_code,house_cell.building_id from
+        house_cell) m_house_cell on concat(m_house_room.xq_code,'_',m_house_room.cell_id)=m_house_cell.manage_id
+        inner join (select distinct house_building.manage_id,house_building.name from house_building) m_house_building
+        on concat(m_house_cell.xq_code,'_',m_house_cell.building_id)=m_house_building.manage_id
+        where 1=1
+        <if test="timeType=='day'">
+            and date(a.capture_time)=CURDATE()
+        </if>
+        <if test="timeType=='month'">
+            and MONTH(a.capture_time)=DATE_FORMAT(NOW(), '%Y-%m')
+        </if>
+        and a.type='1'
+        GROUP BY a.manage_id
+    </select>
+
+    <!--街道-人员档案-信息查询（单个查询）-->
+    <select id="queryBaseInfoByPersonId" resultType="Map" parameterType="String">
+    SELECT  wy.wy_code as wyCode,xq.xq_code as xqCode,a.code as personCode,a.name,a.sex_name as sex,a.birthday as birthday,a.paper_type_name as paperType,a.paper_number as paperNumber,a.nation_name as nation,
+    a.orgion_place as orgionPlace,a.marriage_status_name as marriageStatus,a.education_name as education,a.political_status_name as politicalStatus,
+    a.company as company,a.phone as phone,a.email as email,a.address as address,a.title as title,a.technical_degree as technicalDegree,
+    a.person_identity_name as personIdentityName,a.person_identity_id as personIdentityId,a.person_status as personStatus,a.status as status,a.remarks as remarks,
+		date_format(a.create_date,'%Y-%m-%d %H:%i:%s') createDate,
+		a.create_by as createBy,
+		date_format(a.update_date,'%Y-%m-%d %H:%i:%s') updateDate,
+		a.update_by as updateBy,a.valid_flag as validFlag,a.occupation as occupation,
+    a.t_code as tCode,a.nationality_name as nationalityName,a.extend_s4 image,a.manage_id personId
+    FROM zs_person_info as a
+    left join  (select person_id,xq_code from zs_person_xq) xq on xq.person_id=a.manage_id
+    left join ht_xq_wy wy on wy.xq_code=xq.xq_code
+    where a.manage_id=#{personId}
+		GROUP BY a.manage_id
+    </select>
+
+    <!--街道-人员档案-车辆信息-->
+    <select id="carInfo" parameterType="String" resultType="Map">
+        SELECT car.car_num carNum,car.car_type_name carType,car.park_type_name carRelation  from car_info  car
+        where car.owner_id=#{personId}
+    </select>
+
+    <!--街道-人员档案-房产信息-->
+    <select id="houseInfo" parameterType="String" resultType="Map">
+       select 	concat(xq.name,'',m_house_building.name,'',m_house_cell.name,'',m_house_room.name) as houseName, person.person_type_name as personType,house.live_type_name as houseRelation from zs_person_info as person
+        inner join (SELECT owner_id,room_id,live_type_name from house_owner_room )house  on house.owner_id=person.manage_id
+	    inner join (select distinct house_room.manage_id,house_room.name,house_room.xq_code,house_room.cell_id from
+        house_room) m_house_room on m_house_room.manage_id=house.room_id
+		inner join (select distinct house_cell.manage_id,house_cell.name,house_cell.xq_code,house_cell.building_id from
+        house_cell) m_house_cell on m_house_room.cell_id=m_house_cell.manage_id
+        inner join (select distinct house_building.manage_id,house_building.name from house_building) m_house_building
+        on m_house_cell.building_id=m_house_building.manage_id
+		inner join ht_xq_info xq on xq.code=m_house_room.xq_code
+        where person.manage_id=#{personId}
+    </select>
+
+    <select id="queryPersonSpecialListByXq" parameterType="Map" resultType="Map">
+        select distinct m_ft.face_type_code as faceTypeCode,m_ft.type_name as faceTypeName,concat(m_building.name,m_cell.name,m_hr.name) as roomName,zs_person_info.code as personId,zs_person_info.name as personName,xq.name as xqName,zs_person_info.extend_s4 as image from zs_person_info
+        inner join (select distinct zs_person_xq.person_code,zs_person_xq.xq_code from zs_person_xq where zs_person_xq.xq_code=#{xqCode}) m_xq on m_xq.person_code=zs_person_info.code
+        inner join (select distinct ht_xq_info.code,ht_xq_info.name from ht_xq_info) xq on xq.code=m_xq.xq_code
+        left join (select distinct house_owner_room.owner_id,house_owner_room.room_id from house_owner_room) m_hor on m_hor.owner_id=zs_person_info.code
+        left join (select distinct house_room.cell_id,house_room.xq_code,house_room.manage_id,house_room.name from house_room) m_hr on m_hr.manage_id=m_hor.room_id
+        left join (select distinct house_cell.manage_id,house_cell.name,house_cell.xq_code,house_cell.building_id from house_cell) m_cell
+        on concat(m_hr.xq_code,'_',m_hr.cell_id)=m_cell.manage_id
+        left join (select distinct house_building.manage_id,house_building.name from house_building) m_building
+        on concat(m_cell.xq_code,'_',m_cell.building_id)=m_building.manage_id
+        left join (select distinct face_type_person.face_type_code,face_type_person.person_id from face_type_person) m_ftp on m_ftp.person_id=zs_person_info.code
+        left join (select distinct face_type.type_name,face_type.face_type_code from face_type) m_ft on m_ft.face_type_code=m_ftp.face_type_code
+    </select>
+
+    <select id="queryPersonSpecialListBySub" parameterType="Map" resultType="Map">
+        select distinct m_ft.face_type_code as faceTypeCode,m_ft.type_name as faceTypeName,concat(m_building.name,m_cell.name,m_hr.name) as roomName,zs_person_info.code as personId,zs_person_info.name as personName,xq.name as xqName,zs_person_info.extend_s4 as image from zs_person_info
+        inner join (select distinct zs_person_xq.person_code,zs_person_xq.xq_code from zs_person_xq
+        inner join (select distinct ht_xq_subdistrict.subdistrict_id,ht_xq_subdistrict.xq_code from ht_xq_subdistrict where ht_xq_subdistrict.subdistrict_id=#{subdistrictId}) m_sub on m_sub.xq_code=zs_person_xq.xq_code) m_xq on m_xq.person_code=zs_person_info.code
+        inner join (select distinct ht_xq_info.code,ht_xq_info.name from ht_xq_info) xq on xq.code=m_xq.xq_code
+        left join (select distinct house_owner_room.owner_id,house_owner_room.room_id from house_owner_room) m_hor on m_hor.owner_id=zs_person_info.code
+        left join (select distinct house_room.cell_id,house_room.xq_code,house_room.manage_id,house_room.name from house_room) m_hr on m_hr.manage_id=m_hor.room_id
+        left join (select distinct house_cell.manage_id,house_cell.name,house_cell.xq_code,house_cell.building_id from house_cell) m_cell
+        on concat(m_hr.xq_code,'_',m_hr.cell_id)=m_cell.manage_id
+        left join (select distinct house_building.manage_id,house_building.name from house_building) m_building
+        on concat(m_cell.xq_code,'_',m_cell.building_id)=m_building.manage_id
+        left join (select distinct face_type_person.face_type_code,face_type_person.person_id from face_type_person) m_ftp on m_ftp.person_id=zs_person_info.code
+        left join (select distinct face_type.type_name,face_type.face_type_code from face_type) m_ft on m_ft.face_type_code=m_ftp.face_type_code
+    </select>
+
+    <select id="queryPersonSpecialListByArea" parameterType="Map" resultType="Map">
+        select distinct m_ft.face_type_code as faceTypeCode,m_ft.type_name as faceTypeName,concat(m_building.name,m_cell.name,m_hr.name) as roomName,zs_person_info.code as personId,zs_person_info.name as personName,xq.name as xqName,zs_person_info.extend_s4 as image from zs_person_info
+        inner join (select distinct zs_person_xq.person_code,zs_person_xq.xq_code from zs_person_xq) m_xq on m_xq.person_code=zs_person_info.code
+        inner join (select distinct ht_xq_info.code,ht_xq_info.name,ht_xq_info.sso_regionalcode from ht_xq_info) xq on xq.code=m_xq.xq_code
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on area.area_id=xq.sso_regionalcode
+        left join (select distinct house_owner_room.owner_id,house_owner_room.room_id from house_owner_room) m_hor on m_hor.owner_id=zs_person_info.code
+        left join (select distinct house_room.cell_id,house_room.xq_code,house_room.manage_id,house_room.name from house_room) m_hr on m_hr.manage_id=m_hor.room_id
+        left join (select distinct house_cell.manage_id,house_cell.name,house_cell.xq_code,house_cell.building_id from house_cell) m_cell
+        on concat(m_hr.xq_code,'_',m_hr.cell_id)=m_cell.manage_id
+        left join (select distinct house_building.manage_id,house_building.name from house_building) m_building
+        on concat(m_cell.xq_code,'_',m_cell.building_id)=m_building.manage_id
+        left join (select distinct face_type_person.face_type_code,face_type_person.person_id from face_type_person) m_ftp on m_ftp.person_id=zs_person_info.code
+        left join (select distinct face_type.type_name,face_type.face_type_code from face_type) m_ft on m_ft.face_type_code=m_ftp.face_type_code
+    </select>
+
+    <!--街道-人员档案-布控库标签-->
+    <select id="faceType" resultType="Map" parameterType="String">
+        select type.type_name faceTypeName from face_type as type
+        inner join face_type_person person on person.face_type_code=type.face_type_code
+        where person.person_id=#{personId}
+    </select>
+
+    <!--街道-人员档案-抓拍记录详情-->
+    <select id="captureInfoDetailsByPersonId" resultType="Map" parameterType="String">
+        select date_format(person.capture_time,'%Y-%m-%d %H:%i:%s') as captureTime,type.type_name as faceTypeName,person.name as personName ,
+        device.device_addr_name as location, person.capture_img as capImage,info.extend_d4 as faceImage,person.similar as similarity
+        from face_person_attr as person
+        inner join face_capture_device device on device.dchnl_code=person.capture_device_id
+        inner join zs_person_info info on info.manage_id=person.manage_id
+        inner join face_type_person face on face.person_id=person.manage_id
+        inner join face_type type on type.face_type_code=face.face_type_code
+        where person.person_id=#{personId}
+    </select>
+
+    <!--街道-人员档案-关系图-->
+    <select id="queryPersonInfo" parameterType="Map" resultType="Map">
+        select owner.owner_id ownerId,person.name personName,person.extend_s4 faceImage from house_owner_room as owner
+        left join zs_person_info person on person.manage_id=owner.owner_id
+        where owner.owner_id=#{personId}
+		GROUP BY owner.owner_id
+    </select>
+    <select id="queryPersonFriend" resultType="Map" parameterType="Map">
+         select  person.owner_name personName,person.owner_relation_name relation,type.type_name faceTypeName,person.owner_id personId ,info.extend_s4 faceImage from house_owner_room as person
+        left join zs_person_info as info on info.manage_id=person.owner_id
+        left join face_type_person as a on a.person_id=person.owner_id
+        left join face_type  as type on type.face_type_code=a.face_type_code
+        where person.room_id=(select owner.room_id from house_owner_room as owner where owner.owner_id=#{personId}  and person.owner_id!=#{personId}
+        GROUP BY owner_id)
+    </select>
+
+
+    <select id="querySpecialPersonDistributionByXq" parameterType="Map" resultType="Map">
+        select A.* from
+        (select m_zpxq.xq_code as xqCode,m_xq.name as xqName,count(*) as personNum from zs_person_info
+        inner join (select face_type_person.face_type_code,face_type_person.person_id from face_type_person) m_ftp on zs_person_info.code=m_ftp.person_id
+        inner join (select distinct zs_person_xq.person_code,zs_person_xq.xq_code from zs_person_xq) m_zpxq on m_zpxq.person_code=zs_person_info.code
+        inner join (select ht_xq_info.code,ht_xq_info.name from ht_xq_info) m_xq on m_xq.code=m_zpxq.xq_code
+        group by m_zpxq.xq_code) as A
+        where A.xqCode=#{xqCode}
+    </select>
+    <select id="querySpecialPersonDistributionBySub" parameterType="Map" resultType="Map">
+        select A.* from
+        (select m_zpxq.xq_code as xqCode,m_xq.name as xqName,count(*) as personNum from zs_person_info
+        inner join (select face_type_person.face_type_code,face_type_person.person_id from face_type_person) m_ftp on zs_person_info.code=m_ftp.person_id
+        inner join (select distinct zs_person_xq.person_code,zs_person_xq.xq_code from zs_person_xq) m_zpxq on m_zpxq.person_code=zs_person_info.code
+        inner join (select ht_xq_info.code,ht_xq_info.name from ht_xq_info) m_xq on m_xq.code=m_zpxq.xq_code
+        group by m_zpxq.xq_code) as A
+        inner join (select ht_xq_subdistrict.subdistrict_id,ht_xq_subdistrict.xq_code from ht_xq_subdistrict where ht_xq_subdistrict.subdistrict_id=#{subdistrictId}) m_sub
+        on m_sub.xq_code=A.xqCode
+    </select>
+    <select id="querySpecialPersonDistributionByArea" parameterType="Map" resultType="Map">
+        select A.* from
+        (select m_zpxq.xq_code as xqCode,m_xq.name as xqName,count(*) as personNum from zs_person_info
+        inner join (select face_type_person.face_type_code,face_type_person.person_id from face_type_person) m_ftp on zs_person_info.code=m_ftp.person_id
+        inner join (select distinct zs_person_xq.person_code,zs_person_xq.xq_code from zs_person_xq) m_zpxq on m_zpxq.person_code=zs_person_info.code
+        inner join (select ht_xq_info.code,ht_xq_info.name,ht_xq_info.sso_regionalcode from ht_xq_info) m_xq on m_xq.code=m_zpxq.xq_code
+        inner join (select distinct area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on area.area_id=m_xq.sso_regionalcode
+        group by m_zpxq.xq_code) as A
+    </select>
+
+    <!--公安-街道-陌生人员（列表查-->
+    <select id="totalStrangerSense" parameterType="Map" resultType="int">
+        select count(*) from(
+        select  person.age age
+        from face_person_attr person
+        inner join (select code,name,sso_regionalcode from ht_xq_info) xq on person.xq_code=xq.code
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on area.area_id=xq.sso_regionalcode
+        where person.type="1"
+        )as a
+    </select>
+    <!--order by  num desc-->
+    <!--公安-街道-陌生人员（列表查-->
+    <select id="strangerSense" resultType="Map" parameterType="Map">
+        select person_id personId,max(id) id,count(1) num from face_person_attr where person_id is not null and person_id!='' and
+        type="1"
+        <if test="age=='0'.toString">
+            and age = '未成年'
+        </if>
+        <if test="age=='1'.toString">
+            and age = '青年人'
+        </if>
+        <if test="age=='2'.toString">
+            and age = '中年人'
+        </if>
+        <if test="age=='3'.toString">
+            and age = '老年人'
+        </if>
+        <if test="xqCode != null and xqCode.length > 0">
+            and xq_code in (${xqCode})
+        </if>
+        <if test="likeStr!=null and likeStr!=''">
+            and CONCAT_WS('',face_person_attr.age,face_person_attr.sex)
+            LIKE concat('%',#{likeStr},'%')
+        </if>
+        GROUP BY person_id
+        <if test="accessNumBegin != null and accessNumBegin != ''">
+            having num >= #{accessNumBegin}
+            <if test="accessNumEnd != null and accessNumEnd != ''">
+                and #{accessNumEnd}>=num
+            </if>
+        </if>
+        order by capture_time desc
+    </select>
+    <select id="getPersonAttr" parameterType="String" resultType="Map">
+      select  person.age age,person.sex sex,person.base64_img image,person.xq_code xqCode,person.type,date_format(person.capture_time,'%Y-%m-%d %H:%i:%s') capTime
+      from face_person_attr person
+      where person.id=#{id}
+    </select>
+    <select id="getPersonAttrByPersonId" parameterType="Map" resultType="Map">
+        select  person.age age,person.sex sex,person.base64_img image,person.xq_code xqCode,person.type,date_format(person.capture_time,'%Y-%m-%d %H:%i:%s') capTime
+        from face_person_attr person
+        where person.person_id=#{personId}
+        <if test="age!=null and age!=''">
+            <if test="age=='0'.toString">
+                and age = '未成年'
+            </if>
+            <if test="age=='1'.toString">
+                and age = '青年人'
+            </if>
+            <if test="age=='2'.toString">
+                and age = '中年人'
+            </if>
+            <if test="age=='3'.toString">
+                and age = '老年人'
+            </if>
+        </if>
+    </select>
+
+    <!--公安-街道-现有人员列表查询  -->
+    <select id="personOwnerList" parameterType="Map" resultType="Map">
+        select xq.code xqCode,xq.name xqName,person.manage_id ownerId,person.manage_id personId,person.name name,person.phone phone,
+        date_format(owner.create_date,'%Y-%m-%d %H:%i:%s') checkinDate,owner.live_type liveType,
+        owner.live_type_name liveTypyName,person.nationality_name nationalityName,person.paper_number
+        paperNumber,owner.residence residence, person.extend_s4 as image,owner.room_id roomId,
+        person.extend_s6 countryCode,typePerson.face_type_code faceTypeCode
+        from house_owner_room as owner
+        inner join ht_xq_info xq on xq.code=owner.xq_code
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on
+        area.area_id=xq.sso_regionalcode
+        inner join zs_person_info person on person.manage_id=owner.owner_id
+        left join face_type_person typePerson on typePerson.id=person.face_type_person_id
+        where 1=1
+        <if test="properties!=null and properties!=''">
+            <if test="properties=='1'.toString">
+                and owner.live_type in (1,2)
+            </if>
+            <if test="properties=='2'.toString">
+                and owner.live_type in (3)
+            </if>
+            <if test="properties=='3'.toString">
+                and person.extend_s6!="1" and person.extend_s6 is not null and person.extend_s6!=""
+            </if>
+        </if>
+        <if test="color != null and color!=''">
+            <if test="color=='g'.toString">
+                and person.face_type_person_id is null
+            </if>
+            <if test="color=='y'.toString">
+                and typePerson.face_type_code in (${codeLists})
+            </if>
+            <if test="color=='r'.toString">
+                and typePerson.face_type_code in (${codeLists})
+            </if>
+        </if>
+        <!--<if test="regAndAddr != null and regAndAddr!=''">实有人口，户在人在，户在人不在，人在户不在的筛选-->
+            <!--<if test="regAndAddr=='1'.toString">-->
+
+            <!--</if>-->
+            <!--<if test="regAndAddr=='2'.toString">-->
+
+            <!--</if>-->
+            <!--<if test="regAndAddr=='3'.toString">-->
+
+            <!--</if>-->
+        <!--</if>-->
+        <if test="liveType!=null and liveType!=''">
+            <if test="liveType=='1'.toString">
+                and owner.live_type in(1)
+            </if>
+            <if test="liveType=='2'.toString">
+                and owner.live_type in(2)
+            </if>
+            <if test="liveType=='3'.toString">
+                and owner.live_type in (3)
+            </if>
+            <if test="liveType=='4'.toString">
+                and owner.live_type in (1,2)
+            </if>
+        </if>
+        <if test="cardvalue=='1'.toString">
+            and owner.residence in (1)
+        </if>
+        <if test="cardvalue=='0'.toString">
+            and owner.residence in (0)
+        </if>
+        <if test="xqCode != null and xqCode.length>0">
+            and owner.xq_code in (${xqCode})
+        </if>
+        <if test="checkinDateStart != null and checkinDateStart != '' and checkinDateEnd != null and checkinDateEnd != '' ">
+            and DATE_FORMAT(owner.checkin_time,"%y%m%d") BETWEEN #{checkinDateStart} and #{checkinDateEnd}
+        </if>
+        <if test="nationalityName != null and nationalityName != ''">
+            <if test="nationalityName=='1'.toString">
+                and (person.extend_s6="1" or person.extend_s6 is  null or person.extend_s6="")
+            </if>
+            <if test="nationalityName=='0'.toString">
+                and person.extend_s6!="1" and person.extend_s6 is not null and person.extend_s6!=""
+            </if>
+            <if test="flag=='2'.toString">
+                and person.nationality_name like concat("%",#{nationalityName},"%")
+            </if>
+        </if>
+        <if test="name != null and name != ''">
+            and person.name=#{name}
+        </if>
+        <if test="likeStr!=null and likeStr!=''">
+            and CONCAT_WS('',person.name,xq.name,person.nationality_name,person.paper_number,person.phone)
+            LIKE concat('%',#{likeStr},'%')
+        </if>
+        group by person.manage_id
+        order by CHAR_LENGTH (image) desc
+        limit #{start},#{end}
+    </select>
+
+    <!--公安-街道-现有人员列表查询 total-->
+    <select id="totalPersonOwnerList" resultType="int" parameterType="Map">
+        select count(*)from(
+        select xq.code xqCode
+        from house_owner_room as owner
+        inner join ht_xq_info xq on xq.code=owner.xq_code
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on
+        area.area_id=xq.sso_regionalcode
+        inner join zs_person_info person on person.manage_id=owner.owner_id
+        left join face_type_person typePerson on typePerson.id=person.face_type_person_id
+        where 1=1
+        <if test="properties!=null and properties!=''">
+            <if test="properties=='1'.toString">
+                and owner.live_type in (1,2)
+            </if>
+            <if test="properties=='2'.toString">
+                and owner.live_type in (3)
+            </if>
+            <if test="properties=='3'.toString">
+                and person.extend_s6!="1" and person.extend_s6 is not null and person.extend_s6!=""
+            </if>
+        </if>
+        <if test="color != null and color!=''">
+            <if test="color=='g'.toString">
+                and person.face_type_person_id is null
+            </if>
+            <if test="color=='y'.toString">
+                and typePerson.face_type_code in (${codeLists})
+            </if>
+            <if test="color=='r'.toString">
+                and typePerson.face_type_code in (${codeLists})
+            </if>
+        </if>
+        <!--<if test="regAndAddr != null and regAndAddr!=''">实有人口，户在人在，户在人不在，人在户不在的筛选-->
+        <!--<if test="regAndAddr=='1'.toString">-->
+
+        <!--</if>-->
+        <!--<if test="regAndAddr=='2'.toString">-->
+
+        <!--</if>-->
+        <!--<if test="regAndAddr=='3'.toString">-->
+
+        <!--</if>-->
+        <!--</if>-->
+        <if test="liveType!=null and liveType!=''">
+            <if test="liveType=='1'.toString">
+                and owner.live_type in(1)
+            </if>
+            <if test="liveType=='2'.toString">
+                and owner.live_type in(2)
+            </if>
+            <if test="liveType=='3'.toString">
+                and owner.live_type in (3)
+            </if>
+            <if test="liveType=='4'.toString">
+                and owner.live_type in (1,2)
+            </if>
+        </if>
+        <if test="cardvalue=='1'.toString">
+            and owner.residence in (1)
+        </if>
+        <if test="cardvalue=='0'.toString">
+            and owner.residence in (0)
+        </if>
+        <if test="xqCode != null and xqCode.length>0">
+            and owner.xq_code in (${xqCode})
+        </if>
+        <if test="checkinDateStart != null and checkinDateStart != '' and checkinDateEnd != null and checkinDateEnd != '' ">
+            and DATE_FORMAT(owner.checkin_time,"%y%m%d") BETWEEN #{checkinDateStart} and #{checkinDateEnd}
+        </if>
+        <if test="nationalityName != null and nationalityName != ''">
+            <if test="nationalityName=='1'.toString">
+                and (person.extend_s6="1" or person.extend_s6 is  null or person.extend_s6="")
+            </if>
+            <if test="nationalityName=='0'.toString">
+                and person.extend_s6!="1" and person.extend_s6 is not null and person.extend_s6!=""
+            </if>
+            <if test="flag=='2'.toString">
+                and person.nationality_name like concat("%",#{nationalityName},"%")
+            </if>
+        </if>
+        <if test="name != null and name != ''">
+            and person.name=#{name}
+        </if>
+        <if test="likeStr!=null and likeStr!=''">
+            and CONCAT_WS('',person.name,xq.name,person.nationality_name,person.paper_number,person.phone)
+            LIKE concat('%',#{likeStr},'%')
+        </if>
+        group by person.manage_id
+        )as a
+    </select>
+
+    <!--公安-陌生人员列表查询 ygy-->
+    <select id="personStrangerList" parameterType="Map" resultType="Map">
+        select person.xq_code xqCode ,xq.name xqName, person.sex sex ,person.age age ,person.base64_img image
+        ,accessNum.count accessNum
+        from(select * from face_person_attr a where a.capture_time in (select max(b.capture_time) from face_person_attr
+        b where b.person_id=a.person_id))as person
+        inner join (select code,name,sso_regionalcode from ht_xq_info) xq on person.xq_code=xq.code
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on
+        area.area_id=xq.sso_regionalcode
+        inner join (select attr.person_id,count(*) count from face_person_attr as attr
+        GROUP BY attr.person_id) accessNum on accessNum.person_id=person.person_id
+        where person.type="1"
+        limit 50
+        <if test="age != null and age != ''">
+            and person.age=#{age}
+        </if>
+        <if test="xqCodes != null and xqCodes.length>0">
+            and person.xq_code in (${xqCodes})
+        </if>
+        <if test="timeType != null and timeType != ''">
+            <if test="timeType=='day'">
+                and DATE_FORMAT(person.capture_time,'%Y%m%d') = DATE_FORMAT(CURDATE(),'%Y%m%d')
+            </if>
+            <if test="timeType=='month'">
+                and DATE_FORMAT(person.capture_time,'%Y%m') = DATE_FORMAT(CURDATE(),'%Y%m')
+            </if>
+        </if>
+        <if test="accessNumBegin != null and accessNumBegin != '' and accessNumEnd != null and accessNumEnd != '' ">
+            and accessNum.count BETWEEN #{accessNumBegin} and #{accessNumEnd}
+        </if>
+        limit #{start},#{end}
+    </select>
+    <!--公安-陌生人员列表查询(总行数) ygy-->
+    <select id="totalPersonStrangerList" parameterType="Map" resultType="int">
+        select count(*) from (
+        select person.xq_code xqCode ,xq.name xqName, person.sex sex ,person.age age , person.base64_img image
+        ,accessNum.count accessNum
+        from(select * from face_person_attr a where a.capture_time in (select max(b.capture_time) from face_person_attr
+        b where b.person_id=a.person_id))as person
+        inner join (select code,name,sso_regionalcode from ht_xq_info) xq on person.xq_code=xq.code
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on
+        area.area_id=xq.sso_regionalcode
+        inner join (select attr.person_id,count(*) count from face_person_attr as attr
+        GROUP BY attr.person_id) accessNum on accessNum.person_id=person.person_id
+        where person.type="1"
+        limit 50
+        <if test="age != null and age != ''">
+            and person.age=#{age}
+        </if>
+        <if test="xqCodes != null and xqCodes.length>0">
+            and person.xq_code in (${xqCodes})
+        </if>
+        <if test="timeType != null and timeType != ''">
+            <if test="timeType=='day'">
+                and DATE_FORMAT(person.capture_time,'%Y%m%d') = DATE_FORMAT(CURDATE(),'%Y%m%d')
+            </if>
+            <if test="timeType=='month'">
+                and DATE_FORMAT(person.capture_time,'%Y%m') = DATE_FORMAT(CURDATE(),'%Y%m')
+            </if>
+        </if>
+        <if test="accessNumBegin != null and accessNumBegin != '' and accessNumEnd != null and accessNumEnd != '' ">
+            and accessNum.count BETWEEN #{accessNumBegin} and #{accessNumEnd}
+        </if>
+        ) as total
+    </select>
+
+    <!--公安-外籍人员列表查询） ygy-->
+    <select id="foreignerSense" resultType="Map" parameterType="Map">
+        SELECT person.name ,xq.name xqName,person.nationality_name country,person.phone phone, person.paper_number
+        passport,person.extend_s4 image,owner.room_id roomId,owner.owner_id personId
+        FROM house_owner_room as owner
+        inner join zs_person_info person on person.manage_id=owner.owner_id
+        inner join (select code,name,sso_regionalcode from ht_xq_info) xq on owner.xq_code=xq.code
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on
+        area.area_id=xq.sso_regionalcode
+        where person.extend_s6!=1 and person.extend_s6 is not null and person.extend_s6!=''
+        <if test="xqCode != null and xqCode.length>0">
+            and owner.xq_code in (${xqCode})
+        </if>
+        GROUP BY owner.owner_id
+        order by image desc
+        limit #{start},#{end}
+    </select>
+
+    <!--公安-外籍人员列表查询）total ygy-->
+    <select id="totalForeignerSense" resultType="int" parameterType="Map">
+        select count(*) from (
+        SELECT person.name ,xq.name xqName,person.nationality_name country,person.phone phone, person.paper_number
+        passport,person.extend_s4 image
+        FROM house_owner_room as owner
+        inner join zs_person_info person on person.manage_id=owner.owner_id
+        inner join (select code,name,sso_regionalcode from ht_xq_info) xq on owner.xq_code=xq.code
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on
+        area.area_id=xq.sso_regionalcode
+        where person.extend_s6!=1 and person.extend_s6 is not null and person.extend_s6!=''
+        <if test="xqCode != null and xqCode.length>0">
+            and owner.xq_code in (${xqCode})
+        </if>
+        GROUP BY owner.owner_id
+        )as total
+    </select>
+
+    <!--人员档案-异常行为标签 ygy-->
+    <select id="personAbnormalType" parameterType="String" resultType="Map">
+      select abnomal.event_name abnormalTypeName from record_abnormal as abnomal
+      where abnomal.manage_id=#{personId}
+    </select>
+
+    <!--人员档案-房产信息-->
+    <select id="personHouseByPersonId" resultType="Map" parameterType="String">
+      SELECT person.name houseOwnerName,person.paper_number as houseOwnerPaperNum FROM  zs_person_info as person
+      where person.manage_id=#{personId}
+    </select>
+    <select id="houseListByPersonId" parameterType="String" resultType="Map">
+      select owner.room_id roomId, owner.live_type personType,owner.owner_relation_name houseRelation from house_owner_room owner
+      where owner.owner_id=#{personId}
+    </select>
+
+    <!--人员出入列表查询-->
+    <select id="personAccess" resultType="Map" parameterType="Map">
+        select person.xq_code xqCode,device.device_name deviceName,device.manage_id deviceId,person.person_id
+        personId,date_format(person.capture_time,'%Y-%m-%d %H:%i:%s') openTime,person.base64_img image ,"智能门禁"
+        openType,"人脸识别" openTypeName,device.access,info.name personName,info.phone phone,info.paper_number
+        paperNum,owner.live_type_name liveType,owner.room_id roomId
+        from (select * from face_person_attr order by capture_time desc limit 5000) person
+        inner join face_capture_device device on device.manage_id=person.capture_device_id
+        inner join zs_person_info info on info.manage_id=person.person_id
+        left join house_owner_room owner on owner.owner_id=person.person_id
+        where device.device_type="0" and person.type!="1"
+        <if test="xqCode!=null and xqCode.length>0">
+            and person.xq_code in (${xqCode})
+        </if>
+        <if test="access!=null and access!=''">
+            and device.access=#{access}
+        </if>
+
+        <if test="likeStr!=null and likeStr!=''">
+            and CONCAT_WS('',info.name)
+            LIKE concat('%',#{likeStr},'%')
+        </if>
+        <if test="liveType=='1'.toString">
+            and owner.live_type in(1)
+        </if>
+        <if test="liveType=='2'.toString">
+            and owner.live_type in(2)
+        </if>
+        <if test="liveType=='3'.toString">
+            and owner.live_type in (3)
+        </if>
+        <if test="liveType=='4'.toString">
+            and owner.live_type in (1,2)
+        </if>
+        <if test="startTime != null and startTime != ''">
+            and DATE_FORMAT(person.capture_time,"%y%m%d") >= DATE_FORMAT(#{startTime},"%y%m%d")
+        </if>
+        <if test="endTime != null and endTime != ''">
+            and DATE_FORMAT(#{endTime},"%y%m%d") >= DATE_FORMAT(person.capture_time,"%y%m%d")
+        </if>
+        order by person.capture_time desc
+        limit #{start},#{end}
+    </select>
+
+    <!--人员出入列表查询 total-->
+    <select id="personAccessTotal" parameterType="Map" resultType="int">
+        select count(1) from (
+        select person.person_id personId,person.capture_time openTime,person.base64_img image from face_person_attr person
+        inner join face_capture_device device on device.manage_id=person.capture_device_id
+         where device.device_type="0"
+        )as total
+    </select>
+
+    <!--高频出入人员;{基本同“街道-人员感知（TOP10）”} ygy-->
+    <select id="personSenseHighAccess" resultType="Map" parameterType="Map">
+        select * from (
+        select person.person_id personId,person.name personName,owner.room_id roomId,owner.live_type personType,count(*) senseNum,person.base64_img
+        image,owner.live_type_name liveTypeName,person.xq_code xqCode from face_person_attr person
+        inner join face_capture_device device on device.manage_id=person.capture_device_id
+        left join house_owner_room owner on owner.owner_id=person.person_id
+        where device.device_type=0 and  DATE_FORMAT(person.capture_time,"%y%m%d")=DATE_FORMAT(CURDATE(),"%y%m%d")
+        and person.`name` is not null and person.name!=''
+        <if test="xqCode != null and xqCode != ''">
+            and person.xq_code=#{xqCode}
+        </if>
+        <if test="liveType != null and liveType != ''">
+            <if test="liveType==1">
+                and owner.live_type="1"
+            </if>
+            <if test="liveType==2">
+                and owner.live_type="2"
+            </if>
+            <if test="liveType==3">
+                and owner.live_type="3"
+            </if>
+        </if>
+        <if test="likeStr!=null and likeStr!=''">
+            and CONCAT_WS('',person.name,owner.live_type_name)
+            LIKE concat('%',#{likeStr},'%')
+        </if>
+        GROUP BY person.person_id
+        )as a
+        where senseNum>0
+        <if test="accessNumSmall != null and accessNumSmall != '' ">
+            and senseNum >= #{accessNumSmall}
+        </if>
+        <if test="accessNumBig!= null and accessNumBig!= '' ">
+            and #{accessNumBig} >= senseNum
+        </if>
+        ORDER BY senseNum desc
+        limit #{start},#{end}
+    </select>
+
+    <!--高频出入人员&#45;&#45;{基本同“街道-人员感知（TOP10）”} ygy-->
+    <select id="personSenseHighAccessTotal" resultType="int" parameterType="Map">
+        select count(1) from(
+        select * from (
+        select person.name personName,owner.room_id roomId,person.type personType,count(*) senseNum,person.base64_img
+        image,owner.live_type_name liveTypeName,person.xq_code xqCode from face_person_attr person
+        inner join face_capture_device device on device.manage_id=person.capture_device_id
+        left join house_owner_room owner on owner.owner_id=person.person_id
+        where device.device_type=0 and DATE_FORMAT(person.capture_time,"%y%m%d")=DATE_FORMAT(CURDATE(),"%y%m%d")
+        and person.`name` is not null and person.name!=''
+        <if test="xqCode != null and xqCode != ''">
+            and person.xq_code=#{xqCode}
+        </if>
+        <if test="liveType != null and liveType != ''">
+            <if test="liveType==1">
+                and owner.live_type="1"
+            </if>
+            <if test="liveType==2">
+                and owner.live_type="2"
+            </if>
+            <if test="liveType==3">
+                and owner.live_type="3"
+            </if>
+        </if>
+        <if test="likeStr!=null and likeStr!=''">
+            and CONCAT_WS('',person.name,owner.live_type_name)
+            LIKE concat('%',#{likeStr},'%')
+        </if>
+        GROUP BY person.person_id
+        )as a
+        where senseNum>0
+        <if test="accessNumSmall != null and accessNumSmall != '' ">
+            and senseNum >= #{accessNumSmall}
+        </if>
+        <if test="accessNumBig!= null and accessNumBig!= '' ">
+            and #{accessNumBig} >= senseNum
+        </if>
+        ORDER BY senseNum desc
+        )as total
+    </select>
+
+    <!--个人出入记录 -ygy-->
+    <select id="personHighAccessByPersonId" resultType="Map" parameterType="Map">
+        select date_format(person.capture_time,'%Y-%m-%d %H:%i:%s') capTime,xq.name xqName,device.device_name capAddress from face_person_attr person
+        left join face_capture_device device on device.manage_id=person.capture_device_id
+        left join ht_xq_info xq on xq.code=person.xq_code
+        where device.device_type=0
+        and person.person_id=#{personId}
+        and DATE_FORMAT(person.capture_time,"%y%m%d")=DATE_FORMAT(CURDATE(),"%y%m%d")
+        ORDER BY person.capture_time desc
+    </select>
+
+    <!--陌生人  个人抓拍记录-ygy-->
+    <select id="personStrangerByPersonId" parameterType="Map" resultType="Map">
+        select date_format(person.capture_time,'%Y-%m-%d %H:%i:%s') capTime,xq.name xqName,device.device_name capAddress from face_person_attr person
+        left join face_capture_device device on device.manage_id=person.capture_device_id
+        inner join ht_xq_info xq on xq.code=person.xq_code
+        where person.type=1
+        and person.person_id=#{personId}
+        ORDER BY person.capture_time desc
+    </select>
+
+    <!--外籍人列表-->
+    <select id="foreignerList" resultType="Map">
+        select  * from zs_person_info  person
+        where person.extend_s6!=1 and person.extend_s6!=null
+    </select>
+
+    <!--感知人员出入列表-->
+    <select id="sensePersonPojo" resultType="Map">
+        select person.manage_id manageId,person.person_id personId,person.name ,person.age,person.capture_time capTime,person.base64_img capImg,person.xq_code xqCode ,device.access from face_person_attr person
+        inner join face_capture_device device on device.manage_id=person.capture_device_id
+        where device.access=0
+    </select>
+
+    <select id="queryZsPersonInfoByOwnerId" parameterType="String" resultType="Map">
+        select distinct zs_person_info.name as personName,zs_person_info.phone as ownerPhone from zs_person_info where zs_person_info.manage_id=#{ownerId}
+    </select>
+
+    <!--根据personId 返回个人信息表-->
+    <select id="personInfoByPersonId" resultType="Map" parameterType="String">
+        select * from zs_person_info as person
+        where person.manage_id=#{personId}
+    </select>
+    <!--根据personId 返回roomId-->
+    <select id="personRoomIdByPersonId" parameterType="String" resultType="String">
+        select owner.room_id roomId from house_owner_room owner
+        where owner.owner_id =#{personId}
+        GROUP BY owner_id
+    </select>
+    <!--根据roomId 得到owner信息-->
+    <select id="getPersonByRoomId" parameterType="String" resultType="Map">
+       select a.owner_id ownerId,a.live_type liveType,a.owner_relation_name relation from house_owner_room a
+      where a.room_id=#{roomId}
+    </select>
+
+    <select id="personStreamRules3" parameterType="Map" resultType="Map">
+        SELECT count(*) as passNum FROM face_person_attr person
+        inner join face_capture_device device on device.manage_id=person.capture_device_id
+        where device.device_type='0' and device.access=#{access}
+        and person.capture_time between #{beginTime} and #{endTime}
+        <if test="personId!=null and personId!=''">
+            and person.person_id=#{personId}
+        </if>
+    </select>
+
+    <!--近7天进门量/天-->
+    <select id="personStreamRulesWeekIn" parameterType="Map" resultType="int">
+        select count(1) passNum from zs_open_record record
+        where record.open_type!=49
+        and DATE_FORMAT(record.swipe_time,'%Y-%m-%d')=#{weekTime}
+        <if test="personId!=null and personId!=''">
+            and record.swipe_id=#{personId}
+        </if>
+    </select>
+    <!--近7天出门量/天-->
+    <select id="personStreamRulesWeekOut" parameterType="Map" resultType="int">
+        select count(1) passNum from zs_open_record record
+        where record.open_type=49
+        and DATE_FORMAT(record.swipe_time,'%Y-%m-%d')=#{weekTime}
+        <if test="personId!=null and personId!=''">
+            and record.swipe_id=#{personId}
+        </if>
+    </select>
+    <!--24小时出门量/h-->
+    <select id="personStreamRulesDaysIn" parameterType="Map" resultType="int">
+        select count(1) passNum from zs_open_record record
+        where record.open_type!=49
+        and date_format(record.swipe_time,'%Y-%m-%d %H')=date_format(#{dayTime},'%Y-%m-%d %H')
+        <if test="personId!=null and personId!=''">
+            and record.swipe_id=#{personId}
+        </if>
+    </select>
+    <!--24小时进门量/h-->
+    <select id="personStreamRulesDaysOut" parameterType="Map" resultType="int">
+        select count(1) passNum from zs_open_record record
+        where record.open_type=49
+        and date_format(record.swipe_time,'%Y-%m-%d %H')=date_format(#{dayTime},'%Y-%m-%d %H')
+        <if test="personId!=null and personId!=''">
+            and record.swipe_id=#{personId}
+        </if>
+    </select>
+    <!--近30天进门量/天-->
+    <select id="personStreamRulesThirthyDaysIn" parameterType="Map" resultType="int">
+        select count(1) passNum from zs_open_record record
+        where record.open_type!=49
+        and DATE_FORMAT(record.swipe_time,'%Y-%m-%d')=#{thirtyDay}
+        <if test="personId!=null and personId!=''">
+            and record.swipe_id=#{personId}
+        </if>
+    </select>
+    <!--近30天出门量/天-->
+    <select id="personStreamRulesThirtyDaysOut" parameterType="Map" resultType="int">
+        select count(1) passNum from zs_open_record record
+        where record.open_type=49
+        and DATE_FORMAT(record.swipe_time,'%Y-%m-%d')=#{thirtyDay}
+        <if test="personId!=null and personId!=''">
+            and record.swipe_id=#{personId}
+        </if>
+    </select>
+    <!--近30天抓拍记录/天-->
+    <select id="captureInfoByPersonId" parameterType="Map" resultType="int">
+      select count(*) from face_person_attr person
+      where person.person_id=#{personId}
+      and DATE_FORMAT(person.capture_time,'%Y-%m-%d')=#{monthDay}
+    </select>
+    <!--根据xqcode 得到xqName-->
+    <select id="xqNameByXqCode" resultType="String" parameterType="String">
+       select xq.name from ht_xq_info xq
+        where xq.code=#{xqCode}
+    </select>
+    <!--根据personiD获取房屋信息-->
+    <select id="getOwnerRoomByPersonId" resultType="Map" parameterType="Map">
+      select owner.room_id roomId,owner.live_type liveType,owner.residence residence,owner.live_type_name liveTypeName
+      from house_owner_room owner
+      where owner.owner_id=#{personId}
+      GROUP BY owner.owner_id
+    </select>
+
+    <!--疑似迁出人-->
+    <select id="quitPersonList" parameterType="Map" resultType="Map">
+        select * from (select max(id) id,person_id personId,name personName,xq_code
+        from face_person_attr
+        where person_id is not null and person_id!='' and type!='1' and name is not null and name != ''
+        GROUP BY person_id)as person1
+        inner join (select id id2,date_format(capture_time,'%Y-%m-%d %H:%i:%s') lastCapTime,
+        DATEDIFF(now(),capture_time) noSenceTime,xq_code xqCode from face_person_attr )person2 on person1.id=person2.id2
+        where noSenceTime>15
+        order by noSenceTime desc
+        <if test="xqCode!=null and xqCode.length>0">
+            and person1.xq_code in (${xqCode})
+        </if>
+        <if test="likeStr!=null and likeStr!=''">
+            and concat_WS('',person1.personName,noSenceTime) like concat('%',#{likeStr},'%')
+        </if>
+        <if test="daySmall!=null and daySmall!=''">
+            and person2.noSenceTime >=#{daySmall}
+        </if>
+        <if test="dayBig!=null and dayBig!=''">
+            and #{dayBig}>=person2.noSenceTime
+        </if>
+    </select>
+    <!--疑似迁出车-->
+    <select id="quitCarList" resultType="Map" parameterType="Map">
+        select * from(select max(id) id,car_num
+        from car_access_record
+        where car_num is not null and car_num!=''
+        GROUP BY car_num)as car1
+        inner join (select id id2, date_format(cap_time,'%Y-%m-%d %H:%i:%s') lastCapTimeCar,DATEDIFF(now(), cap_time)
+        noSenceTimeCar
+        from car_access_record
+        where 1=1
+        <if test="carNum!=null and carNum!=''">
+            and car_num=#{carNum}
+        </if>
+        ) car2 on car2.id2=car1.id
+        and noSenceTimeCar>15
+        <if test="daySmall!=null and daySmall!=''">
+            and noSenceTimeCar>=#{daySmall}
+        </if>
+    </select>
+
+    <!--疑似迁出人+车 -->
+    <select id="quitPersonAndCarList" resultType="Map" parameterType="Map">
+        select * from( select xqCode,personId,personName,lastCapTime,lastCapTimeCar,noSenceTime,noSenceTimeCar,
+        case
+        when noSenceTimeCar is null then noSenceTime
+        else
+        (case when noSenceTime  <![CDATA[ < ]]>  noSenceTimeCar then noSenceTime else noSenceTimeCar end)
+        end as noSenceTimeMin ,
+        case
+        when lastCapTimeCar is null then lastCapTime
+        else
+        (case when lastCapTimeCar>lastCapTime then lastCapTimeCar else lastCapTime end)
+        end as lastCapTimeLater
+        from (select max(id) id,person_id personId,name personName,xq_code
+        from face_person_attr
+        where person_id is not null and person_id!='' and type!='1' and name is not null and name != ''
+        GROUP BY person_id)as person1
+        inner join (select id id2,date_format(capture_time,'%Y-%m-%d %H:%i:%s') lastCapTime,
+        DATEDIFF(now(),capture_time) noSenceTime,xq_code xqCode from face_person_attr )person2 on person1.id=person2.id2
+        left join (select car_info.car_num,car_info.owner_id from car_info) m_ci on m_ci.owner_id=person1.personId
+        left join (select * from(select max(id) id,car_num
+        from car_access_record
+        where car_num is not null and car_num!=''
+        GROUP BY car_num)as car1
+        inner join (select id id2, date_format(cap_time,'%Y-%m-%d %H:%i:%s') lastCapTimeCar,DATEDIFF(now(), cap_time)
+        noSenceTimeCar
+        from car_access_record) car2 on car2.id2=car1.id
+        ) m_car on m_car.car_num=m_ci.car_num
+        )as end
+        where noSenceTimeMin>15
+        <if test="xqCode!=null and xqCode.length>0">
+            and end.xqCode in (${xqCode})
+        </if>
+        <if test="daySmall!=null and daySmall!=''">
+            and end.noSenceTimeMin >=#{daySmall}
+        </if>
+        <if test="dayBig!=null and dayBig!=''">
+            and #{dayBig}>= end.noSenceTimeMin
+        </if>
+        <if test="likeStr!=null and likeStr!=''">
+            and concat_WS('',end.personName,end.noSenceTimeMin) like concat('%',#{likeStr},'%')
+        </if>
+        order by noSenceTimeMin desc
+    </select>
+
+    <!--疑似新增人员列表查询 ygy-->
+    <select id="personAddedList" parameterType="Map" resultType="Map">
+        select person_id personId,count(*) as capDays from
+        (select distinct person_id,DATE_FORMAT(capture_time,'%Y-%m-%d')
+        from (select * from face_person_attr where 1=1
+         <if test="sex!=null and sex!=''">
+             and sex=#{sex}
+         </if>
+        <if test="xqCode!=null and xqCode.length>0">
+            and xq_code in (${xqCode})
+        </if>
+        <if test="age!=null and age!=''">
+            <if test="age=='0'.toString">
+                and age = '未成年'
+            </if>
+            <if test="age=='1'.toString">
+                and age = '青年人'
+            </if>
+            <if test="age=='2'.toString">
+                and age = '中年人'
+            </if>
+            <if test="age=='3'.toString">
+                and age = '老年人'
+            </if>
+        </if>) as person
+        where DATE_SUB(CURDATE(), INTERVAL 15 DAY) <![CDATA[ < ]]>   date(person.capture_time)
+        and person.type="1") as A
+        group by A.person_id
+        having capDays>=8
+        <if test="daySmall!=null and daySmall!=''">
+            and capDays >= #{daySmall}
+        </if>
+        <if test="dayBig!=null and dayBig!=''">
+            and  #{dayBig} >= capDays
+        </if>
+        order by capDays desc
+    </select>
+    <!--出入规律By personId-->
+    <select id="personStreamRules9" resultType="int" parameterType="Map">
+        select count(*) as passNum from zs_open_record
+        where 1=1
+        <if test="personId!=null and personId!=''">
+            and swipe_id=#{personId}
+        </if>
+        <if test="beginTime!=null and beginTime!='' and endTime!=null and endTime!=''">
+            and swipe_time between #{beginTime} and #{endTime}
+        </if>
+        <if test="passType!=null and passType!=''">
+            <if test="passType=='in'">
+                and open_type!=49
+            </if>
+            <if test="passType=='out'">
+                and open_type=49
+            </if>
+        </if>
+    </select>
+
+    <!--人员出入列表 今日数量ygy-->
+    <select id="todayPersonSenseNum" parameterType="Map" resultType="int">
+        select count(1) from face_person_attr person
+        inner join face_capture_device device on device.manage_id=person.capture_device_id
+        where DATE_FORMAT(NOW(),"%y%m%d")= DATE_FORMAT(person.capture_time,"%y%m%d") and device.device_type=0
+        <if test="xqCode!=null and xqCode!=''">
+           and person.xq_code in (${xqCode})
+        </if>
+    </select>
+
+    <!--今日车辆出入ygy-->
+    <select id="todayCarSenseNum" parameterType="Map" resultType="int">
+        select count(1) from car_access_record car
+        where DATE_FORMAT(NOW(),"%y%m%d")=DATE_FORMAT(car.cap_time,"%y%m%d")
+        <if test="xqCode!=null and xqCode!=''">
+           and car.xq_code in (${xqCode})
+        </if>
+    </select>
+
+    <!--今日异常数量ygy-->
+    <select id="abnormalTotalNum" parameterType="Map" resultType="int">
+        select count(1) from record_abnormal abnormal
+        where DATE_FORMAT(NOW(),"%y%m%d")=DATE_FORMAT(abnormal.capture_time,"%y%m%d")
+        <if test="xqCode!=null and xqCode!=''">
+           and abnormal.xq_code in (${xqCode})
+        </if>
+    </select>
+
+    <!--人脸抓拍（新增）ygy-->
+    <select id="faceCaptureNum" parameterType="Map" resultType="int">
+        select count(1) from face_person_attr person
+        where DATE_FORMAT(NOW(),"%y%m%d")= DATE_FORMAT(person.capture_time,"%y%m%d")
+        <if test="xqCode!=null and xqCode!=''">
+           and person.xq_code in (${xqCode})
+        </if>
+    </select>
+
+    <!--车辆抓拍（新增）ygy-->
+    <select id="carCaptureNum" parameterType="Map" resultType="int">
+        select count(1) from car_attribute car
+        where DATE_FORMAT(car.capture_time,"%y%m%d")=DATE_FORMAT(CURDATE(),"%y%m%d")
+        <if test="xqCode!=null and xqCode!=''">
+           and car.xq_code in (${xqCode})
+        </if>
+    </select>
+
+    <!--  获取人脸抓拍的列表 zhoutao -->
+    <select id="personCaptureList" resultType="Map" parameterType="Map">
+        SELECT person.id,person.person_id personId,date_format(capture_time,'%Y-%m-%d %H:%i:%s') capTime,device_name capDevice, person.NAME name, person.sex,age,
+        zs_person_info.nationality_name as country, bmask*1 bmask,  eyeglass*1 eyeglass, base64_img image, person.xq_code xqCode, ht_xq_info.NAME AS xqName, device_location deviceAddr
+        FROM   (select * from face_person_attr order by capture_time desc limit 15000) person
+        LEFT JOIN zs_person_info ON person.person_id = zs_person_info.manage_id
+        INNER JOIN ht_xq_info ON person.xq_code = ht_xq_info.CODE
+        INNER JOIN face_capture_device ON person.capture_device_id = face_capture_device.manage_id
+        WHERE 1=1
+        <!--  时间筛选条件 -->
+        <if test="startTime!=null and endTime!=''">
+            and capture_time between #{startTime} and #{endTime}
+        </if>
+        <!--  小区筛选条件 -->
+        <if test="xqCode!=null and xqCode != ''">
+            and person.xq_code in (${xqCode})
+        </if>
+        <!--  姓名筛选条件 -->
+        <if test="name!=null and name != ''">
+            and person.NAME = #{name}
+        </if>
+        <!--  性别筛选条件 -->
+        <if test="sex!=null and sex != ''">
+            and person.sex = #{sex}
+        </if>
+        <!--  眼镜筛选条件 -->
+        <if test="eyeglass!=null and eyeglass != ''">
+            and eyeglass = #{eyeglass}
+        </if>
+        <!--  口罩筛选条件 -->
+        <if test="bmask!=null and bmask != ''">
+            and bmask = #{bmask}
+        </if>
+        ORDER BY capture_time DESC
+        LIMIT #{start} , #{limit}
+    </select>
+    <!-- 获取人脸抓拍数据的总条数 zhoutao -->
+    <select id="personCaptureNum" resultType="int" parameterType="Map">
+        SELECT
+        count(*) totalRows
+        FROM
+        (select * from face_person_attr order by capture_time desc limit 15000) person
+        LEFT JOIN zs_person_info ON person.person_id = zs_person_info.manage_id
+        INNER JOIN ht_xq_info ON person.xq_code = ht_xq_info.CODE
+        INNER JOIN face_capture_device ON person.capture_device_id = face_capture_device.manage_id
+        WHERE 1=1
+        <!--  时间筛选条件 -->
+        <if test="startTime!=null and endTime!=''">
+            and capture_time between #{startTime} and #{endTime}
+        </if>
+        <!--  小区筛选条件 -->
+        <if test="xqCode!=null and xqCode != ''">
+            and person.xq_code in (${xqCode})
+        </if>
+        <!--  姓名筛选条件 -->
+        <if test="name!=null and name != ''">
+            and person.NAME = #{name}
+        </if>
+        <!--  性别筛选条件 -->
+        <if test="sex!=null and sex != ''">
+            and person.sex = #{sex}
+        </if>
+        <!--  眼镜筛选条件 -->
+        <if test="eyeglass!=null and eyeglass != ''">
+            and eyeglass = #{eyeglass}
+        </if>
+        <!--  口罩筛选条件 -->
+        <if test="bmask!=null and bmask != ''">
+            and bmask = ${bmask}
+        </if>
+    </select>
+    <!---根据人名获取 个人-人脸抓拍的列表-->
+    <select id="personCaptureList2" resultType="Map" parameterType="Map">
+        SELECT
+        person.id,
+        date_format(capture_time,'%Y-%m-%d %H:%i:%s') capTime,
+        device_name capDevice,
+        person.NAME name,
+        person.sex,
+        age,
+        zs_person_info.nationality_name as country,
+        bmask,
+        eyeglass,
+        base64_img image,
+        person.xq_code xqCode,
+        ht_xq_info.NAME AS xqName,
+        device_location deviceAddr
+        FROM
+        (select * from face_person_attr order by capture_time desc limit 10000) person
+        LEFT JOIN zs_person_info ON person.person_id = zs_person_info.manage_id
+        INNER JOIN ht_xq_info ON person.xq_code = ht_xq_info.CODE
+        INNER JOIN face_capture_device ON person.capture_device_id = face_capture_device.manage_id
+        WHERE 1=1
+        <!--  时间筛选条件 -->
+        <if test="startTime!=null and endTime!=''">
+            and capture_time between #{startTime} and #{endTime}
+        </if>
+        <!--  眼镜筛选条件 -->
+        <if test="eyeglass!=null and eyeglass != ''">
+            and eyeglass = #{eyeglass}
+        </if>
+        <!--  口罩筛选条件 -->
+        <if test="bmask!=null and bmask != ''">
+            and bmask = #{bmask}
+        </if>
+        <if test="name!=null and name!=''">
+            and person.person_id=(
+            select attr.person_id from face_person_attr attr
+            where attr.name like concat("%",#{name},"%")
+            limit 1
+            )
+        </if>
+        ORDER BY capture_time DESC
+    </select>
+
+    <!--国家列表-->
+    <select id="countryList" parameterType="Map" resultType="Map">
+        select person.nationality_name name,person.nationality_name value from zs_person_info person
+        left join zs_person_xq xq on xq.person_id=person.manage_id
+        where person.extend_s6!=1 and person.extend_s6 is not null and person.extend_s6!=""
+        <if test="xqCode!=null and xqCode.length>0">
+            and xq.xq_code in (${xqCode})
+        </if>
+        GROUP BY person.nationality_name
+    </select>
+
+    <update id="updatePersonFacePersonTypeIdByPaperNum" parameterType="string">
+        update zs_person_info set face_type_person_id=(
+          select id from face_type_person where person_paper_num=#{personPaperNum})
+          where paper_number=#{personPaperNum};
+    </update>
+</mapper>

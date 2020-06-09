@@ -1,0 +1,651 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.windaka.suizhi.webapi.dao.FacePersonCaptureDao">
+    <resultMap id="BaseResultMap" type="com.windaka.suizhi.webapi.model.FacePersonAttr">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="capture_time" jdbcType="TIMESTAMP" property="captureTime"/>
+        <result column="capture_device_id" jdbcType="VARCHAR" property="captureDeviceId"/>
+        <result column="capture_img" jdbcType="VARCHAR" property="captureImg"/>
+        <result column="person_id" jdbcType="VARCHAR" property="personId"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+        <result column="sex" jdbcType="SMALLINT" property="sex"/>
+        <result column="type" jdbcType="SMALLINT" property="type"/>
+        <result column="age" jdbcType="SMALLINT" property="age"/>
+        <result column="country" jdbcType="SMALLINT" property="country"/>
+        <result column="bmask" jdbcType="BIT" property="bmask"/>
+        <result column="eyeglass" jdbcType="BIT" property="eyeglass"/>
+        <result column="hat" jdbcType="BIT" property="hat"/>
+        <result column="knapsack" jdbcType="BIT" property="knapsack"/>
+        <result column="handbag" jdbcType="BIT" property="handbag"/>
+        <result column="coat_type" jdbcType="INTEGER" property="coatType"/>
+        <result column="coat_color" jdbcType="INTEGER" property="coatColor"/>
+        <result column="trousers_type" jdbcType="INTEGER" property="trousersType"/>
+        <result column="trousers_color" jdbcType="INTEGER" property="trousersColor"/>
+        <result column="similar" jdbcType="DOUBLE" property="similar"/>
+        <result column="xq_code" jdbcType="VARCHAR" property="xqCode"/>
+        <result column="manage_id" jdbcType="VARCHAR" property="manageId"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, capture_time, capture_device_id, capture_img, person_id, name, sex, type, age, 
+    country, bmask, eyeglass, hat, knapsack, handbag, coat_type, coat_color, trousers_type, 
+    trousers_color, similar, xq_code, manage_id
+  </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from face_person_attr
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    
+    <select id="getNightReturnPerson"  resultType="com.windaka.suizhi.webapi.model.FacePersonAttr">
+		    SELECT
+    * 
+FROM
+    (
+    SELECT
+        z.NAME,
+        count( OPEN.swipe_id ) times,
+        h.NAME xqName,
+        OPEN.swipe_id personId,
+        OPEN.xq_code xqCode,
+        DATE_FORMAT(max( OPEN.swipe_time ),'%Y-%m-%d %H:%i:%s') captureTimeStr,
+        max( z.extend_s4 ) img,
+        ho.live_type_name identityName,
+        z.person_type_name typeName 
+    FROM
+        zs_open_record
+        OPEN LEFT JOIN zs_person_info z ON z.manage_id = OPEN.swipe_id
+        LEFT JOIN ht_xq_info h ON h.CODE = OPEN.xq_code  left join house_owner_room ho on ho.owner_id=z.manage_id
+    WHERE
+        OPEN.swipe_time <![CDATA[ > ]]> DATE_ADD( now(), INTERVAL - 1 MONTH ) 
+        <if test="params.xqCode!=null and params.xqCode!=''">
+            and OPEN.xq_code =#{params.xqCode}
+            </if>
+            <if test="params.searchText!=null and params.searchText!=''">
+            and z.name like '%${params.searchText}%'
+            </if>
+             <if test="params.identity!=null and params.identity!=''">
+            and ho.live_type_name =#{params.identity}
+            </if>
+             <if test="params.startDate !=null and params.startDate !='' and params.endDate !=null and params.endDate!=''">
+                and OPEN.swipe_time  between  STR_TO_DATE(#{params.startDate},'%Y-%m-%d %H:%i:%s') and STR_TO_DATE(#{params.endDate},'%Y-%m-%d %H:%i:%s')
+            </if>
+        AND z.NAME != '' 
+        and OPEN.open_type != '49'
+        AND ( HOUR ( OPEN.swipe_time )<![CDATA[ >= ]]>23 OR HOUR ( OPEN.swipe_time )<![CDATA[ < ]]> 5 ) 
+    GROUP BY
+        OPEN.swipe_id 
+    ORDER BY
+        OPEN.swipe_time DESC   
+    ) a where 1=1 
+     <if test="params.times!=null and params.times!=''">
+            and a.times <![CDATA[ >= ]]> #{params.times}
+    </if>
+ORDER BY
+    a.times DESC
+	limit #{params.start},#{params.limit} 	   
+    </select>
+    <select id="getNightReturnCar"  resultType="com.windaka.suizhi.webapi.model.CarAttr">
+    SELECT
+    * 
+    FROM
+    (
+    SELECT
+        c.car_num carNum,
+        DATE_FORMAT(max( c.cap_time ),'%Y-%m-%d %H:%i:%s') dateStr,
+        h.NAME xqName,
+        max( c.base64_img ),
+        count( c.car_num ) times 
+    FROM
+        car_access_record c
+        JOIN ht_xq_info h ON c.xq_code = h.CODE 
+    WHERE
+        c.cap_time <![CDATA[ > ]]> DATE_ADD( now(), INTERVAL - 1 MONTH ) 
+        <if test="params.xqCode!=null and params.xqCode!=''">
+            and c.xq_code =#{params.xqCode}
+            </if>
+            <if test="params.searchText!=null and params.searchText!=''">
+            and c.car_num like '%${params.searchText}%'
+            </if>
+             
+             <if test="params.startDate !=null and params.startDate !='' and params.endDate !=null and params.endDate!=''">
+                and c.cap_time  between  STR_TO_DATE(#{params.startDate},'%Y-%m-%d %H:%i:%s') and STR_TO_DATE(#{params.endDate},'%Y-%m-%d %H:%i:%s')
+            </if>
+        AND c.car_direct = 8 
+        AND ( HOUR ( c.cap_time )<![CDATA[ >= ]]> 23 OR HOUR ( c.cap_time )<![CDATA[ < ]]> 5 ) 
+        AND c.car_num != '' 
+    GROUP BY
+        c.car_num 
+    ) a where 1=1
+    <if test="params.times!=null and params.times!=''">
+            and a.times <![CDATA[ >= ]]> #{params.times}
+    </if>
+ORDER BY
+    times DESC
+	limit #{params.start},#{params.limit} 
+    </select>
+    
+    <select id="waterRate"  resultType="com.windaka.suizhi.webapi.model.Water">
+		       SELECT
+            h.manage_id manageId,r.owner_id ownerId,
+    xq.NAME xqName,
+    CONCAT( b.NAME, c.NAME, h.NAME ) houseInfo,
+    h.NAME roomName,
+    r.owner_name ownerName,
+    h.purpose_name purposeName,hr.water_used waterYield
+FROM
+    ht_xq_info xq
+    JOIN house_building b ON xq.CODE = b.xq_code
+    JOIN house_cell c ON c.building_id = b.manage_id
+    JOIN house_room h ON h.cell_id = c.manage_id
+    JOIN house_owner_room r ON r.room_id = h.manage_id
+        left join house_room_arrearage hr on r.room_id =hr.room_id
+    
+WHERE
+    xq.`status` = 0 
+    AND b.`status` = 0
+    and r.live_type ='1'
+        
+     <if test="params.xqCode!=null and params.xqCode!=''">
+            and xq.code =#{params.xqCode}
+            </if>
+     <if test="params.order==1">
+            order by hr.water_used+0 asc
+            </if>
+     <if test="params.order==2">
+            order by hr.water_used+0 desc
+            </if>
+		    limit #{params.start},#{params.limit} 
+    </select>
+    
+    <select id="groupResearch"  resultType="com.windaka.suizhi.webapi.model.Water">
+    select * from(
+	SELECT
+            h.manage_id manageId,r.owner_id ownerId,
+    xq.NAME xqName,
+    CONCAT( b.NAME, c.NAME, h.NAME ) houseInfo,(select count(*) from house_owner_room where room_id = r.room_id) personNum,
+    h.NAME roomName,
+    r.owner_name ownerName,
+    h.purpose_name purposeName
+FROM
+    ht_xq_info xq
+    JOIN house_building b ON xq.CODE = b.xq_code
+    JOIN house_cell c ON c.building_id = b.manage_id
+    JOIN house_room h ON h.cell_id = c.manage_id
+    JOIN house_owner_room r ON r.room_id = h.manage_id
+    
+WHERE
+    xq.`status` = 0 
+    AND b.`status` = 0
+     and r.live_type ='1'
+     <if test="params.xqCode!=null and params.xqCode!=''">
+            and xq.code =#{params.xqCode}
+            </if>
+     <if test="params.roomProperty!=null and params.roomProperty!=''">
+            and h.purpose_name =#{params.roomProperty}
+            </if>
+     <if test="params.searchText!=null and params.searchText!=''">
+            and h.name like '%${params.searchText}%'
+            </if>
+            ) k
+		    where 1=1 
+		    <if test="params.associateNum!=null and params.associateNum!=''">
+            and personNum <![CDATA[ >= ]]> #{params.associateNum}
+            </if>
+	 order by personNum desc,manageId asc limit #{params.start},#{params.limit}
+    </select>
+    
+    <select id="dayRentalResearch"  resultType="com.windaka.suizhi.webapi.model.Water">
+	SELECT
+            h.manage_id manageId,r.owner_id ownerId,
+    xq.NAME xqName,
+    CONCAT( b.NAME, c.NAME, h.NAME ) houseInfo,
+    h.NAME roomName,
+    r.owner_name ownerName,
+    h.purpose_name purposeName
+FROM
+    ht_xq_info xq
+    JOIN house_building b ON xq.CODE = b.xq_code
+    JOIN house_cell c ON c.building_id = b.manage_id
+    JOIN house_room h ON h.cell_id = c.manage_id
+    JOIN house_owner_room r ON r.room_id = h.manage_id
+    
+WHERE
+    xq.`status` = 0 
+    AND b.`status` = 0
+    and r.live_type ='1'
+     <if test="params.xqCode!=null and params.xqCode!=''">
+            and xq.code =#{params.xqCode}
+            </if>
+     <if test="params.roomProperty!=null and params.roomProperty!=''">
+            and h.purpose_name =#{params.roomProperty}
+            </if>
+     <if test="params.searchText!=null and params.searchText!=''">
+            and h.name like '%${params.searchText}%'
+            </if>
+            
+		    limit #{params.start},#{params.limit} 
+    </select>
+    
+    <select id="totalRows"  resultType="java.lang.Integer">
+		    SELECT
+    count(*) 
+FROM
+    (
+    SELECT
+        count( OPEN.swipe_id ) times
+    FROM
+        zs_open_record
+        OPEN LEFT JOIN zs_person_info z ON z.manage_id = OPEN.swipe_id
+        LEFT JOIN ht_xq_info h ON h.CODE = OPEN.xq_code left join house_owner_room ho on ho.owner_id=z.manage_id
+    WHERE
+        OPEN.swipe_time <![CDATA[ > ]]> DATE_ADD( now(), INTERVAL - 1 MONTH ) 
+        <if test="params.xqCode!=null and params.xqCode!=''">
+            and OPEN.xq_code =#{params.xqCode}
+            </if>
+            <if test="params.searchText!=null and params.searchText!=''">
+            and z.name like '%${params.searchText}%'
+            </if>
+             <if test="params.identity!=null and params.identity!=''">
+            and ho.live_type_name =#{params.identity}
+            </if>
+             <if test="params.startDate !=null and params.startDate !='' and params.endDate !=null and params.endDate!=''">
+                and OPEN.swipe_time  between  STR_TO_DATE(#{params.startDate},'%Y-%m-%d %H:%i:%s') and STR_TO_DATE(#{params.endDate},'%Y-%m-%d %H:%i:%s')
+            </if>
+        AND z.NAME != '' 
+        and OPEN.open_type != '49'
+        AND ( HOUR ( OPEN.swipe_time )<![CDATA[ >= ]]>23 OR HOUR ( OPEN.swipe_time )<![CDATA[ < ]]> 5 ) 
+    GROUP BY
+        OPEN.swipe_id 
+    ORDER BY
+        OPEN.swipe_time DESC
+    ) a 
+    where 1=1 
+    <if test="params.times!=null and params.times!=''">
+            and a.times <![CDATA[ >= ]]> #{params.times}
+    </if>
+           
+    </select>
+    
+    <select id="totalCarRows"  resultType="java.lang.Integer">
+	
+     SELECT
+    count(*) 
+    FROM
+    (
+    SELECT
+        count( c.car_num ) times 
+    FROM
+        car_access_record c
+        JOIN ht_xq_info h ON c.xq_code = h.CODE 
+    WHERE
+        c.cap_time <![CDATA[ > ]]> DATE_ADD( now(), INTERVAL - 1 MONTH ) 
+        <if test="params.xqCode!=null and params.xqCode!=''">
+            and c.xq_code =#{params.xqCode}
+            </if>
+            <if test="params.searchText!=null and params.searchText!=''">
+            and c.car_num like '%${params.searchText}%'
+            </if>
+             
+             <if test="params.startDate !=null and params.startDate !='' and params.endDate !=null and params.endDate!=''">
+                and c.cap_time  between  STR_TO_DATE(#{params.startDate},'%Y-%m-%d %H:%i:%s') and STR_TO_DATE(#{params.endDate},'%Y-%m-%d %H:%i:%s')
+            </if>
+        AND c.car_direct = 8 
+        AND ( HOUR ( c.cap_time )<![CDATA[ >= ]]> 23 OR HOUR ( c.cap_time )<![CDATA[ < ]]> 5 ) 
+        AND c.car_num != '' 
+    GROUP BY
+        c.car_num 
+    ) a where 1=1
+    <if test="params.times!=null and params.times!=''">
+            and a.times <![CDATA[ >= ]]> #{params.times}
+    </if>
+    </select>
+    
+    <select id="totalWateRows"  resultType="java.lang.Integer">
+SELECT
+    count(*)
+FROM
+    ht_xq_info xq
+    JOIN house_building b ON xq.CODE = b.xq_code
+    JOIN house_cell c ON c.building_id = b.manage_id
+    JOIN house_room h ON h.cell_id = c.manage_id
+    JOIN house_owner_room r ON r.room_id = h.manage_id 
+WHERE
+    xq.`status` = 0 
+    AND b.`status` = 0
+	and r.live_type ='1'	    
+		    <if test="params.xqCode!=null and params.xqCode!=''">
+            and xq.code =#{params.xqCode}
+            </if>
+           <!--  <if test="params.searchText!=null and params.searchText!=''">
+            and f.name  like '%${params.searchText}%'
+            </if> -->
+           
+    </select>
+    
+    <select id="totalGroupRows"  resultType="java.lang.Integer">
+ select count(*) from(
+    SELECT
+            h.manage_id manageId,(select count(*) from house_owner_room where room_id = r.room_id) personNum
+FROM
+    ht_xq_info xq
+    JOIN house_building b ON xq.CODE = b.xq_code
+    JOIN house_cell c ON c.building_id = b.manage_id
+    JOIN house_room h ON h.cell_id = c.manage_id
+    JOIN house_owner_room r ON r.room_id = h.manage_id
+    
+WHERE
+    xq.`status` = 0 
+    AND b.`status` = 0
+     and r.live_type ='1'
+     <if test="params.xqCode!=null and params.xqCode!=''">
+            and xq.code =#{params.xqCode}
+            </if>
+     <if test="params.roomProperty!=null and params.roomProperty!=''">
+            and h.purpose_name =#{params.roomProperty}
+            </if>
+     <if test="params.searchText!=null and params.searchText!=''">
+            and h.name like '%${params.searchText}%'
+            </if>
+            ) k
+            where 1=1 
+            <if test="params.associateNum!=null and params.associateNum!=''">
+            and personNum <![CDATA[ >= ]]> #{params.associateNum}
+            </if>
+    </select>
+    
+    <select id="totalDayRentalResearch"  resultType="java.lang.Integer">
+SELECT
+    count(*)
+FROM
+    ht_xq_info xq
+    JOIN house_building b ON xq.CODE = b.xq_code
+    JOIN house_cell c ON c.building_id = b.manage_id
+    JOIN house_room h ON h.cell_id = c.manage_id
+    JOIN house_owner_room r ON r.room_id = h.manage_id 
+    
+WHERE
+    xq.`status` = 0 
+    AND b.`status` = 0
+    and r.live_type ='1'
+            <if test="params.xqCode!=null and params.xqCode!=''">
+            and xq.code =#{params.xqCode}
+            </if>
+     <if test="params.roomProperty!=null and params.roomProperty!=''">
+            and h.purpose_name =#{params.roomProperty}
+            </if>
+     <if test="params.searchText!=null and params.searchText!=''">
+            and h.name like '%${params.searchText}%'
+            </if>
+           <!--  <if test="params.searchText!=null and params.searchText!=''">
+            and f.name  like '%${params.searchText}%'
+            </if> -->
+           
+    </select>
+    
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from face_person_attr
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+    <insert id="insert" parameterType="com.windaka.suizhi.webapi.model.FacePersonAttr">
+    insert into face_person_attr (id, capture_time, capture_device_id, 
+      capture_img, person_id, name, 
+      sex, type, age, 
+      country, bmask, eyeglass, 
+      hat, knapsack, handbag, coat_type, 
+      coat_color, trousers_type, trousers_color, 
+      similar, xq_code, manage_id
+      )
+    values (#{id,jdbcType=BIGINT}, #{captureTime,jdbcType=TIMESTAMP}, #{captureDeviceId,jdbcType=VARCHAR}, 
+      #{captureImg,jdbcType=VARCHAR}, #{personId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
+      #{sex,jdbcType=SMALLINT}, #{type,jdbcType=SMALLINT}, #{age,jdbcType=SMALLINT}, 
+      #{country,jdbcType=SMALLINT}, #{bmask,jdbcType=BIT}, #{eyeglass,jdbcType=BIT}, 
+      #{hat,jdbcType=BIT}, #{knapsack,jdbcType=BIT}, #{handbag,jdbcType=BIT}, #{coatType,jdbcType=INTEGER}, 
+      #{coatColor,jdbcType=INTEGER}, #{trousersType,jdbcType=INTEGER}, #{trousersColor,jdbcType=INTEGER}, 
+      #{similar,jdbcType=DOUBLE}, #{xqCode,jdbcType=VARCHAR}, #{manageId,jdbcType=VARCHAR}
+      )
+  </insert>
+    <insert id="insertSelective" parameterType="com.windaka.suizhi.webapi.model.FacePersonAttr">
+        insert into face_person_attr
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="captureTime != null">
+                capture_time,
+            </if>
+            <if test="captureDeviceId != null">
+                capture_device_id,
+            </if>
+            <if test="captureImg != null">
+                capture_img,
+            </if>
+            <if test="personId != null">
+                person_id,
+            </if>
+            <if test="name != null">
+                name,
+            </if>
+            <if test="sex != null">
+                sex,
+            </if>
+            <if test="type != null">
+                type,
+            </if>
+            <if test="age != null">
+                age,
+            </if>
+            <if test="country != null">
+                country,
+            </if>
+            <if test="bmask != null">
+                bmask,
+            </if>
+            <if test="eyeglass != null">
+                eyeglass,
+            </if>
+            <if test="hat != null">
+                hat,
+            </if>
+            <if test="knapsack != null">
+                knapsack,
+            </if>
+            <if test="handbag != null">
+                handbag,
+            </if>
+            <if test="coatType != null">
+                coat_type,
+            </if>
+            <if test="coatColor != null">
+                coat_color,
+            </if>
+            <if test="trousersType != null">
+                trousers_type,
+            </if>
+            <if test="trousersColor != null">
+                trousers_color,
+            </if>
+            <if test="similar != null">
+                similar,
+            </if>
+            <if test="xqCode != null">
+                xq_code,
+            </if>
+            <if test="manageId != null">
+                manage_id,
+            </if>
+            <if test="base64Img != null">
+                base64_img,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="captureTime != null">
+                #{captureTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="captureDeviceId != null">
+                #{captureDeviceId,jdbcType=VARCHAR},
+            </if>
+            <if test="captureImg != null">
+                #{captureImg,jdbcType=VARCHAR},
+            </if>
+            <if test="personId != null">
+                #{personId,jdbcType=VARCHAR},
+            </if>
+            <if test="name != null">
+                #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="sex != null">
+                #{sex,jdbcType=SMALLINT},
+            </if>
+            <if test="type != null">
+                #{type,jdbcType=SMALLINT},
+            </if>
+            <if test="age != null">
+                #{age,jdbcType=VARCHAR},
+            </if>
+            <if test="country != null">
+                #{country,jdbcType=SMALLINT},
+            </if>
+            <if test="bmask != null">
+                #{bmask,jdbcType=BIT},
+            </if>
+            <if test="eyeglass != null">
+                #{eyeglass,jdbcType=BIT},
+            </if>
+            <if test="hat != null">
+                #{hat,jdbcType=BIT},
+            </if>
+            <if test="knapsack != null">
+                #{knapsack,jdbcType=BIT},
+            </if>
+            <if test="handbag != null">
+                #{handbag,jdbcType=BIT},
+            </if>
+            <if test="coatType != null">
+                #{coatType,jdbcType=INTEGER},
+            </if>
+            <if test="coatColor != null">
+                #{coatColor,jdbcType=INTEGER},
+            </if>
+            <if test="trousersType != null">
+                #{trousersType,jdbcType=INTEGER},
+            </if>
+            <if test="trousersColor != null">
+                #{trousersColor,jdbcType=INTEGER},
+            </if>
+            <if test="similar != null">
+                #{similar,jdbcType=DOUBLE},
+            </if>
+            <if test="xqCode != null">
+                #{xqCode,jdbcType=VARCHAR},
+            </if>
+            <if test="manageId != null">
+                #{manageId,jdbcType=VARCHAR},
+            </if>
+            <if test="base64Img != null">
+                #{base64Img,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.windaka.suizhi.webapi.model.FacePersonAttr">
+        update face_person_attr
+        <set>
+            <if test="captureTime != null">
+                capture_time = #{captureTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="captureDeviceId != null">
+                capture_device_id = #{captureDeviceId,jdbcType=VARCHAR},
+            </if>
+            <if test="captureImg != null">
+                capture_img = #{captureImg,jdbcType=VARCHAR},
+            </if>
+            <if test="personId != null">
+                person_id = #{personId,jdbcType=VARCHAR},
+            </if>
+            <if test="name != null">
+                name = #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="sex != null">
+                sex = #{sex,jdbcType=SMALLINT},
+            </if>
+            <if test="type != null">
+                type = #{type,jdbcType=SMALLINT},
+            </if>
+            <if test="age != null">
+                age = #{age,jdbcType=SMALLINT},
+            </if>
+            <if test="country != null">
+                country = #{country,jdbcType=SMALLINT},
+            </if>
+            <if test="bmask != null">
+                bmask = #{bmask,jdbcType=BIT},
+            </if>
+            <if test="eyeglass != null">
+                eyeglass = #{eyeglass,jdbcType=BIT},
+            </if>
+            <if test="hat != null">
+                hat = #{hat,jdbcType=BIT},
+            </if>
+            <if test="knapsack != null">
+                knapsack = #{knapsack,jdbcType=BIT},
+            </if>
+            <if test="handbag != null">
+                handbag = #{handbag,jdbcType=BIT},
+            </if>
+            <if test="coatType != null">
+                coat_type = #{coatType,jdbcType=INTEGER},
+            </if>
+            <if test="coatColor != null">
+                coat_color = #{coatColor,jdbcType=INTEGER},
+            </if>
+            <if test="trousersType != null">
+                trousers_type = #{trousersType,jdbcType=INTEGER},
+            </if>
+            <if test="trousersColor != null">
+                trousers_color = #{trousersColor,jdbcType=INTEGER},
+            </if>
+            <if test="similar != null">
+                similar = #{similar,jdbcType=DOUBLE},
+            </if>
+            <if test="xqCode != null">
+                xq_code = #{xqCode,jdbcType=VARCHAR},
+            </if>
+            <if test="manageId != null">
+                manage_id = #{manageId,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.windaka.suizhi.webapi.model.FacePersonAttr">
+    update face_person_attr
+    set capture_time = #{captureTime,jdbcType=TIMESTAMP},
+      capture_device_id = #{captureDeviceId,jdbcType=VARCHAR},
+      capture_img = #{captureImg,jdbcType=VARCHAR},
+      person_id = #{personId,jdbcType=VARCHAR},
+      name = #{name,jdbcType=VARCHAR},
+      sex = #{sex,jdbcType=SMALLINT},
+      type = #{type,jdbcType=SMALLINT},
+      age = #{age,jdbcType=SMALLINT},
+      country = #{country,jdbcType=SMALLINT},
+      bmask = #{bmask,jdbcType=BIT},
+      eyeglass = #{eyeglass,jdbcType=BIT},
+      hat = #{hat,jdbcType=BIT},
+      knapsack = #{knapsack,jdbcType=BIT},
+      handbag = #{handbag,jdbcType=BIT},
+      coat_type = #{coatType,jdbcType=INTEGER},
+      coat_color = #{coatColor,jdbcType=INTEGER},
+      trousers_type = #{trousersType,jdbcType=INTEGER},
+      trousers_color = #{trousersColor,jdbcType=INTEGER},
+      similar = #{similar,jdbcType=DOUBLE},
+      xq_code = #{xqCode,jdbcType=VARCHAR},
+      manage_id = #{manageId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+    <!-- 获取最大主键 -->
+    <select id="getMaxId" resultType="int">
+    select MAX(id) from face_person_attr
+  </select>
+</mapper>

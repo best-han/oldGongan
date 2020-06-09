@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.windaka.suizhi.manageport.dao.TJPersonInfoDao">
+
+    <!--新增统计－人员信息-->
+    <insert id="save" parameterType="com.windaka.suizhi.manageport.model.TJPersonInfo">
+        INSERT INTO tj_person_info(xq_code,per_total_num,owner_num,family_member_num,tenement_num,newper_num,
+            cre_by,cre_time,upd_by,upd_time)
+        values (#{xq_code}, #{per_total_num}, #{owner_num}, #{family_member_num}, #{tenement_num}, #{newper_num}
+                   ,#{cre_by},#{cre_time},#{upd_by},#{upd_time})
+
+    </insert>
+
+    <!--根据小区Codde删除记录-->
+    <delete id="delete" parameterType="String">
+        delete from tj_person_info where xq_code = #{xqCode}
+    </delete>
+
+    <!--根据小区Code、物业Code，查询统计人员信息 p.xq_code as xqCode,wy.wy_code as wyCode-->
+    <select id="query" parameterType="Map" resultType="Map">
+        select sum(p.per_total_num) as perTotalNum,sum(p.owner_num) as ownerNum,sum(p.family_member_num) as familyMemberNum,sum(p.tenement_num) as tenementNum,sum(p.newper_num) as newperNum
+        from tj_person_info as p
+        inner join ht_xq_wy as xw on p.xq_code=xw.xq_code and xw.status=0
+        inner join ht_wy_info as wy on xw.wy_code=wy.wy_code
+        inner join ht_xq_info xq on p.xq_code=xq.code
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{params.areaId},'%')) area on area.area_id=xq.sso_regionalcode
+        where 1=1
+        <if test="params.xqCode != null and params.xqCode != ''">
+            and p.xq_code in (${params.xqCode})
+        </if>
+        <if test="params.wyCode != null and params.wyCode != ''">
+            and wy.wy_code in (${params.wyCode})
+        </if>
+    </select>
+
+    <select id="querySumFaceType" parameterType="Map" resultType="int">
+        select count(1) sum
+        from face_type_person a
+        inner join ht_xq_info xq on a.xq_code=xq.code
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{params.areaId},'%')) area on area.area_id=xq.sso_regionalcode
+        where 1=1
+        <if test="params.xqCode != null and params.xqCode != ''">
+            and a.xq_code in (${params.xqCode})
+        </if>
+    </select>
+    <select id="querySumByFaceType" parameterType="Map" resultType="int">
+        select count(1) num
+        from face_type_person a
+        inner join ht_xq_info xq on a.xq_code=xq.code
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{params.areaId},'%')) area on area.area_id=xq.sso_regionalcode
+        where 1=1
+        and a.face_type_code=${params.faceTypeCode}
+        <if test="params.xqCode != null and params.xqCode != ''">
+            and a.xq_code in (${params.xqCode})
+        </if>
+    </select>
+
+    <select id="querySumPserson" parameterType="Map" resultType="int">
+        select count(*) sum
+        from zs_person_info as p
+        inner join zs_person_xq as px on p.code=px.person_code
+        inner join ht_xq_wy as xw on px.xq_code=xw.xq_code and xw.status=0
+        inner join ht_wy_info as wy on xw.wy_code=wy.wy_code
+        inner join ht_xq_info xq on px.xq_code=xq.code
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{params.areaId},'%')) area on area.area_id=xq.sso_regionalcode
+        where 1=1
+        <if test="params.xqCode != null and params.xqCode != ''">
+            and px.xq_code in (${params.xqCode})
+        </if>
+        <if test="params.wyCode != null and params.wyCode != ''">
+            and wy.wy_code in (${params.wyCode})
+        </if>
+    </select>
+
+    <select id="queryManNum" parameterType="Map" resultType="int">
+        select count(*) sum
+        from zs_person_info as p
+        inner join zs_person_xq as px on p.code=px.person_code
+        inner join ht_xq_wy as xw on px.xq_code=xw.xq_code and xw.status=0
+        inner join ht_wy_info as wy on xw.wy_code=wy.wy_code
+        inner join ht_xq_info xq on px.xq_code=xq.code
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{params.areaId},'%')) area on area.area_id=xq.sso_regionalcode
+        where 1=1 and p.sex='1'
+        <if test="params.xqCode != null and params.xqCode != ''">
+            and px.xq_code in (${params.xqCode})
+        </if>
+        <if test="params.wyCode != null and params.wyCode != ''">
+            and wy.wy_code in (${params.wyCode})
+        </if>
+    </select>
+
+    <select id="queryWomanNum" parameterType="Map" resultType="int">
+        select count(*) sum
+        from zs_person_info as p
+        inner join zs_person_xq as px on p.code=px.person_code
+        inner join ht_xq_wy as xw on px.xq_code=xw.xq_code and xw.status=0
+        inner join ht_wy_info as wy on xw.wy_code=wy.wy_code
+        inner join ht_xq_info xq on px.xq_code=xq.code
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{params.areaId},'%')) area on area.area_id=xq.sso_regionalcode
+        where 1=1 and p.sex='2'
+        <if test="params.xqCode != null and params.xqCode != ''">
+            and px.xq_code in (${params.xqCode})
+        </if>
+        <if test="params.wyCode != null and params.wyCode != ''">
+            and wy.wy_code in (${params.wyCode})
+        </if>
+    </select>
+
+    <select id="queryMarryNum" parameterType="Map" resultType="int">
+        select count(*) sum
+        from zs_person_info as p
+        inner join zs_person_xq as px on p.code=px.person_code
+        inner join ht_xq_wy as xw on px.xq_code=xw.xq_code and xw.status=0
+        inner join ht_wy_info as wy on xw.wy_code=wy.wy_code
+        inner join ht_xq_info xq on px.xq_code=xq.code
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{params.areaId},'%')) area on area.area_id=xq.sso_regionalcode
+        where 1=1 and p.marriage_status in ('20','21','22','23','30')
+        <if test="params.xqCode != null and params.xqCode != ''">
+            and px.xq_code in (${params.xqCode})
+        </if>
+        <if test="params.wyCode != null and params.wyCode != ''">
+            and wy.wy_code in (${params.wyCode})
+        </if>
+    </select>
+
+    <select id="querySingleNum" parameterType="Map" resultType="int">
+        select count(*) sum
+        from zs_person_info as p
+        inner join zs_person_xq as px on p.code=px.person_code
+        inner join ht_xq_wy as xw on px.xq_code=xw.xq_code and xw.status=0
+        inner join ht_wy_info as wy on xw.wy_code=wy.wy_code
+        inner join ht_xq_info xq on px.xq_code=xq.code
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{params.areaId},'%')) area on area.area_id=xq.sso_regionalcode
+        where 1=1 and p.marriage_status in ('10','40')
+        <if test="params.xqCode != null and params.xqCode != ''">
+            and px.xq_code in (${params.xqCode})
+        </if>
+        <if test="params.wyCode != null and params.wyCode != ''">
+            and wy.wy_code in (${params.wyCode})
+        </if>
+    </select>
+
+    <select id="queryFaceRegisterNum" parameterType="Map" resultType="int">
+        select count(*) sum
+        from zs_person_info as p
+        inner join zs_person_xq as px on p.code=px.person_code
+        inner join ht_xq_wy as xw on px.xq_code=xw.xq_code and xw.status=0
+        inner join ht_wy_info as wy on xw.wy_code=wy.wy_code
+        inner join ht_xq_info xq on px.xq_code=xq.code
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{params.areaId},'%')) area on area.area_id=xq.sso_regionalcode
+        where 1=1 and p.extend_i2='1'
+        <if test="params.xqCode != null and params.xqCode != ''">
+            and px.xq_code in (${params.xqCode})
+        </if>
+        <if test="params.wyCode != null and params.wyCode != ''">
+            and wy.wy_code in (${params.wyCode})
+        </if>
+    </select>
+
+</mapper>

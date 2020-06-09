@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.windaka.suizhi.manageport.dao.HouseRoomDao">
+    <sql id="Base_Column_List" >
+    `cell_id` ,
+        `code` ,
+        `name` ,
+        `house_type_code` ,
+        `orientation_code` ,
+        `func` ,
+        `func_name` ,
+        `decoration_num` ,
+        `use_area` ,
+        `building_area` ,
+        `remark` ,
+        `attic_area` ,
+        `storage_area` ,
+        `floor_num` ,
+        `arrearage` ,
+        `property_type` ,
+        `rent` ,
+        `length` ,
+        `width` ,
+        `purpose` ,
+        `purpose_name` ,
+        `subordinate_cell` ,
+        `is_saled` ,
+        `is_rented` ,
+        `sale_contract_no` ,
+        `rent_contract_no` ,
+        `coefficient` ,
+        `status` ,
+        `create_by` ,
+        `create_date` ,
+        `update_by`,
+        `update_date` ,
+        `remarks` ,
+        `decoration_time` ,
+        `house_property_card_no` ,
+        `subscribe_no` ,
+        `is_pay_maintenance_fund`,
+        `pre_maintenance_fund`,
+        addr_code
+    </sql>
+    <insert id="saveHouseRooms" parameterType="map">
+        insert into house_room (xq_code,manage_id,
+        `cell_id` ,
+        `code` ,
+        `name` ,
+        `house_type_code` ,
+        `orientation_code` ,
+        `func` ,
+        `func_name` ,
+        `decoration_num` ,
+        `use_area` ,
+        `building_area` ,
+        `remark` ,
+        `attic_area` ,
+        `storage_area` ,
+        `floor_num` ,
+        `arrearage` ,
+        `property_type` ,
+        `rent` ,
+        `length` ,
+        `width` ,
+        `purpose` ,
+        `purpose_name` ,
+        `subordinate_cell` ,
+        `is_saled` ,
+        `is_rented` ,
+        `sale_contract_no` ,
+        `rent_contract_no` ,
+        `coefficient` ,
+        `status` ,
+        `create_by` ,
+        `create_date` ,
+        `update_by`,
+        `update_date` ,
+        `remarks` ,
+        `decoration_time` ,
+        `house_property_card_no` ,
+        `subscribe_no` ,
+        `is_pay_maintenance_fund`,
+        `pre_maintenance_fund`,
+        addr_code
+        )
+        values
+        <foreach collection="list" index="index" item="item" open="" close="" separator=",">
+            (#{xqCode},#{item.manageId},
+            #{item.cellId},#{item.code},#{item.name},#{item.houseTypeCode},#{item.orientationCode},
+            #{item.func},#{item.funcName},#{item.decorationNum},#{item.useArea},#{item.buildingArea},#{item.remark},
+            #{item.atticArea},#{item.storageArea},#{item.floorNum},#{item.arrearage},#{item.propertyType},
+            #{item.rent},#{item.length},#{item.width},#{item.purpose},#{item.purposeName},#{item.subordinateCell},
+            #{item.isSaled},#{item.isRented},#{item.saleContractNo},#{item.rentContractNo},#{item.coefficient},
+            #{item.status},#{item.createBy},#{item.createDate},#{item.updateBy},#{item.updateDate},
+            #{item.remarks},#{item.decorationTime},#{item.housePropertyCardNo},#{item.subscribeNo},#{item.isPayMaintenanceFund},
+            #{item.preMaintenanceFund},#{item.addrCode}
+            )
+        </foreach>
+    </insert>
+    <update id="updateHouseRoom" parameterType="map" >
+        update house_room set cell_id=#{cellId},code=#{code},name=#{name},house_type_code=#{houseTypeCode},
+        orientation_code=#{orientationCode},func=#{func},func_name=#{funcName},decoration_num=#{decorationNum},
+        use_area=#{useArea},building_area=#{buildingArea},remark=#{remark},attic_area=#{atticArea},storage_area=#{storageArea},
+        floor_num=#{floorNum},arrearage=#{arrearage},property_type=#{propertyType},rent=#{rent},length=#{length},
+        width=#{width},purpose=#{purpose},purpose_name=#{purposeName},subordinate_cell=#{subordinateCell},is_saled=#{isSaled},
+        is_rented=#{isRented},sale_contract_no=#{saleContractNo},rent_contract_no=#{rentContractNo},coefficient=#{coefficient},
+        status=#{status},decoration_time=#{decorationTime},house_property_card_no=#{housePropertyCardNo},subscribe_no=#{subscribeNo},
+        is_pay_maintenance_fund=#{isPayMaintenanceFund},pre_maintenance_fund=#{preMaintenanceFund},
+        create_date=#{createDate},create_by=#{createBy},update_by=#{updateBy},update_date=#{updateDate},remarks=#{remarks},addr_code=#{addrCode}
+        where xq_code=#{xqCode} and manage_id=#{manageId}
+    </update>
+    <delete id="deleteHouseRoom" parameterType="map">
+        delete from house_room where xq_code=#{xqCode} and manage_id=#{manageId}
+    </delete>
+
+    <insert id="saveHouseRoomRentRecord" parameterType="map">
+        insert into house_room_rent_record (xq_code,
+        `room_id` ,
+        `purpose` ,
+        `record_time`
+        )values(#{xqCode}, #{roomId},#{purpose},now())
+    </insert>
+    <select id="getRoomListPure" resultType="Map" parameterType="Map">
+        select
+        <include refid="Base_Column_List" />
+        from house_room
+        where 1=1
+        <if test="manageId != null and manageId != ''">
+            and manage_id =#{manageId}
+        </if>
+    </select>
+</mapper>

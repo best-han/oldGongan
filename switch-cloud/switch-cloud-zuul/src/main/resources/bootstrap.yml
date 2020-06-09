@@ -1,0 +1,94 @@
+spring:
+  application:
+    name: sjwl-zuul
+    #config:
+      #discovery:
+        #enabled: true
+        #serviceId: yshs-config
+      #profile: oss
+      #fail-fast: true
+  mvc:
+    servlet:
+      load-on-startup: 1
+  redis:
+    #host: 10.10.6.54
+    host: localhost
+    port: 6379
+    password: suizhi@123
+    timeout: 10s
+    lettuce:
+      pool:
+        min-idle: 0
+        max-idle: 8
+        max-active: 8
+        max-wait: -1ms
+  #zipkin:
+    #base-url: http://localhost:9411
+    #enabled: true
+    #sender:
+      #type: web
+logging:
+  level:
+    root: info
+    com.windaka.suizhi: debug
+  file: logs/${spring.application.name}.log
+zuul:
+  ignored-services: '*'
+  sensitiveHeaders:
+  routes:
+    sjwl-oauth:
+      path: /sjwl/oauth/**
+      serviceId: sjwl-oauth
+    sjwl-user:
+      path: /sjwl/user/**
+      serviceId: sjwl-user
+    sjwl-manageport:
+      path: /sjwl/manageport/**
+      serviceId: sjwl-manageport
+    sjwl-upcapture:
+      path: /sjwl/upcapture/**
+      serviceId: sjwl-upcapture
+    sjwl-webapi:
+      path: /sjwl/webapi/**
+      serviceId: sjwl-webapi
+  host:
+    connect-timeout-millis: 60000
+    socket-timeout-millis: 60000
+  add-proxy-headers: true
+  ribbon:
+    eager-load:
+      enabled: true
+ribbon:
+  ReadTimeout: 10000
+  ConnectTimeout: 20000
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 80000
+cron:
+  black-ip: 0 0/5 * * * ?
+
+server:
+  port: 9000
+eureka:
+  client:
+    serviceUrl:
+      #defaultZone: http://10.10.5.94:8761/eureka/   #测试
+      defaultZone: http://localhost:8761/eureka/
+    registry-fetch-interval-seconds: 5
+  instance:
+    lease-expiration-duration-in-seconds: 15
+    lease-renewal-interval-in-seconds: 5
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${server.port}
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always

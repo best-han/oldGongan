@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.windaka.suizhi.manageport.dao.FacePersonCaptureDao">
+    <resultMap id="BaseResultMap" type="com.windaka.suizhi.manageport.model.FacePersonAttr">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="capture_time" jdbcType="TIMESTAMP" property="captureTime"/>
+        <result column="capture_device_id" jdbcType="VARCHAR" property="captureDeviceId"/>
+        <result column="capture_img" jdbcType="VARCHAR" property="captureImg"/>
+        <result column="person_id" jdbcType="VARCHAR" property="personId"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+        <result column="sex" jdbcType="SMALLINT" property="sex"/>
+        <result column="type" jdbcType="SMALLINT" property="type"/>
+        <result column="age" jdbcType="SMALLINT" property="age"/>
+        <result column="country" jdbcType="SMALLINT" property="country"/>
+        <result column="bmask" jdbcType="BIT" property="bmask"/>
+        <result column="eyeglass" jdbcType="BIT" property="eyeglass"/>
+        <result column="hat" jdbcType="BIT" property="hat"/>
+        <result column="knapsack" jdbcType="BIT" property="knapsack"/>
+        <result column="handbag" jdbcType="BIT" property="handbag"/>
+        <result column="coat_type" jdbcType="INTEGER" property="coatType"/>
+        <result column="coat_color" jdbcType="INTEGER" property="coatColor"/>
+        <result column="trousers_type" jdbcType="INTEGER" property="trousersType"/>
+        <result column="trousers_color" jdbcType="INTEGER" property="trousersColor"/>
+        <result column="similar" jdbcType="DOUBLE" property="similar"/>
+        <result column="xq_code" jdbcType="VARCHAR" property="xqCode"/>
+        <result column="manage_id" jdbcType="VARCHAR" property="manageId"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, capture_time, capture_device_id, capture_img, person_id, name, sex, type, age, 
+    country, bmask, eyeglass, hat, knapsack, handbag, coat_type, coat_color, trousers_type, 
+    trousers_color, similar, xq_code, manage_id
+  </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from face_person_attr
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from face_person_attr
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+    <insert id="insert" parameterType="com.windaka.suizhi.manageport.model.FacePersonAttr">
+    insert into face_person_attr (id, capture_time, capture_device_id, 
+      capture_img, person_id, name, 
+      sex, type, age, 
+      country, bmask, eyeglass, 
+      hat, knapsack, handbag, coat_type, 
+      coat_color, trousers_type, trousers_color, 
+      similar, xq_code, manage_id
+      )
+    values (#{id,jdbcType=BIGINT}, #{captureTime,jdbcType=TIMESTAMP}, #{captureDeviceId,jdbcType=VARCHAR}, 
+      #{captureImg,jdbcType=VARCHAR}, #{personId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
+      #{sex,jdbcType=SMALLINT}, #{type,jdbcType=SMALLINT}, #{age,jdbcType=SMALLINT}, 
+      #{country,jdbcType=SMALLINT}, #{bmask,jdbcType=BIT}, #{eyeglass,jdbcType=BIT}, 
+      #{hat,jdbcType=BIT}, #{knapsack,jdbcType=BIT}, #{handbag,jdbcType=BIT}, #{coatType,jdbcType=INTEGER}, 
+      #{coatColor,jdbcType=INTEGER}, #{trousersType,jdbcType=INTEGER}, #{trousersColor,jdbcType=INTEGER}, 
+      #{similar,jdbcType=DOUBLE}, #{xqCode,jdbcType=VARCHAR}, #{manageId,jdbcType=VARCHAR}
+      )
+  </insert>
+    <insert id="insertSelective" parameterType="com.windaka.suizhi.manageport.model.FacePersonAttr">
+        insert into face_person_attr
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="captureTime != null">
+                capture_time,
+            </if>
+            <if test="captureDeviceId != null">
+                capture_device_id,
+            </if>
+            <if test="captureImg != null">
+                capture_img,
+            </if>
+            <if test="personId != null">
+                person_id,
+            </if>
+            <if test="name != null">
+                name,
+            </if>
+            <if test="sex != null">
+                sex,
+            </if>
+            <if test="type != null">
+                type,
+            </if>
+            <if test="age != null">
+                age,
+            </if>
+            <if test="country != null">
+                country,
+            </if>
+            <if test="bmask != null">
+                bmask,
+            </if>
+            <if test="eyeglass != null">
+                eyeglass,
+            </if>
+            <if test="hat != null">
+                hat,
+            </if>
+            <if test="knapsack != null">
+                knapsack,
+            </if>
+            <if test="handbag != null">
+                handbag,
+            </if>
+            <if test="coatType != null">
+                coat_type,
+            </if>
+            <if test="coatColor != null">
+                coat_color,
+            </if>
+            <if test="trousersType != null">
+                trousers_type,
+            </if>
+            <if test="trousersColor != null">
+                trousers_color,
+            </if>
+            <if test="similar != null">
+                similar,
+            </if>
+            <if test="xqCode != null">
+                xq_code,
+            </if>
+            <if test="manageId != null">
+                manage_id,
+            </if>
+            <if test="base64Img != null">
+                base64_img,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="captureTime != null">
+                #{captureTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="captureDeviceId != null">
+                #{captureDeviceId,jdbcType=VARCHAR},
+            </if>
+            <if test="captureImg != null">
+                #{captureImg,jdbcType=VARCHAR},
+            </if>
+            <if test="personId != null">
+                #{personId,jdbcType=VARCHAR},
+            </if>
+            <if test="name != null">
+                #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="sex != null">
+                #{sex,jdbcType=SMALLINT},
+            </if>
+            <if test="type != null">
+                #{type,jdbcType=SMALLINT},
+            </if>
+            <if test="age != null">
+                #{age,jdbcType=VARCHAR},
+            </if>
+            <if test="country != null">
+                #{country,jdbcType=SMALLINT},
+            </if>
+            <if test="bmask != null">
+                #{bmask,jdbcType=BIT},
+            </if>
+            <if test="eyeglass != null">
+                #{eyeglass,jdbcType=BIT},
+            </if>
+            <if test="hat != null">
+                #{hat,jdbcType=BIT},
+            </if>
+            <if test="knapsack != null">
+                #{knapsack,jdbcType=BIT},
+            </if>
+            <if test="handbag != null">
+                #{handbag,jdbcType=BIT},
+            </if>
+            <if test="coatType != null">
+                #{coatType,jdbcType=INTEGER},
+            </if>
+            <if test="coatColor != null">
+                #{coatColor,jdbcType=INTEGER},
+            </if>
+            <if test="trousersType != null">
+                #{trousersType,jdbcType=INTEGER},
+            </if>
+            <if test="trousersColor != null">
+                #{trousersColor,jdbcType=INTEGER},
+            </if>
+            <if test="similar != null">
+                #{similar,jdbcType=DOUBLE},
+            </if>
+            <if test="xqCode != null">
+                #{xqCode,jdbcType=VARCHAR},
+            </if>
+            <if test="manageId != null">
+                #{manageId,jdbcType=VARCHAR},
+            </if>
+            <if test="base64Img != null">
+                #{base64Img,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.windaka.suizhi.manageport.model.FacePersonAttr">
+        update face_person_attr
+        <set>
+            <if test="captureTime != null">
+                capture_time = #{captureTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="captureDeviceId != null">
+                capture_device_id = #{captureDeviceId,jdbcType=VARCHAR},
+            </if>
+            <if test="captureImg != null">
+                capture_img = #{captureImg,jdbcType=VARCHAR},
+            </if>
+            <if test="personId != null">
+                person_id = #{personId,jdbcType=VARCHAR},
+            </if>
+            <if test="name != null">
+                name = #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="sex != null">
+                sex = #{sex,jdbcType=SMALLINT},
+            </if>
+            <if test="type != null">
+                type = #{type,jdbcType=SMALLINT},
+            </if>
+            <if test="age != null">
+                age = #{age,jdbcType=SMALLINT},
+            </if>
+            <if test="country != null">
+                country = #{country,jdbcType=SMALLINT},
+            </if>
+            <if test="bmask != null">
+                bmask = #{bmask,jdbcType=BIT},
+            </if>
+            <if test="eyeglass != null">
+                eyeglass = #{eyeglass,jdbcType=BIT},
+            </if>
+            <if test="hat != null">
+                hat = #{hat,jdbcType=BIT},
+            </if>
+            <if test="knapsack != null">
+                knapsack = #{knapsack,jdbcType=BIT},
+            </if>
+            <if test="handbag != null">
+                handbag = #{handbag,jdbcType=BIT},
+            </if>
+            <if test="coatType != null">
+                coat_type = #{coatType,jdbcType=INTEGER},
+            </if>
+            <if test="coatColor != null">
+                coat_color = #{coatColor,jdbcType=INTEGER},
+            </if>
+            <if test="trousersType != null">
+                trousers_type = #{trousersType,jdbcType=INTEGER},
+            </if>
+            <if test="trousersColor != null">
+                trousers_color = #{trousersColor,jdbcType=INTEGER},
+            </if>
+            <if test="similar != null">
+                similar = #{similar,jdbcType=DOUBLE},
+            </if>
+            <if test="xqCode != null">
+                xq_code = #{xqCode,jdbcType=VARCHAR},
+            </if>
+            <if test="manageId != null">
+                manage_id = #{manageId,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.windaka.suizhi.manageport.model.FacePersonAttr">
+    update face_person_attr
+    set capture_time = #{captureTime,jdbcType=TIMESTAMP},
+      capture_device_id = #{captureDeviceId,jdbcType=VARCHAR},
+      capture_img = #{captureImg,jdbcType=VARCHAR},
+      person_id = #{personId,jdbcType=VARCHAR},
+      name = #{name,jdbcType=VARCHAR},
+      sex = #{sex,jdbcType=SMALLINT},
+      type = #{type,jdbcType=SMALLINT},
+      age = #{age,jdbcType=SMALLINT},
+      country = #{country,jdbcType=SMALLINT},
+      bmask = #{bmask,jdbcType=BIT},
+      eyeglass = #{eyeglass,jdbcType=BIT},
+      hat = #{hat,jdbcType=BIT},
+      knapsack = #{knapsack,jdbcType=BIT},
+      handbag = #{handbag,jdbcType=BIT},
+      coat_type = #{coatType,jdbcType=INTEGER},
+      coat_color = #{coatColor,jdbcType=INTEGER},
+      trousers_type = #{trousersType,jdbcType=INTEGER},
+      trousers_color = #{trousersColor,jdbcType=INTEGER},
+      similar = #{similar,jdbcType=DOUBLE},
+      xq_code = #{xqCode,jdbcType=VARCHAR},
+      manage_id = #{manageId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+    <!-- 获取最大主键 -->
+    <select id="getMaxId" resultType="int">
+    select MAX(id) from face_person_attr
+  </select>
+</mapper>

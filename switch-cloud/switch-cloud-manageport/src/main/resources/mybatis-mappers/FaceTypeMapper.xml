@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.windaka.suizhi.manageport.dao.FaceTypeDao">
+    <!--人脸类别维护-->
+    <insert id="saveFaceType" parameterType="map">
+        insert into face_type (face_type_code,type_name,status,create_by,create_date,update_by,update_date,manage_id)
+        values (#{faceTypeCode},#{typeName},#{status},#{createBy},#{createDate},#{updateBy},#{updateDate},#{manageId})
+    </insert>
+
+    <update id="updateFaceType" parameterType="map">
+        update face_type set face_type_code=#{faceTypeCode},type_name=#{typeName},status=#{status},update_by=#{updateBy},
+        update_date=#{updateDate} where manage_id=#{manageId}
+    </update>
+
+    <delete id="deleteFaceType" parameterType="Map">
+        delete from face_type where  face_type_code=#{faceTypeCode} and manage_id=#{manageId}
+    </delete>
+
+    <!--<select id="queryFaceTypes" resultType="Map">
+        select face_type_code faceTypeCode,type_name faceTypeName from face_type where `status`='0'
+    </select>-->
+
+    <select id="queryFaceTypes" resultType="Map">
+        select a.face_type_code faceTypeCode,a.type_name faceTypeName,count(b.person_id) personNum from face_type a
+        left join face_type_person b on b.face_type_code=a.face_type_code
+        where a.status='0'
+        group by a.face_type_code,a.type_name
+    </select>
+
+</mapper>

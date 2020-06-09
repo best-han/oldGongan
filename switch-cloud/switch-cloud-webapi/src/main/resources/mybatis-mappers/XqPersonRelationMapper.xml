@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.windaka.suizhi.webapi.dao.XqPersonRelationDao">
+    <!--插入小区人员关联-->
+    <insert id="saveXqPersonRelation" parameterType="String">
+    insert into zs_person_xq(xq_code,person_code) values (
+    #{xq_code},
+    #{person_code})
+    </insert>
+    <!--删除小区人员关联-->
+    <delete id="deleteXqPersonRelation" parameterType="String">
+        delete from zs_person_xq where person_code=#{personCode}
+    </delete>
+   <!--查询小区code通过personCode-->
+    <select id="queryXqCodeByPersonCode" parameterType="String" resultType="String">
+        select pq.xq_code
+                from zs_person_xq as pq
+        where pq.person_code = #{personCode}
+    </select>
+
+</mapper>

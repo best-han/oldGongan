@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.windaka.suizhi.manageport.dao.HyPersonDataDao">
+
+
+    <sql id="Base_Column_List" >
+        name,paper_type,paper_num,sex,birthday,nation,address,phone,
+        typename,addresscode,marriage,education,political,fulladdress,cre_time,upd_time
+    </sql>
+    <!--插入Hy人员-->
+    <insert id="saveHyPerson" parameterType="Map">
+        insert into hy_person_data (id,name,paper_type,paper_num,sex,birthday,nation,address,phone,
+        typename,addresscode,marriage,education,political,fulladdress,cre_time,upd_time) values (
+        #{id,jdbcType=VARCHAR},
+        #{name,jdbcType=VARCHAR},
+        #{paperType,jdbcType=VARCHAR},
+        #{paperNumber,jdbcType=VARCHAR},
+        #{sex,jdbcType=VARCHAR},
+        #{birthday,jdbcType=VARCHAR},
+        #{nation,jdbcType=VARCHAR},
+        #{address,jdbcType=VARCHAR},
+        #{phone,jdbcType=VARCHAR},
+        #{typeName,jdbcType=VARCHAR},
+        #{addressCode,jdbcType=VARCHAR},
+        #{marriage,jdbcType=VARCHAR},
+        #{education,jdbcType=VARCHAR},
+        #{political,jdbcType=VARCHAR},
+        #{fulladdress,jdbcType=VARCHAR},
+        now(),
+        now())
+    </insert>
+    <!--修改Hy人员信息-->
+    <update id="updateHyPerson" parameterType="Map">
+        update hy_person_data  SET name=#{name},paper_type=#{paperType},paper_num=#{paperNumber},sex=#{sex},birthday=#{birthday},nation=#{nation},address=#{address},phone=#{phone},
+        typename=#{typeName},marriage=#{marriage},education=#{education},political=#{political},fulladdress=#{fulladdress},upd_time=now()
+        where paper_num = #{paperNumber}
+    </update>
+    <!--删除Hy人员-->
+    <delete id="deleteHyPerson" parameterType="String">
+        delete from hy_person_data where paper_num = #{paper_num}
+    </delete>
+
+</mapper>

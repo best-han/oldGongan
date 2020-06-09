@@ -1,0 +1,86 @@
+spring:
+  servlet:
+    multipart:
+      max-file-size: 10MB
+  application:
+    name: sjwl-manageport
+  datasource:
+    #driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://10.10.6.54:3306/switch_cloud?useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true&useSSL=false&zeroDateTimeBehavior=convertToNull #备用
+    #url: jdbc:mysql://localhost:3306/switch_cloud?useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true&useSSL=false&zeroDateTimeBehavior=convertToNull   #正式
+    username: root
+    password: root
+    hikari:
+      minimum-idle: 10
+      maximum-pool-size: 60
+      idle-timeout: 30000
+      connection-timeout: 30000
+      connection-test-query: SELECT 1
+  rabbitmq:
+    host: 10.10.6.54  #测试
+    #host: localhost
+    port: 5672
+    username: admin
+    password: admin
+    virtual-host: /
+  redis:
+    host: 10.10.6.54  #测试
+    #host: localhost
+    port: 6379
+    password: suizhi@123
+    timeout: 10s
+    lettuce:
+      pool:
+        min-idle: 0
+        max-idle: 8
+        max-active: 8
+        max-wait: -1ms
+      #zipkin:
+      #base-url: http://localhost:9411
+      #enabled: true
+      #sender:
+      #type: web
+  ftp:
+    host: 218.58.65.21
+    port: 21
+    username: fhcpasqsj_hlw
+    password: pasq@ry
+    basePath: /
+    httpPath: http://218.58.65.21
+logging:
+  level:
+    root: info
+    com.windaka.suizhi: debug
+  file: logs/${spring.application.name}.log
+mybatis:
+  type-aliases-package: com.windaka.suizhi.manageport.model
+  mapper-locations: classpath:/mybatis-mappers/*
+  configuration:
+    mapUnderscoreToCamelCase: true
+security:
+  oauth2:
+    resource:
+      user-info-uri: http://10.10.6.54:9000/sjwl/oauth/user-me  #测试地址
+      #user-info-uri: http://localhost:9000/sjwl/oauth/user-me
+      prefer-token-info: false
+server:
+  port: 8099
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://10.10.6.54:8761/eureka/   #测试地址
+      #defaultZone: http://localhost:8761/eureka/
+    registry-fetch-interval-seconds: 5
+  instance:
+    lease-expiration-duration-in-seconds: 15
+    lease-renewal-interval-in-seconds: 5
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${random.int}
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always

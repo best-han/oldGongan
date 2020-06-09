@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.windaka.suizhi.mpi.dao.MsgSocketIdDao">
+
+
+    <select id="queryMsgSocketMaxId" parameterType="String" resultType="int">
+        select max_id maxId from msg_socket_id where record_name=#{recordName}
+    </select>
+
+    <update id="updateMsgSocketMaxId" parameterType="Map">
+        update msg_socket_id set max_id=#{maxId} where record_name=#{recordName}
+    </update>
+    
+    <update id="updateCarTaskData" >
+        update msg_socket_id set max_id=(select max(id) from car_access_record) where record_name='car_access_record'
+    </update>
+    
+    <update id="updatePersonTaskData">
+        update msg_socket_id set max_id=(select max(id) from face_person_attr) where record_name='person_in_out'
+    </update>
+    
+    <update id="updateMsgTaskData">
+        update msg_socket_id set max_id=(select max(id) from record_abnormal) where record_name='record_abnormal'
+    </update>
+
+</mapper>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.windaka.suizhi.manageport.dao.FaceTypePersonDao">
+    <!--人脸-人脸类别维护-->
+    <insert id="saveFaceTypePerson" parameterType="com.windaka.suizhi.manageport.model.FaceTypePerson">
+        insert into face_type_person (face_type_code,person_id,xq_code,create_by,create_date,update_by,update_date)
+        values (#{faceTypeCode},#{personId},#{xqCode},#{createBy},#{createDate},#{updateBy},#{updateDate})
+    </insert>
+
+    <delete id="delFaceTypePerson" parameterType="Map">
+        delete from face_type_person where xq_code=#{xqCode} and person_id in (
+        <foreach collection="personIds" index="index" item="personId" open="" close="" separator=",">
+            #{personId}
+        </foreach>
+        )
+    </delete>
+
+    <select id="queryFaceTypePerson" resultType="Map">
+        select a.face_type_code faceTypeCode,b.type_name faceTypeName,a.person_id personId,c.name personName from face_type_person a
+        inner join face_type b on b.face_type_code=a.face_type_code
+        inner join zs_person_info c on c.manage_id=a.person_id
+        where b.status='0'
+    </select>
+
+</mapper>

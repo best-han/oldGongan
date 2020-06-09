@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.windaka.suizhi.manageport.dao.HouseBuildingDao">
+    <insert id="saveHouseBuildings" parameterType="Map">
+        insert into house_building (xq_code,manage_id,community_id,code,name,building_func,use_area,build_area
+        ,construction_permit_num,presale_permit_num,completion_time,top_time,decoration,structure_category
+        ,damage_condition,remark,cell_count,building_type,clean_layer_num,mop_layer_num,gallery_passage_ground
+        ,elevator_car,access_door,elevator_door,well_door,electric_well_door,blind_window,fire_hydrant,tidy_mirror
+        ,cell_door,harden_ground,purification_green_space,no_purification_green_space,artificial_surface,is_use_elevator
+        ,is_need_second_hydropower,status,create_by,create_date,update_by,update_date,remarks,building_addr,building_num
+        ,each_floor_room,ground_floors,addr_code) values
+        <foreach collection="list" index="index" item="item" open="" close="" separator=",">
+            (#{xqCode},#{item.manageId},#{item.communityId},#{item.code},#{item.name},#{item.buildingFunc},#{item.useArea},#{item.buildArea}
+            ,#{item.constructionPermitNum},#{item.presalePermitNum},#{item.completionTime},#{item.topTime},#{item.decoration},#{item.structureCategory}
+            ,#{item.damageCondition},#{item.remark},#{item.cellCount},#{item.buildingType},#{item.cleanLayerNum},#{item.mopLayerNum},#{item.galleryPassageGround}
+            ,#{item.elevatorCar},#{item.accessDoor},#{item.elevatorDoor},#{item.wellDoor},#{item.electricWellDoor},#{item.blindWindow},#{item.fireHydrant},#{item.tidyMirror}
+            ,#{item.cellDoor},#{item.hardenGround},#{item.purificationGreenSpace},#{item.noPurificationGreenSpace},#{item.artificialSurface},#{item.isUseElevator}
+            ,#{item.isNeedSecondHydropower},#{item.status},#{item.createBy},#{item.createDate},#{item.updateBy},#{item.updateDate},#{item.remarks},#{item.buildingAddr},#{item.buildingNum}
+            ,#{item.eachFloorRoom},#{item.groundFloors},#{item.addrCode}
+            )
+        </foreach>
+    </insert>
+    <update id="updateHouseBuilding" parameterType="Map" >
+        update house_building set community_id=#{communityId},code=#{code},name=#{name},
+        building_func=#{buildingFunc},use_area=#{useArea},build_area=#{buildArea},construction_permit_num=#{constructionPermitNum},
+        presale_permit_num=#{presalePermitNum},completion_time=#{completionTime},top_time=#{topTime},decoration=#{decoration},
+        structure_category=#{structureCategory},damage_condition=#{damageCondition},remark=#{remark},cell_count=#{cellCount},
+        building_type=#{buildingType},clean_layer_num=#{cleanLayerNum},mop_layer_num=#{mopLayerNum},gallery_passage_ground=#{galleryPassageGround},
+        elevator_car=#{elevatorCar},access_door=#{accessDoor},elevator_door=#{elevatorDoor},well_door=#{wellDoor},
+        electric_well_door=#{electricWellDoor},blind_window=#{blindWindow},fire_hydrant=#{fireHydrant},tidy_mirror=#{tidyMirror},
+        cell_door=#{cellDoor},harden_ground=#{hardenGround},purification_green_space=#{purificationGreenSpace},no_purification_green_space=#{noPurificationGreenSpace},
+        artificial_surface=#{artificialSurface},is_use_elevator=#{isUseElevator},is_need_second_hydropower=#{isNeedSecondHydropower},status=#{status},
+        create_date=#{createDate},create_by=#{createBy},update_by=#{updateBy},update_date=#{updateDate},remarks=#{remarks},
+        building_addr=#{buildingAddr},building_num=#{buildingNum},each_floor_room=#{eachFloorRoom},ground_floors=#{groundFloors},addr_code=#{addrCode}
+        where xq_code=#{xqCode} and manage_id=#{manageId}
+    </update>
+    <delete id="deleteHouseBuilding" parameterType="Map">
+        delete from house_building where xq_code=#{xqCode} and manage_id=#{manageId}
+    </delete>
+</mapper>

@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.windaka.suizhi.webapi.dao.TJPayDao">
+
+    <!--新增统计－缴费信息-->
+    <insert id="save" parameterType="com.windaka.suizhi.webapi.model.TJPay">
+        INSERT INTO tj_pay(xq_code,`month`,pay_amount,finishing_rate,today_pay,current_month_pay,
+            cre_by,cre_time,upd_by,upd_time)
+        values (#{xq_code}, #{month}, #{pay_amount}, #{finishing_rate}, #{today_pay}, #{current_month_pay}
+                   ,#{cre_by},#{cre_time},#{upd_by},#{upd_time})
+
+    </insert>
+    <insert id="savePayment" parameterType="java.util.Map">
+        INSERT INTO tj_payment(xq_code,month,pay_month,payable_month,pay_day,oper_date,
+            cre_by,cre_time,upd_by,upd_time) values
+            <foreach collection="dataList" item="p" index="index" open="" close="" separator=",">
+                (#{xqCode}, #{p.month}, #{p.payMonth}, #{p.payableMonth}, #{p.payDay}, #{operDate}
+                ,#{creBy},#{creTime},#{updBy},#{updTime})
+            </foreach>
+    </insert>
+
+    <!--根据小区Code删除记录-->
+    <delete id="deletePaymentByXqCode" parameterType="String">
+        delete from tj_pay where xq_code = #{xqCode}
+    </delete>
+
+    <delete id="deletePayment" parameterType="java.util.Map">
+        delete from tj_payment where xq_code = #{xqCode} and DATE_FORMAT(cre_time,'%Y') =left(#{operDate},4)
+        and month in(
+        <foreach collection="dataList" item="p" index="index" open="" close="" separator=",">
+             #{p.month}
+        </foreach>
+        )
+    </delete>
+
+    <!--根据小区Code、物业Code，查询统计车辆信息 p.xq_code as xqCode,wy.wy_code as wyCode-->
+    <select id="query" parameterType="Map" resultType="Map">
+        select p.month as month,sum(p.pay_amount) as payAmout,sum(p.finishing_rate) as finishingRate,sum(p.today_pay) as todayPay,sum(p.current_month_pay) as currentMonthPay
+        from tj_pay as p
+        inner join ht_xq_wy as xw on p.xq_code=xw.xq_code and xw.status=0
+        inner join ht_wy_info as wy on xw.wy_code=wy.wy_code
+        inner join ht_xq_info xq on p.xq_code=xq.code
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{params.areaId},'%')) area on area.area_id=xq.sso_regionalcode
+        where 1=1
+        <if test="params.xqCode != null and params.xqCode != ''">
+            and p.xq_code in (${params.xqCode})
+        </if>
+        <if test="params.wyCode != null and params.wyCode != ''">
+            and wy.wy_code in (${params.wyCode})
+        </if>
+    </select>
+
+    <select id="queryTjPayList" parameterType="java.util.Map" resultType="java.util.Map">
+        select DISTINCT p.month,sum(p.pay_month) payMonth,sum(p.payable_month) payableMonth,sum(p.pay_day) payDay from tj_payment p
+        inner join ht_xq_wy as xw on p.xq_code=xw.xq_code and xw.status=0
+        inner join ht_wy_info as wy on xw.wy_code=wy.wy_code
+        inner join ht_xq_info xq on p.xq_code=xq.code
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on area.area_id=xq.sso_regionalcode
+        where DATE_FORMAT(oper_date,'%Y') =left(#{operDate},4)
+        <if test="xqCode != null and xqCode != ''">
+            and p.xq_code in (${xqCode})
+        </if>
+        <if test="wyCode != null and wyCode != ''">
+            and wy.wy_code in (${wyCode})
+        </if>
+        GROUP BY p.month
+    </select>
+    <select id="queryTjPaySumPayDay" parameterType="java.util.Map" resultType="double">
+        select sum(t.pay_day) from
+        (select DISTINCT p.xq_code ,p.pay_day from tj_payment p
+        inner join ht_xq_wy as xw on p.xq_code=xw.xq_code and xw.status=0
+        inner join ht_wy_info as wy on xw.wy_code=wy.wy_code
+        inner join ht_xq_info xq on p.xq_code=xq.code
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on area.area_id=xq.sso_regionalcode
+        where DATE_FORMAT(oper_date,'%Y') =left(#{operDate},4)
+        <if test="xqCode != null and xqCode != ''">
+            and p.xq_code in (${xqCode})
+        </if>
+        <if test="wyCode != null and wyCode != ''">
+            and wy.wy_code in (${wyCode})
+        </if>
+        GROUP BY p.xq_code,p.pay_day) t
+    </select>
+    <select id="queryTjPayOneMonth" parameterType="java.util.Map" resultType="java.util.Map">
+        select p.month,p.pay_month payMonth,p.payable_month payableMonth,p.pay_day payDay from tj_payment p
+        inner join ht_xq_wy as xw on p.xq_code=xw.xq_code and xw.status=0
+        inner join ht_wy_info as wy on xw.wy_code=wy.wy_code
+        inner join ht_xq_info xq on p.xq_code=xq.code
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on area.area_id=xq.sso_regionalcode
+        where DATE_FORMAT(oper_date,'%Y') =left(#{operDate},4) and month=#{month}
+        <if test="xqCode != null and xqCode != ''">
+            and p.xq_code in (${xqCode})
+        </if>
+        <if test="wyCode != null and wyCode != ''">
+            and wy.wy_code in (${wyCode})
+        </if>
+    </select>
+    <select id="queryTjPaySumMonth" parameterType="java.util.Map" resultType="java.util.Map">
+        select sum(p.pay_month) sumMonth from tj_payment p
+        inner join ht_xq_wy as xw on p.xq_code=xw.xq_code and xw.status=0
+        inner join ht_wy_info as wy on xw.wy_code=wy.wy_code
+        inner join ht_xq_info xq on p.xq_code=xq.code
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on area.area_id=xq.sso_regionalcode
+        where DATE_FORMAT(oper_date,'%Y') =left(#{operDate},4)
+        <if test="xqCode != null and xqCode != ''">
+            and p.xq_code in (${xqCode})
+        </if>
+        <if test="wyCode != null and wyCode != ''">
+            and wy.wy_code in (${wyCode})
+        </if>
+    </select>
+</mapper>

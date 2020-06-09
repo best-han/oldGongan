@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.windaka.suizhi.webapi.dao.OwnerRoomDao">
+
+    <select id="queryOwnerLiveTypeNum" parameterType="map" resultType="int">
+        select count(1) num from house_owner_room a
+        inner join ht_xq_info xq on xq.code=a.xq_code and xq.status='0'
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on area.area_id=xq.sso_regionalcode
+        where 1=1 and a.live_type in (${liveType})
+        <if test="xqCode != null and xqCode != ''">
+            and a.xq_code in (${xqCode})
+        </if>
+        <if test="residence != null and residence != ''">
+            and a.residence = #{residence}
+        </if>
+    </select>
+    <select id="queryRentOwnerNum" parameterType="map" resultType="int">
+        select count(1) num from house_owner_room a
+        inner join ht_xq_info xq on xq.code=a.xq_code and xq.status='0'
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on area.area_id=xq.sso_regionalcode
+        where 1=1 and a.live_type ='3' and a.update_date between #{startTime} and #{endTime}
+        <if test="xqCode != null and xqCode != ''">
+            and a.xq_code in (${xqCode})
+        </if>
+    </select>
+    <select id="queryPermanentOwnerNum" parameterType="map" resultType="int">
+        select count(1) num from house_owner_room a
+        inner join ht_xq_info xq on xq.code=a.xq_code and xq.status='0'
+        inner join (select area_id from ht_area where parent_ids like concat('%',#{areaId},'%')) area on area.area_id=xq.sso_regionalcode
+        where 1=1 and a.live_type !='3' and a.update_date between #{startTime} and #{endTime}
+        <if test="xqCode != null and xqCode != ''">
+            and a.xq_code in (${xqCode})
+        </if>
+    </select>
+
+</mapper>
